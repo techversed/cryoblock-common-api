@@ -33,8 +33,7 @@ class CarbonUser extends BaseUser
     protected $avatarAttachment;
 
     /**
-     * @ORM\Column(type="string", length=55)
-     * @Constraint\NotNull(message="First name is required")
+     * @ORM\Column(type="string", length=55, nullable=true)
      * @Carbon\Searchable(name="firstName")
      *
      * @var string the users first name
@@ -42,8 +41,7 @@ class CarbonUser extends BaseUser
     protected $firstName;
 
     /**
-     * @ORM\Column(type="string", length=55)
-     * @Constraint\NotNull(message="Last name is required")
+     * @ORM\Column(type="string", length=55, nullable=true)
      * @Carbon\Searchable(name="lastName")
      *
      * @var string the users last name
