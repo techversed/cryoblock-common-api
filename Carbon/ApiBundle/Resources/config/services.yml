@@ -1,0 +1,40 @@
+services:
+
+    carbon_api.grid:
+        class: Carbon\ApiBundle\Grid\CarbonGrid
+        arguments: [@request_stack, @carbon_api.annotation_reader, @doctrine.orm.default_entity_manager]
+
+    carbon_api.data_table_grid:
+        class: Carbon\ApiBundle\Grid\DataTableGrid
+        arguments: [@request_stack, @carbon_api.annotation_reader, @doctrine.orm.default_entity_manager]
+
+    carbon_api.serialization_helper:
+        class: Carbon\ApiBundle\Service\SerializationHelper
+        arguments: [@request_stack, '%carbon_api.jms_metadata_dir%']
+
+    carbon_api.annotation_reader:
+        class: Carbon\ApiBundle\Service\CarbonAnnotationReader
+
+    carbon_api.post_upload_listener:
+        class: Carbon\ApiBundle\Listener\PostUploadListener
+        arguments: ['@service_container']
+        tags:
+            - name: kernel.event_listener
+              event: oneup_uploader.post_persist
+              method: onPostUpload
+
+    carbon_api.upload_namer:
+        class: Carbon\ApiBundle\Service\UploadNamer
+        arguments: ['@logger']
+
+    carbon_api.api_response_listener:
+        class: Carbon\ApiBundle\Listener\ApiResponseListener
+        arguments: ['@logger']
+        tags:
+            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse}
+
+    carbon_api.class_metadata_listener:
+        class: Carbon\ApiBundle\Listener\ClassMetadataListener
+        arguments: ['@logger']
+        tags:
+            - { name: doctrine.event_listener, event: loadClassMetadata }

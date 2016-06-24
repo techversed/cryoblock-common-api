@@ -1,0 +1,32 @@
+## OneUp Uploader
+oneup_uploader:
+    resource: .
+    type: uploader
+
+## Upload
+carbon_api_upload_options:
+    path:     /_uploader/{name}/upload
+    defaults: { _controller: CarbonApiBundle:Upload:options }
+    methods:  [OPTIONS]
+
+## Authenticate
+carbon_api_authenticate_options:
+    path:     /authenticate
+    defaults: { _controller: CarbonApiBundle:Login:options }
+    methods:  [OPTIONS]
+
+carbon_api_authenticate_authenticate:
+    path:     /authenticate
+    defaults: { _controller: CarbonApiBundle:Login:authenticate }
+    methods:  [POST]
+
+## Download
+carbon_api_attachment_download_options:
+    path:     /attachment/{attachmentId}/download
+    defaults: { _controller: CarbonApiBundle:Download:options }
+    methods:  [OPTIONS]
+
+carbon_api_attachment_download:
+    path:     /attachment/{attachmentId}/download
+    defaults: { _controller: CarbonApiBundle:Download:download }
+    methods:  [GET]
