@@ -244,24 +244,11 @@ abstract class CarbonApiController extends Controller
     protected function getJsonResponse($data, $status = 200)
     {
         $request = $this->getRequest();
-        $sentHeaders = array_keys($request->headers->all());
-
-        if (!in_array('apikey', $sentHeaders)) {
-            $sentHeaders[] = 'apikey';
-        }
-
-        if (!in_array('Content-Type', $sentHeaders)) {
-            $sentHeaders[] = 'Content-Type';
-        }
-
-        if (!in_array('X-CARBON-SERIALIZATION-GROUPS', $sentHeaders)) {
-            $sentHeaders[] = 'X-CARBON-SERIALIZATION-GROUPS';
-        }
 
         return new Response($data, $status, array(
             'Content-Type' => 'application/json',
             'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => implode($sentHeaders, ','),
+            'Access-Control-Allow-Headers' => $request->headers->get('Access-Control-Request-Headers'),
             'Access-Control-Allow-Methods' => $request->headers->get('Access-Control-Request-Method'),
         ));
     }

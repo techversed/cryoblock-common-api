@@ -38,3 +38,9 @@ services:
         arguments: ['@logger']
         tags:
             - { name: doctrine.event_listener, event: loadClassMetadata }
+
+    carbon_api.validator.string_to_object_validator:
+        class: Carbon\ApiBundle\Validator\Constraints\StringToObjectValidator
+        arguments: [@doctrine.orm.default_entity_manager]
+        tags:
+            - { name: validator.constraint_validator, alias: string_to_object_validator }
