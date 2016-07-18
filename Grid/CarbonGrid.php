@@ -93,6 +93,13 @@ class CarbonGrid extends Grid
 
             }
 
+            if (array_key_exists('LIKE', $v)) {
+
+                $qb->andWhere(sprintf('%s.%s LIKE :%sLIKE', $alias, $k, $k))
+                    ->setParameter($k . 'LIKE', '%' . str_replace(' ', '%', $v['LIKE']) . '%')
+                ;
+
+            }
             // foreach ($v['in'] as $in) {
             //     var_dump($in);
             // }
