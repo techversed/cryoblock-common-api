@@ -44,3 +44,9 @@ services:
         arguments: [@doctrine.orm.default_entity_manager]
         tags:
             - { name: validator.constraint_validator, alias: string_to_object_validator }
+
+    carbon_api.form.type.mtm:
+        class: Carbon\ApiBundle\Form\Type\CryoblockMTMFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
+        tags:
+            - { name: form.type, alias: cryoblock_mtm }
