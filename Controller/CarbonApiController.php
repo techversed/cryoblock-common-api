@@ -2,6 +2,7 @@
 
 namespace Carbon\ApiBundle\Controller;
 
+use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +33,49 @@ abstract class CarbonApiController extends Controller
         );
 
         return $this->getJsonResponse($data);
+    }
+
+    /**
+     * Handle the HTTP GET for a many to many linker object resource
+     *
+     * @param  $type string
+     * @param  $id   int
+     *
+     * @return Symfony\Component\HttpFoundation\Response response with serialized objects
+     */
+    protected function handleMTMGet($type, $id)
+    {
+        if (!defined('static::RESOURCE_ENTITY')) {
+            throw new \LogicException('No resource entity is defined. Did you add the RESOURCE_ENTITY const to your resource controller?');
+        }
+
+        if (isset($this->resourceLinkMap) === FALSE) {
+            throw new \LogicException("Property resourceLinkMap must be defined for many to many get");
+        }
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        foreach ($this->resourceLinkMap as $linkType => $map) {
+
+            if ($linkType === $type) {
+
+                $qb->select(array('a'))
+                    ->from($map['returnedEntity'], 'a')
+                    ->innerJoin(static::RESOURCE_ENTITY, 'b', Join::WITH, sprintf('b.%s = a.id', $map['joinColumn']))
+                    ->where(sprintf('b.%s = :divisionId', $map['whereColumn']))
+                    ->setParameter('divisionId', $id)
+                ;
+
+                $results = $this->getGrid()->handleQueryFilters($qb, 'a', $map['returnedEntity']);
+
+            }
+
+        }
+
+        $serialized = $this->getSerializationHelper()->serialize($results);
+
+        return $this->getJsonResponse($serialized);
+
     }
 
     /**
