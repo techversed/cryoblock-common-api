@@ -6,6 +6,7 @@ use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Form\Form;
 
 /**
  * Abstract class to be extended by all api resources
@@ -62,8 +63,8 @@ abstract class CarbonApiController extends Controller
                 $qb->select(array('a'))
                     ->from($map['returnedEntity'], 'a')
                     ->innerJoin(static::RESOURCE_ENTITY, 'b', Join::WITH, sprintf('b.%s = a.id', $map['joinColumn']))
-                    ->where(sprintf('b.%s = :divisionId', $map['whereColumn']))
-                    ->setParameter('divisionId', $id)
+                    ->where(sprintf('b.%s = :whereId', $map['whereColumn']))
+                    ->setParameter('whereId', $id)
                 ;
 
                 $results = $this->getGrid()->handleQueryFilters($qb, 'a', $map['returnedEntity']);
@@ -97,22 +98,18 @@ abstract class CarbonApiController extends Controller
         $entityClass = $this->getEntityClass();
         $entity = new $entityClass();
 
-        $formBuilder = $this->createFormBuilder($entity, array(
-            'csrf_protection' => false,
-        ));
-
-        $columnNames = $this->getAnnotationReader()->getEntityColumnNames($entityClass);
-
-        foreach ($columnNames as $columnName) {
-            $formBuilder->add($columnName);
+        if (!defined('static::FORM_TYPE')) {
+            throw new \LogicException('No form type specified. Did you add the FORM_TYPE const to your resource controller?');
         }
 
-        $form = $formBuilder->getForm();
+        $form = $this->createForm(static::FORM_TYPE, $entity);
 
-        $form->bind(json_decode($request->getContent(), true));
+        $form->submit(json_decode($request->getContent(), true));
 
         if (!$form->isValid()) {
-            return new Response($form->getErrorsAsString(), 401);
+
+            return $this->getFormErrorResponse($form);
+
         }
 
         $this->getEntityManager()->persist($entity);
@@ -148,22 +145,17 @@ abstract class CarbonApiController extends Controller
 
         $entity = $gridResult['data'][0];
 
-        $formBuilder = $this->createFormBuilder($entity, array(
-            'csrf_protection' => false,
-        ));
-
-        $columnNames = $this->getAnnotationReader()->getEntityColumnNames($this->getEntityClass());
-
-        foreach ($columnNames as $columnName) {
-            $formBuilder->add($columnName);
+        if (!defined('static::FORM_TYPE')) {
+            throw new \LogicException('No form type specified. Did you add the FORM_TYPE const to your resource controller?');
         }
 
-        $form = $formBuilder->getForm();
-
-        $form->submit(json_decode($request->getContent(), true), false);
+        $form = $this->createForm(static::FORM_TYPE, $entity);
+        $form->submit(json_decode($request->getContent(), true));
 
         if (!$form->isValid()) {
-            return new Response($form->getErrorsAsString(), 401);
+
+            return $this->getFormErrorResponse($form);
+
         }
 
         $this->getEntityManager()->flush();
@@ -295,5 +287,25 @@ abstract class CarbonApiController extends Controller
             'Access-Control-Allow-Headers' => $request->headers->get('Access-Control-Request-Headers'),
             'Access-Control-Allow-Methods' => $request->headers->get('Access-Control-Request-Method'),
         ));
+    }
+
+    protected function getFormErrorResponse(Form $form)
+    {
+        $formErrors = $form->getErrors(true);
+        $errors = array();
+        foreach ($formErrors as $error) {
+
+            $name = $error->getOrigin()->getName();
+            $message = $error->getMessage();
+
+            if (!isset($errors[$name])) {
+                $errors[$name] = array();
+            }
+
+            $errors[$name][] = $message;
+
+        }
+
+        return $this->getJsonResponse($this->getSerializationHelper()->serialize($errors), 400);
     }
 }
