@@ -70,13 +70,28 @@ class CarbonGrid extends Grid
 
             if (array_key_exists('EQ', $v)) {
 
-                $qb->andWhere(sprintf('%s.%s = :%sEQ', $alias, $k, $k))
-                    ->setParameter($k . 'EQ', $v['EQ'], 'decimal')
-                ;
+                if (is_array($v['EQ'])) {
+
+                    $qb->andWhere($qb->expr()->in(
+                        $alias . '.' . $k,
+                        $v['EQ']
+                    ));
+
+                } else {
+
+                    $qb->andWhere(sprintf('%s.%s = :%sEQ', $alias, $k, $k))
+                        ->setParameter($k . 'EQ', $v['EQ'], 'decimal')
+                    ;
+
+                }
 
             }
 
             if (array_key_exists('IN', $v)) {
+
+                if (count($v['IN']) === 1) {
+                    $v['IN'] = explode(',', $v['IN'][0]);
+                }
 
                 $qb->andWhere($qb->expr()->in(
                     $alias . '.' . $k,
@@ -100,6 +115,35 @@ class CarbonGrid extends Grid
                 ;
 
             }
+
+            if (array_key_exists('NE', $v)) {
+
+                $qb
+                    ->andWhere($qb->expr()->notIn(
+                        $alias . '.' . $k,
+                        $v['NE']
+                    ))
+                ;
+
+            }
+
+            // if ($filteredValueMap = $this->getFilteredValueMap()) {
+
+            //     foreach ($filteredValueMap as $prop => $filteredValues) {
+
+            //         $param = sprintf('%s_not_in', $prop);
+
+            //         $qb
+            //             ->andWhere($qb->expr()->notIn(
+            //                 $alias . '.' . $prop,
+            //                 $filteredValues
+            //             ))
+            //         ;
+
+            //     }
+
+            // }
+
             // foreach ($v['in'] as $in) {
             //     var_dump($in);
             // }
@@ -126,23 +170,6 @@ class CarbonGrid extends Grid
             //     }
 
             // }
-
-        }
-
-        if ($filteredValueMap = $this->getFilteredValueMap()) {
-
-            foreach ($filteredValueMap as $prop => $filteredValues) {
-
-                $param = sprintf('%s_not_in', $prop);
-
-                $qb
-                    ->andWhere($qb->expr()->notIn(
-                        $alias . '.' . $prop,
-                        $filteredValues
-                    ))
-                ;
-
-            }
 
         }
 
