@@ -50,3 +50,9 @@ services:
         arguments: ["@doctrine.orm.default_entity_manager"]
         tags:
             - { name: form.type, alias: cryoblock_mtm }
+
+    carbon_api.form.type.comment:
+        class: Carbon\ApiBundle\Form\Type\CommentFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
+        tags:
+            - { name: form.type, alias: comment }

@@ -30,3 +30,7 @@ carbon_api_attachment_download:
     path:     /attachment/{attachmentId}/download
     defaults: { _controller: CarbonApiBundle:Download:download }
     methods:  [GET]
+
+carbon_api_controllers:
+    resource: "@CarbonApiBundle/Controller/"
+    type:     annotation
