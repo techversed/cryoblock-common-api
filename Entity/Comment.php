@@ -72,6 +72,13 @@ class Comment
     /**
      * @var string
      *
+     * @ORM\Column(name="html_content", type="text", nullable=true)
+     */
+    protected $htmlContent;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="object_type", type="string", length=300)
      * @JMS\Groups({"default"})
      * @Assert\NotBlank()
@@ -153,6 +160,16 @@ class Comment
         return $this->content;
     }
 
+    public function setHtmlContent($htmlContent)
+    {
+        $this->htmlContent = $htmlContent;
+    }
+
+    public function getHtmlContent()
+    {
+        return $this->htmlContent;
+    }
+
     public function setObjectType($objectType)
     {
         $this->objectType = $objectType;
@@ -202,5 +219,4 @@ class Comment
     {
         return $this->updateBy;
     }
-
 }

@@ -48,6 +48,16 @@ class CarbonUser extends BaseUser
      */
     protected $lastName;
 
+    /**
+     * @Carbon\Searchable(name="username")
+     */
+    protected $username;
+
+    /**
+     * @Carbon\Searchable(name="email")
+     */
+    protected $email;
+
     public function __construct()
     {
         parent::__construct();

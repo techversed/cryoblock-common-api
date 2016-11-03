@@ -30,7 +30,9 @@ class Group extends BaseGroup
      */
     public function getRoles()
     {
-        return $this->roles->toArray();
+        return $this->groupRoles->map(function ($groupRole) {
+            return $groupRole->getRole();
+        })->toArray();
     }
 
     /**

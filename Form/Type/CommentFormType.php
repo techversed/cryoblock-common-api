@@ -21,6 +21,7 @@ class CommentFormType extends CryoblockAbstractType
     {
         $builder
             ->add('content', 'text')
+            ->add('htmlContent', 'text')
             ->add('objectType', 'text')
             ->add('objectId', 'integer')
             ->add('parent', 'entity', array(

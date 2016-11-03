@@ -2,6 +2,7 @@
 
 namespace Carbon\ApiBundle\Entity;
 
+use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\Role\RoleInterface;
@@ -15,7 +16,7 @@ class Role implements RoleInterface
      * @ORM\Column(type="string", name="role", unique=true)
      * @Groups({"default"})
      */
-    private $role;
+    protected $role;
 
     /**
      * Populate the role field

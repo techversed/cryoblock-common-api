@@ -56,3 +56,27 @@ services:
         arguments: ["@doctrine.orm.default_entity_manager"]
         tags:
             - { name: form.type, alias: comment }
+
+    carbon_api.form.type.object_notification:
+        class: Carbon\ApiBundle\Form\Type\ObjectNotificationFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
+        tags:
+            - { name: form.type, alias: object_notification }
+
+    carbon_api.comment_listener:
+        class: Carbon\ApiBundle\Listener\CommentListener
+        arguments: ["@carbon_api.mailer", "@logger", "%frontend.url%"]
+        tags:
+            - { name: doctrine.event_listener, event: postPersist }
+
+    carbon_api.mailer:
+        class: Carbon\ApiBundle\Service\CryoblockMailer
+        arguments: ["@service_container"]
+
+    carbon_api.object_notification_listener:
+        class: Carbon\ApiBundle\Listener\ObjectNotificationListener
+        arguments: ["@carbon_api.mailer", "@logger", "%frontend.url%"]
+        tags:
+            - { name: doctrine.event_listener, event: postPersist }
+            - { name: doctrine.event_listener, event: postUpdate }
+            - { name: doctrine.event_listener, event: postRemove }
