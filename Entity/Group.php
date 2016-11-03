@@ -2,15 +2,75 @@
 
 namespace Carbon\ApiBundle\Entity;
 
-use FOS\UserBundle\Model\Group as BaseGroup;
+use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
+use FOS\UserBundle\Model\Group as BaseGroup;
+use JMS\Serializer\Annotation as JMS;
 
 /**
- * @ORM\MappedSuperclass
+ * @ORM\Entity
+ * @ORM\Table(name="carbon_group")
  */
 class Group extends BaseGroup
 {
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Groups({"default"})
+     */
+    protected $id;
+
+    /**
+     * @Carbon\Searchable(name="name")
+     * @JMS\Groups({"default"})
+     */
+    protected $name;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Carbon\ApiBundle\Entity\GroupRole", mappedBy="group")
+     */
+    protected $groupRoles;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Carbon\ApiBundle\Entity\UserGroup", mappedBy="group")
+     */
+    protected $groupUsers;
+
+    public $users;
+
+    public function __construct()
+    {
+        $this->groupRoles = new ArrayCollection();
+        $this->groupUsers = new ArrayCollection();
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     *
+     * @return [type] [description]
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getStringLabel()
+    {
+        return $this->getName();
+    }
+
+    public function getGroupUsers()
+    {
+        return $this->groupUsers;
+    }
+
     /**
      * Returns an ARRAY of Role objects with the default Role object appended.
      *

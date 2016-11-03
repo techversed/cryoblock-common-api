@@ -10,7 +10,7 @@ services:
 
     carbon_api.serialization_helper:
         class: Carbon\ApiBundle\Service\SerializationHelper
-        arguments: [@request_stack, '%carbon_api.jms_metadata_dir%']
+        arguments: ['@request_stack', '@file_locator']
 
     carbon_api.annotation_reader:
         class: Carbon\ApiBundle\Service\CarbonAnnotationReader
@@ -51,11 +51,22 @@ services:
         tags:
             - { name: form.type, alias: cryoblock_mtm }
 
+    carbon_api.form.type.user:
+        class: Carbon\ApiBundle\Form\Type\UserFormType
+        tags:
+            - { name: form.type, alias: user }
+
     carbon_api.form.type.comment:
         class: Carbon\ApiBundle\Form\Type\CommentFormType
         arguments: ["@doctrine.orm.default_entity_manager"]
         tags:
             - { name: form.type, alias: comment }
+
+    carbon_api.form.type.group:
+        class: Carbon\ApiBundle\Form\Type\GroupFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
+        tags:
+            - { name: form.type, alias: group }
 
     carbon_api.form.type.object_notification:
         class: Carbon\ApiBundle\Form\Type\ObjectNotificationFormType

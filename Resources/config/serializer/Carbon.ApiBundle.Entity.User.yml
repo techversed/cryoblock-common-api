@@ -1,0 +1,18 @@
+Carbon\ApiBundle\Entity\User:
+    exclusion_policy: ALL
+    properties:
+        avatarAttachment:
+          expose: true
+          groups: [default]
+        firstName:
+          expose: true
+          groups: [default]
+        lastName:
+          expose: true
+          groups: [default]
+    virtual_properties:
+        getFullName:
+            serialized_name: fullName
+            expose: true
+            type: string
+            groups: [default]

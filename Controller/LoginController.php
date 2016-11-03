@@ -56,7 +56,7 @@ class LoginController extends BaseController
         $um = $this->get('fos_user.user_manager');
         $user = $um->findUserByUsernameOrEmail($username);
 
-        if (!$user instanceof \Carbon\ApiBundle\Entity\CarbonUser) {
+        if (!$user instanceof \Carbon\ApiBundle\Entity\User) {
             throw new AccessDeniedHttpException("No matching user account found");
         }
 

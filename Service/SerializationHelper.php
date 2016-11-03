@@ -6,6 +6,7 @@ use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Config\FileLocator;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -35,9 +36,11 @@ class SerializationHelper
      *
      * @param RequestStack $requestStack
      */
-    public function __construct(RequestStack $requestStack, $metaDataDir)
+    public function __construct(RequestStack $requestStack, FileLocator $fileLocator)
     {
-        $this->serializer = $this->buildSerializer($metaDataDir);
+        $this->serializer = $this->buildSerializer(
+           $fileLocator->locate('@CarbonApiBundle/Resources/config/serializer')
+        );
         $this->request = $requestStack->getCurrentRequest();
     }
 

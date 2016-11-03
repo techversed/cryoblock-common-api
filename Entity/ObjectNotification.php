@@ -2,7 +2,6 @@
 
 namespace Carbon\ApiBundle\Entity;
 
-use AppBundle\Entity\Group as AppGroup;
 use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation AS JMS;
@@ -33,7 +32,7 @@ class ObjectNotification
     /**
      * @var Group $group
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Group")
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Group")
      * @ORM\JoinColumn(name="on_create_group_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
      */
@@ -42,7 +41,7 @@ class ObjectNotification
     /**
      * @var Group $group
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Group")
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Group")
      * @ORM\JoinColumn(name="on_update_group_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
      */
@@ -51,7 +50,7 @@ class ObjectNotification
     /**
      * @var Group $group
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Group")
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Group")
      * @ORM\JoinColumn(name="on_delete_group_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
      */

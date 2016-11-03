@@ -89,7 +89,7 @@ class Comment
      * @var User $createdBy
      *
      * @Gedmo\Blameable(on="create")
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
      * @ORM\JoinColumn(name="created_by_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
      */
@@ -203,7 +203,7 @@ class Comment
     /**
      * Get created by user
      *
-     * @return AppBundle\Entity\User
+     * @return Carbon\ApiBundle\Entity\User
      */
     public function getCreatedBy()
     {
@@ -213,7 +213,7 @@ class Comment
     /**
      * Get updated by user
      *
-     * @return AppBundle\Entity\User
+     * @return Carbon\ApiBundle\Entity\User
      */
     public function getUpdatedBy()
     {

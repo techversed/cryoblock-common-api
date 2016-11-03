@@ -4,17 +4,27 @@ namespace Carbon\ApiBundle\Entity;
 
 use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Security\Core\Role\RoleInterface;
 
 /**
- * @ORM\MappedSuperclass
+ * @ORM\Entity()
+ * @ORM\Table(name="role")
  */
 class Role implements RoleInterface
 {
     /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMS\Groups({"default"})
+     */
+    protected $id;
+
+    /**
      * @ORM\Column(type="string", name="role", unique=true)
-     * @Groups({"default"})
+     * @Carbon\Searchable(name="role")
+     * @JMS\Groups({"default"})
      */
     protected $role;
 
@@ -41,5 +51,14 @@ class Role implements RoleInterface
     public function getRole()
     {
         return $this->role;
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getStringLabel()
+    {
+        return $this->id . ': ' . $this->getRole();
     }
 }

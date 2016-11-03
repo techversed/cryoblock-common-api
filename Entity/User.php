@@ -6,12 +6,15 @@ use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
+use JMS\Serializer\Annotation as JMS;
 use Uecode\Bundle\ApiKeyBundle\Entity\ApiKeyUser as BaseUser;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints AS Constraint;
 
 /**
- * @MappedSuperclass
+ * @ORM\Entity()
+ * @ORM\Table(name="user")
+ * @JMS\ExclusionPolicy("all")
  * @UniqueEntity(
  *     fields={"email"},
  *     message="The email address provided is already associated with another account."
@@ -21,8 +24,21 @@ use Symfony\Component\Validator\Constraints AS Constraint;
  *     message="The username provided is already associated with another account."
  * )
  */
-class CarbonUser extends BaseUser
+class User extends BaseUser
 {
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     * @JMS\Expose()
+     * @JMS\Groups("default")
+     */
+    protected $id;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Carbon\ApiBundle\Entity\UserGroup", mappedBy="user")
+     */
+    protected $userGroups;
     /**
      * The profile photo/avatar attachment
      *
@@ -58,10 +74,47 @@ class CarbonUser extends BaseUser
      */
     protected $email;
 
+    protected $roles = array();
+
     public function __construct()
     {
         parent::__construct();
         $this->roles = array();
+        $this->userGroups = new ArrayCollection();
+    }
+
+    /**
+     * Returns the user roles
+     *
+     * @JMS\VirtualProperty()
+     * @JMS\Groups("default")
+     *
+     * @return array The roles
+     */
+    public function getRoles()
+    {
+        $roles = $this->roles;
+
+        foreach ($this->userGroups as $userGroup) {
+
+            if ($groupRoles = $userGroup->getGroup()->getRoles()) {
+
+                $roles = array_merge($roles, array_map(function ($role) {
+                    return $role->getRole();
+                }, $groupRoles));
+            }
+        }
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getStringLabel()
+    {
+        return $this->getFullName();
     }
 
     public function setAvatarAttachment(Attachment $avatarAttachment)
