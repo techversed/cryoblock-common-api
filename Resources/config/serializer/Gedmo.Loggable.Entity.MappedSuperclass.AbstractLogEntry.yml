@@ -1,0 +1,26 @@
+Gedmo\Loggable\Entity\MappedSuperclass\AbstractLogEntry:
+  properties:
+    id:
+      expose: true
+      groups: [default]
+    action:
+      expose: true
+      groups: [default]
+    loggedAt:
+      expose: true
+      groups: [default]
+    objectId:
+      expose: true
+      groups: [default]
+    objectClass:
+      expose: true
+      groups: [default]
+    version:
+      expose: true
+      groups: [default]
+    data:
+      expose: true
+      groups: [default]
+    username:
+      expose: true
+      groups: [default]

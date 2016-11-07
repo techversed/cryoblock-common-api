@@ -22,17 +22,17 @@ class ObjectNotificationFormType extends CryoblockAbstractType
         $builder
             ->add('objectType', 'text')
             ->add('onCreateGroup', 'entity', array(
-                'class' => 'AppBundle\\Entity\\Group',
+                'class' => 'Carbon\\ApiBundle\\Entity\\Group',
                 'property' => 'on_create_group_id',
                 'multiple' => false
             ))
             ->add('onUpdateGroup', 'entity', array(
-                'class' => 'AppBundle\\Entity\\Group',
+                'class' => 'Carbon\\ApiBundle\\Entity\\Group',
                 'property' => 'on_update_group_id',
                 'multiple' => false
             ))
             ->add('onDeleteGroup', 'entity', array(
-                'class' => 'AppBundle\\Entity\\Group',
+                'class' => 'Carbon\\ApiBundle\\Entity\\Group',
                 'property' => 'on_delete_group_id',
                 'multiple' => false
             ))
@@ -40,19 +40,19 @@ class ObjectNotificationFormType extends CryoblockAbstractType
 
         $builder->get('onCreateGroup')
             ->addViewTransformer(new CryoblockOTOTransformer(
-                $this->em, 'AppBundle\\Entity\\Group'
+                $this->em, 'Carbon\\ApiBundle\\Entity\\Group'
             ))
         ;
 
         $builder->get('onUpdateGroup')
             ->addViewTransformer(new CryoblockOTOTransformer(
-                $this->em, 'AppBundle\\Entity\\Group'
+                $this->em, 'Carbon\\ApiBundle\\Entity\\Group'
             ))
         ;
 
         $builder->get('onDeleteGroup')
             ->addViewTransformer(new CryoblockOTOTransformer(
-                $this->em, 'AppBundle\\Entity\\Group'
+                $this->em, 'Carbon\\ApiBundle\\Entity\\Group'
             ))
         ;
 
