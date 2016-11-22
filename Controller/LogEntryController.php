@@ -5,6 +5,7 @@ namespace Carbon\ApiBundle\Controller;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 class LogEntryController extends CarbonApiController
 {
@@ -27,10 +28,11 @@ class LogEntryController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP get request for the card entity
+     * Handles the HTTP GET request for the log entry entity
      *
      * @Route("/log-entry", name="log_entry_get")
      * @Method("GET")
+     * @Security("has_role('ROLE_USER')")
      *
      * @return Symfony\Component\HttpFoundation\Response
      */

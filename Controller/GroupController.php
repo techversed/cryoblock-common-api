@@ -5,6 +5,7 @@ namespace Carbon\ApiBundle\Controller;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -38,6 +39,7 @@ class GroupController extends CarbonApiController
     /**
      * @Route("/group", name="group_get")
      * @Method("GET")
+     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
@@ -47,10 +49,11 @@ class GroupController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP get request for the card entity
+     * Handles the HTTP POST request for the group entity
      *
      * @Route("/group", name="group_post")
      * @Method("POST")
+     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
@@ -60,11 +63,11 @@ class GroupController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP PUT request for the card entity
+     * Handles the HTTP PUT request for the group entity
      *
-     * @todo  figure out why PUT method has no request params
      * @Route("/group", name="group_put")
      * @Method("PUT")
+     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
@@ -74,10 +77,11 @@ class GroupController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP DELETE request for the card entity
+     * Handles the HTTP DELETE request for the group entity
      *
      * @Route("/group", name="group_delete")
      * @Method("DELETE")
+     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */

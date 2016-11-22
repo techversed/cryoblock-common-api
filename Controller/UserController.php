@@ -10,8 +10,10 @@ use FOS\UserBundle\Event\GetResponseUserEvent;
 use FOS\UserBundle\FOSUserEvents;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+
 
 class UserController extends CarbonApiController
 {
@@ -29,7 +31,7 @@ class UserController extends CarbonApiController
      * @Route("/user", name="user_options")
      * @Method("OPTIONS")
      *
-     * @return [type] [description]
+     * @return Response
      */
     public function optionsAction()
     {
@@ -43,8 +45,9 @@ class UserController extends CarbonApiController
     /**
      * @Route("/user", name="user_get")
      * @Method("GET")
+     * @Security("has_role('ROLE_USER')")
      *
-     * @return [type] [description]
+     * @return Response
      */
     public function getAction()
     {
@@ -54,10 +57,11 @@ class UserController extends CarbonApiController
     /**
      * Handles the HTTP PUT request for the user entity
      *
-     * @todo  figure out why PUT method has no request params
      * @Route("/user", name="user_post")
      * @Method("POST")
-     * @return [type] [description]
+     * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @return Response
      */
     public function handlePost()
     {
@@ -110,10 +114,11 @@ class UserController extends CarbonApiController
     /**
      * Handles the HTTP PUT request for the user entity
      *
-     * @todo  figure out why PUT method has no request params
      * @Route("/user", name="user_put")
      * @Method("PUT")
-     * @return [type] [description]
+     * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @return Response
      */
     public function handlePut()
     {
@@ -123,6 +128,7 @@ class UserController extends CarbonApiController
     /**
      * @Route("/user", name="user_delete")
      * @Method("DELETE")
+     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
@@ -150,6 +156,6 @@ class UserController extends CarbonApiController
         $user->setEnabled(false);
         $em->flush();
 
-        return $this->getJsonResponse(json_encode(array('success' => 'sucess')));
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 }

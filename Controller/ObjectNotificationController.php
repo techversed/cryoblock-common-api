@@ -5,6 +5,7 @@ namespace Carbon\ApiBundle\Controller;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NotFoundHttpException;
@@ -37,10 +38,11 @@ class ObjectNotificationController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP get request for the division entity
+     * Handles the HTTP GET request for the object notification entity
      *
      * @Route("/object-notification", name="object_notification_get")
      * @Method("GET")
+     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
@@ -50,10 +52,11 @@ class ObjectNotificationController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP get request for the card entity
+     * Handles the HTTP POST request for the object notification entity
      *
      * @Route("/object-notification", name="object_notification_post")
      * @Method("POST")
+     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
@@ -63,29 +66,16 @@ class ObjectNotificationController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP PUT request for the card entity
+     * Handles the HTTP PUT request for the object notification entity
      *
-     * @todo  figure out why PUT method has no request params
      * @Route("/object-notification", name="object_notification_put")
      * @Method("PUT")
+     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
     public function handlePut()
     {
         return parent::handlePut();
-    }
-
-    /**
-     * Handles the HTTP DELETE request for the card entity
-     *
-     * @Route("/object-notification", name="object_notification_delete")
-     * @Method("DELETE")
-     *
-     * @return Response
-     */
-    public function handleDelete()
-    {
-        return parent::handleDelete();
     }
 }

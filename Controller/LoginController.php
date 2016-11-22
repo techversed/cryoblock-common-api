@@ -69,8 +69,12 @@ class LoginController extends BaseController
         }
 
         $userData = $this->get('carbon_api.serialization_helper')
-            ->serialize($user, array('default', 'apikey'))
+            ->serialize($user, array('default'))
         ;
+
+        $userData = json_decode($userData, true);
+        $userData['apiKey'] = $user->getApiKey();
+        $userData = json_encode($userData);
 
         $response = new Response($userData);
         $response->headers->set('Content-Type', 'application/json');

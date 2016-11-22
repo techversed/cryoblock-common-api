@@ -5,6 +5,7 @@ namespace Carbon\ApiBundle\Controller;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserGroupController extends CarbonApiController
@@ -45,6 +46,7 @@ class UserGroupController extends CarbonApiController
     /**
      * @Route("/user-group/{type}/{id}", name="user_group_get")
      * @Method("GET")
+     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */

@@ -44,9 +44,9 @@ class SerializationHelper
         $this->request = $requestStack->getCurrentRequest();
     }
 
-    public function serialize($data, $groups = array())
+    public function serialize($data, $groups = array(), $type = 'json')
     {
-        return $this->serializer->serialize($data, 'json', $this->buildSerializationContext($groups));
+        return $this->serializer->serialize($data, $type, $this->buildSerializationContext($groups));
     }
 
     /**

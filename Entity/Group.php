@@ -4,6 +4,7 @@ namespace Carbon\ApiBundle\Entity;
 
 use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use FOS\UserBundle\Model\Group as BaseGroup;
 use JMS\Serializer\Annotation as JMS;
@@ -128,10 +129,16 @@ class Group extends BaseGroup
      */
     public function hasRole( $role )
     {
-        if ( $this->getRole( $role ) )
-        {
+        var_dump(123);
+        die;
+        if ($this->getRole('ROLE_ADMIN')) {
             return true;
         }
+
+        if ($this->getRole($role)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -184,7 +191,7 @@ class Group extends BaseGroup
      * Directly set the ArrayCollection of Roles. Type hinted as Collection which is the parent of (Array|Persistent)Collection.
      * @param Doctrine\Common\Collections\Collection $role
      */
-    public function setRolesCollection( Collection $collection )
+    public function setRolesCollection(Collection $collection )
     {
         $this->roles = $collection;
     }

@@ -5,6 +5,7 @@ namespace Carbon\ApiBundle\Controller;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 
 class GroupRoleController extends CarbonApiController
@@ -30,6 +31,7 @@ class GroupRoleController extends CarbonApiController
     /**
      * @Route("/group-role/{type}/{id}", name="group_role_options")
      * @Method("OPTIONS")
+     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
@@ -43,13 +45,16 @@ class GroupRoleController extends CarbonApiController
     }
 
     /**
+     * Handles the HTTP GET request for the group role entity
+     *
      * @Route("/group-role/{type}/{id}", name="group_role_get")
      * @Method("GET")
+     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
     public function getAction($type, $id)
     {
-        return parent::handleMTMGet($type, $id);
+        return $this->handleMTMGet($type, $id);
     }
 }

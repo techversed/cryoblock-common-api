@@ -60,7 +60,7 @@ class CommentListener
 
     private function getMentionedUserEmails(EntityManager $em, $userNames)
     {
-        $mentionedUsers = $em->getRepository('AppBundle:User')->findBy(array('username'=> $userNames));
+        $mentionedUsers = $em->getRepository('CarbonApiBundle:User')->findBy(array('username'=> $userNames));
 
         $userEmails = array();
         foreach ($mentionedUsers as $mentionedUser) {
