@@ -10,11 +10,13 @@ use JMS\Serializer\Annotation as JMS;
 use Uecode\Bundle\ApiKeyBundle\Entity\ApiKeyUser as BaseUser;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints AS Constraint;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity()
  * @ORM\Table(name="user")
  * @JMS\ExclusionPolicy("all")
+ * @Gedmo\Loggable
  * @UniqueEntity(
  *     fields={"email"},
  *     message="The email address provided is already associated with another account."
@@ -73,6 +75,24 @@ class User extends BaseUser
      * @Carbon\Searchable(name="email")
      */
     protected $email;
+
+    /**
+     * @var \DateTime $created
+     *
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime $updated
+     *
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    private $updatedAt;
 
     protected $roles = array();
 
