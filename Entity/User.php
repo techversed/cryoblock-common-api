@@ -206,4 +206,44 @@ class User extends BaseUser
     {
         return $this->firstName . ' ' . $this->lastName;
     }
+
+    /**
+     * Set the users created at
+     *
+     * @param string $createdAt
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    /**
+     * Get the users created at
+     *
+     * @return string
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Set the users last name
+     *
+     * @param string $updatedAt
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    /**
+     * Get the users last name
+     *
+     * @return string
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
 }
