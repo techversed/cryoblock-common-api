@@ -80,7 +80,7 @@ class User extends BaseUser
      * @var \DateTime $created
      *
      * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     * @ORM\Column(name="created_at", type="datetime")
      * @JMS\Groups({"default"})
      */
     private $createdAt;
@@ -89,7 +89,7 @@ class User extends BaseUser
      * @var \DateTime $updated
      *
      * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
+     * @ORM\Column(name="updated_at", type="datetime")
      * @JMS\Groups({"default"})
      */
     private $updatedAt;
