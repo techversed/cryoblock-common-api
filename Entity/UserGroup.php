@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * User Group
  *
  * @ORM\Entity()
- * @ORM\Table(name="user_group")
+ * @ORM\Table(name="cryoblock.user_group", schema="cryoblock")
  */
 class UserGroup
 {
@@ -24,7 +24,7 @@ class UserGroup
      *
      * @ORM\Id
      * @ORM\Column(name="id", type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @JMS\Groups({"default"})
      */
     private $id;

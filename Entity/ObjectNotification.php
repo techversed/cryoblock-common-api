@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
+ * @ORM\Table(name="cryoblock.object_notification", schema="cryoblock")
  */
 class ObjectNotification
 {

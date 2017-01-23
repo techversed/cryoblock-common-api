@@ -10,7 +10,10 @@ use Symfony\Component\Validator\Constraints AS Constraint;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="attachment")
+ * @ORM\Table(
+ *     schema="cryoblock",
+ *     name="cryoblock.attachment",
+ * )
  *
  * The entity model for an object attachment
  *
@@ -22,7 +25,7 @@ class Attachment
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @JMS\Groups({"default"})
      * @var int the attachment id
      */

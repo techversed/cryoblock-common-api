@@ -9,14 +9,14 @@ use Symfony\Component\Security\Core\Role\RoleInterface;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="role")
+ * @ORM\Table(name="cryoblock.role", schema="cryoblock")
  */
 class Role implements RoleInterface
 {
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @JMS\Groups({"default"})
      */
     protected $id;

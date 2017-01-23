@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="Carbon\ApiBundle\Entity\CommentRepository")
+ * @ORM\Table(name="cryoblock.comment", schema="cryoblock")
 
  * @Gedmo\Tree(type="materializedPath")
  * @Gedmo\Loggable

@@ -11,14 +11,14 @@ use JMS\Serializer\Annotation as JMS;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="carbon_group")
+ * @ORM\Table(name="cryoblock.carbon_group", schema="cryoblock")
  */
 class Group extends BaseGroup
 {
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy="SEQUENCE")
      * @JMS\Groups({"default"})
      */
     protected $id;

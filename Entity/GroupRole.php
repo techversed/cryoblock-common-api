@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Group Role
  *
  * @ORM\Entity()
- * @ORM\Table(name="group_role")
+ * @ORM\Table(name="cryoblock.group_role", schema="cryoblock")
  */
 class GroupRole
 {
@@ -24,7 +24,7 @@ class GroupRole
      *
      * @ORM\Id
      * @ORM\Column(name="id", type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @JMS\Groups({"default"})
      */
     private $id;

@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="user")
+ * @ORM\Table(name="cryoblock.user", schema="cryoblock")
  * @JMS\ExclusionPolicy("all")
  * @Gedmo\Loggable
  * @UniqueEntity(
@@ -31,7 +31,7 @@ class User extends BaseUser
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @JMS\Expose()
      * @JMS\Groups("default")
      */
