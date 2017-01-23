@@ -10,11 +10,13 @@ use JMS\Serializer\Annotation as JMS;
 use Uecode\Bundle\ApiKeyBundle\Entity\ApiKeyUser as BaseUser;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints AS Constraint;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity()
  * @ORM\Table(name="user")
  * @JMS\ExclusionPolicy("all")
+ * @Gedmo\Loggable
  * @UniqueEntity(
  *     fields={"email"},
  *     message="The email address provided is already associated with another account."
@@ -73,6 +75,24 @@ class User extends BaseUser
      * @Carbon\Searchable(name="email")
      */
     protected $email;
+
+    /**
+     * @var \DateTime $created
+     *
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="created_at", type="datetime")
+     * @JMS\Groups({"default"})
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime $updated
+     *
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(name="updated_at", type="datetime")
+     * @JMS\Groups({"default"})
+     */
+    private $updatedAt;
 
     protected $roles = array();
 
@@ -185,5 +205,45 @@ class User extends BaseUser
     public function getFullName()
     {
         return $this->firstName . ' ' . $this->lastName;
+    }
+
+    /**
+     * Set the users created at
+     *
+     * @param string $createdAt
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    /**
+     * Get the users created at
+     *
+     * @return string
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Set the users last name
+     *
+     * @param string $updatedAt
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    /**
+     * Get the users last name
+     *
+     * @return string
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
     }
 }
