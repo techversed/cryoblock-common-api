@@ -89,8 +89,8 @@ class CarbonGrid extends Grid
 
             if (array_key_exists('IN', $v)) {
 
-                if (count($v['IN']) === 1) {
-                    $v['IN'] = explode(',', $v['IN'][0]);
+                if (!is_array($v['IN'])) {
+                    $v['IN'] = explode(',', $v['IN']);
                 }
 
                 $qb->andWhere($qb->expr()->in(
@@ -110,7 +110,7 @@ class CarbonGrid extends Grid
 
             if (array_key_exists('LIKE', $v)) {
 
-                $qb->andWhere(sprintf('%s.%s LIKE :%sLIKE', $alias, $k, $k))
+                $qb->andWhere(sprintf('lower(%s.%s) LIKE lower(:%sLIKE)', $alias, $k, $k))
                     ->setParameter($k . 'LIKE', '%' . str_replace(' ', '%', $v['LIKE']) . '%')
                 ;
 
@@ -194,7 +194,7 @@ class CarbonGrid extends Grid
 
             foreach ($searchableColumns as $columnName) {
                 $paramName = 'LIKE_'.$columnName;
-                $searchExpressions[] = sprintf('%s.%s LIKE :%s', $alias, $columnName, $paramName);
+                $searchExpressions[] = sprintf('lower(%s.%s) LIKE lower(:%s)', $alias, $columnName, $paramName);
                 $qb->setParameter($paramName, $likeSearch);
             }
 
