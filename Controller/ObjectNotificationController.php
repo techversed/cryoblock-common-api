@@ -23,21 +23,6 @@ class ObjectNotificationController extends CarbonApiController
     const FORM_TYPE = "object_notification";
 
     /**
-     * @Route("/object-notification", name="object_notification_options")
-     * @Method("OPTIONS")
-     *
-     * @return Response
-     */
-    public function optionsAction()
-    {
-        $response = new Response();
-
-        $data = array('success' => 'success');
-
-        return $this->getJsonResponse(json_encode($data));
-    }
-
-    /**
      * Handles the HTTP GET request for the object notification entity
      *
      * @Route("/object-notification", name="object_notification_get")

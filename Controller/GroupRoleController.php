@@ -29,22 +29,6 @@ class GroupRoleController extends CarbonApiController
     );
 
     /**
-     * @Route("/group-role/{type}/{id}", name="group_role_options")
-     * @Method("OPTIONS")
-     * @Security("has_role('ROLE_USER')")
-     *
-     * @return Response
-     */
-    public function optionsAction()
-    {
-        $response = new Response();
-
-        $data = array('success' => 'success');
-
-        return $this->getJsonResponse(json_encode($data));
-    }
-
-    /**
      * Handles the HTTP GET request for the group role entity
      *
      * @Route("/group-role/{type}/{id}", name="group_role_get")

@@ -1,9 +1,13 @@
+framework:
+    translator: { fallback: en }
+
 imports:
     - { resource: doctrine_extensions.yml }
 
 parameters:
 
     carbon_api.upload_dir: "%kernel.root_dir%/../uploads"
+    frontend_password_reset_url: "%frontend.url%/user/password-reset/confirm"
 
 
 # Doctrine Configuration
@@ -37,10 +41,17 @@ doctrine:
             softdeleteable:
                 class: "Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter"
                 enabled: true
+
 fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
     user_class: "Carbon\\ApiBundle\\Entity\\User"
+    resetting:
+        email:
+            template: CarbonApiBundle:user:password_reset.html.twig
+            from_email:
+                address: crowelabutilities@gmail.com
+                sender_name: %app.name%
 
 uecode_api_key:
     delivery: header #or header

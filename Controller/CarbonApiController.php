@@ -283,9 +283,6 @@ abstract class CarbonApiController extends Controller
 
         return new Response($data, $status, array(
             'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Headers' => $request->headers->get('Access-Control-Request-Headers'),
-            'Access-Control-Allow-Methods' => $request->headers->get('Access-Control-Request-Method'),
         ));
     }
 

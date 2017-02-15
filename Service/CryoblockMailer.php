@@ -24,19 +24,25 @@ class CryoblockMailer
         $this->mailer = $container->get('mailer');
     }
 
-    public function send($subject, $template, $to, $params = array())
+    public function send($subject, $template, $to, $params = array(), $from = null)
     {
         $content = $this->getTemplatingEngine()->render($template, $params);
 
-        $from = $this->getLoggedInUser();
-        $fromEmail = $from->getEmail();
-        $fromName = '=?UTF-8?B?' . base64_encode($from->getFullName() . ' ' . '(' . $this->getAppName() . ')') . '?=';
+        $fromArray = [];
+        if (!$from) {
+
+            $from = $this->getLoggedInUser();
+            $fromEmail = $from->getEmail();
+            $fromName = '=?UTF-8?B?' . base64_encode($from->getFullName() . ' ' . '(' . $this->getAppName() . ')') . '?=';
+            $fromArray[$fromEmail] = $fromName;
+
+        } else {
+            $fromArray = $from;
+        }
 
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom(array(
-                $fromEmail => $fromName,
-            ))
+            ->setFrom($fromArray)
             ->setTo($to)
             ->setBody($content, 'text/html')
         ;

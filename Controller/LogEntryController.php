@@ -15,19 +15,6 @@ class LogEntryController extends CarbonApiController
     const RESOURCE_ENTITY = "Gedmo\Loggable\Entity\LogEntry";
 
     /**
-     * @Route("/log-entry", name="log_entry_options")
-     * @Method("OPTIONS")
-     *
-     * @return Symfony\Component\HttpFoundation\Response
-     */
-    public function optionsAction()
-    {
-        $data = array('success' => 'success');
-
-        return $this->getJsonResponse(json_encode($data));
-    }
-
-    /**
      * Handles the HTTP GET request for the log entry entity
      *
      * @Route("/log-entry", name="log_entry_get")

@@ -22,21 +22,6 @@ class CommentController extends CarbonApiController
     const FORM_TYPE = "comment";
 
     /**
-     * @Route("/comment", name="comment_options")
-     * @Method("OPTIONS")
-     *
-     * @return Response
-     */
-    public function optionsAction()
-    {
-        $response = new Response();
-
-        $data = array('success' => 'success');
-
-        return $this->getJsonResponse(json_encode($data));
-    }
-
-    /**
      * Handles the HTTP get request for the division entity
      *
      * @Route("/comment", name="comment_get")

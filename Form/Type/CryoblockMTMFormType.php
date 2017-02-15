@@ -85,11 +85,24 @@ class CryoblockMTMFormType extends AbstractType
 
             foreach ($addingIds as $addingId) {
 
-                $newLinkerObject = new $targetEntity();
+                $alreadyExists = $em->getRepository($targetEntity)->findOneBy(array(
+                    $childJoinColumn => $addingId,
+                    $parentJoinColumn => $parentId
+                ));
+
+                if ($alreadyExists) {
+                    continue;
+                }
 
                 $objRepo = $em->getRepository($childClass);
 
                 $childObj = $objRepo->find($addingId);
+
+                if (!$childObj) {
+                    continue;
+                }
+
+                $newLinkerObject = new $targetEntity();
 
                 $propertyAccessor->setValue($newLinkerObject, str_replace('Id', '', $childJoinColumn), $childObj);
                 $propertyAccessor->setValue($newLinkerObject, str_replace('Id', '', $parentJoinColumn), $parentObject);

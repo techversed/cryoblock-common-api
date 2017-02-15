@@ -22,21 +22,6 @@ class GroupController extends CarbonApiController
     const FORM_TYPE = "group";
 
     /**
-     * @Route("/group", name="group_options")
-     * @Method("OPTIONS")
-     *
-     * @return Response
-     */
-    public function optionsAction()
-    {
-        $response = new Response();
-
-        $data = array('success' => 'success');
-
-        return $this->getJsonResponse(json_encode($data));
-    }
-
-    /**
      * @Route("/group", name="group_get")
      * @Method("GET")
      * @Security("has_role('ROLE_USER')")

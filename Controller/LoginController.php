@@ -13,35 +13,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class LoginController extends BaseController
 {
-    public function optionsAction(Request $request)
-    {
-        $response = new Response();
-
-        $data = array(
-            'POST' => array(
-                'description' => 'Authenticate a user and return the user object including the users API key',
-                'parameters' => array(
-                    'username' => array(
-                        'type' => 'string',
-                        'description' => 'Users email address',
-                    ),
-                    'password' => array(
-                        'type' => 'string',
-                        'description' => 'Users password',
-                    )
-                )
-            )
-        );
-
-        $response->setContent(json_encode($data, true));
-
-        $response->headers->set('Content-Type', 'application/json');
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, apikey');
-
-        return $response;
-    }
-
     public function authenticateAction(Request $request)
     {
         $content = json_decode($request->getContent(), true);
@@ -78,8 +49,6 @@ class LoginController extends BaseController
 
         $response = new Response($userData);
         $response->headers->set('Content-Type', 'application/json');
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Headers', '*');
 
         return $response;
     }

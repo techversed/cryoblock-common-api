@@ -28,21 +28,6 @@ class UserController extends CarbonApiController
     const FORM_TYPE = "user";
 
     /**
-     * @Route("/user", name="user_options")
-     * @Method("OPTIONS")
-     *
-     * @return Response
-     */
-    public function optionsAction()
-    {
-        $response = new Response();
-
-        $data = array('success' => 'success');
-
-        return $this->getJsonResponse(json_encode($data));
-    }
-
-    /**
      * @Route("/user", name="user_get")
      * @Method("GET")
      * @Security("has_role('ROLE_USER')")
@@ -155,6 +140,57 @@ class UserController extends CarbonApiController
 
         $user->setEnabled(false);
         $em->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
+    }
+
+    /**
+     * @Route("/user/password-reset", name="user_password_reset")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function passwordResetAction(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'];
+
+        if (!$email) {
+            throw new \RuntimeException('No username specified.');
+        }
+
+        $user = $this->get('fos_user.user_manager')->findUserByUsernameOrEmail($email);
+
+        if (!$user) {
+            throw new \RuntimeException(sprintf('No user with email %s found.', $email));
+        }
+
+        if ($user->isPasswordRequestNonExpired($this->container->getParameter('fos_user.resetting.token_ttl'))) {
+            throw new \RuntimeException('Password reset already requested');
+        }
+
+        if (null === $user->getConfirmationToken()) {
+            /** @var $tokenGenerator \FOS\UserBundle\Util\TokenGeneratorInterface */
+            $tokenGenerator = $this->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+        }
+
+        $template = $this->getParameter('fos_user.resetting.email.template');
+        $url = $this->getParameter('frontend_password_reset_url') . '/' . $user->getConfirmationToken();
+        $from = $this->getParameter('fos_user.resetting.email.from_email');
+        $templating = $this->get('templating');
+
+        // $rendered = $templating->render($template, array(
+        //     'user' => $user,
+        //     'confirmationUrl' => $url
+        // ));
+
+        $subject = 'Password Reset';
+
+        $this->get('carbon_api.mailer')->send($subject, $template, $user->getEmail(), array(
+            'user' => $user,
+            'confirmationUrl' => $url,
+        ), $from);
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }

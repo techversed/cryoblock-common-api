@@ -17,21 +17,6 @@ class RoleController extends CarbonApiController
     const RESOURCE_ENTITY = "Carbon\ApiBundle\Entity\Role";
 
     /**
-     * @Route("/role", name="role_options")
-     * @Method("OPTIONS")
-     *
-     * @return Response
-     */
-    public function optionsAction()
-    {
-        $response = new Response();
-
-        $data = array('success' => 'success');
-
-        return $this->getJsonResponse(json_encode($data));
-    }
-
-    /**
      * @Route("/role", name="role_get")
      * @Method("GET")
      * @Security("has_role('ROLE_USER')")

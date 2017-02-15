@@ -7,21 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DownloadController extends Controller
 {
-    public function optionsAction()
-    {
-        $response = new Response();
-
-        $data = array('success' => 'success');
-
-        $response->setContent(json_encode($data, true));
-
-        $response->headers->set('Content-Type', 'application/json');
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Headers', 'apikey');
-
-        return $response;
-    }
-
     /**
      * Download an attachment
      *

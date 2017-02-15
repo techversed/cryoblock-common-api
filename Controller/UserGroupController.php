@@ -29,21 +29,6 @@ class UserGroupController extends CarbonApiController
     );
 
     /**
-     * @Route("/user-group/{type}/{id}", name="user_group_options")
-     * @Method("OPTIONS")
-     *
-     * @return Response
-     */
-    public function optionsAction()
-    {
-        $response = new Response();
-
-        $data = array('success' => 'success');
-
-        return $this->getJsonResponse(json_encode($data));
-    }
-
-    /**
      * @Route("/user-group/{type}/{id}", name="user_group_get")
      * @Method("GET")
      * @Security("has_role('ROLE_USER')")
