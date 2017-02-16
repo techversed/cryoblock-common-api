@@ -27,12 +27,6 @@ services:
         class: Carbon\ApiBundle\Service\UploadNamer
         arguments: ['@logger']
 
-    carbon_api.api_response_listener:
-        class: Carbon\ApiBundle\Listener\ApiResponseListener
-        arguments: ['@logger']
-        tags:
-            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse}
-
     carbon_api.class_metadata_listener:
         class: Carbon\ApiBundle\Listener\ClassMetadataListener
         arguments: ['@logger']
