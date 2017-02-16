@@ -200,6 +200,8 @@ class User extends BaseUser
     /**
      * Get the users full name
      *
+     * @JMS\VirtualProperty()
+     *
      * @return string
      */
     public function getFullName()
