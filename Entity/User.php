@@ -32,8 +32,6 @@ class User extends BaseUser
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @JMS\Expose()
-     * @JMS\Groups("default")
      */
     protected $id;
 
@@ -107,7 +105,6 @@ class User extends BaseUser
      * Returns the user roles
      *
      * @JMS\VirtualProperty()
-     * @JMS\Groups("default")
      *
      * @return array The roles
      */
@@ -199,8 +196,6 @@ class User extends BaseUser
 
     /**
      * Get the users full name
-     *
-     * @JMS\VirtualProperty()
      *
      * @return string
      */
