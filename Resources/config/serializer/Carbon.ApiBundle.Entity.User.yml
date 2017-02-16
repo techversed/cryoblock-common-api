@@ -1,6 +1,15 @@
 Carbon\ApiBundle\Entity\User:
     exclusion_policy: ALL
     properties:
+        id:
+          expose: true
+          groups: [default]
+        username:
+          expose: true
+          groups: [default]
+        email:
+          expose: true
+          groups: [default]
         avatarAttachment:
           expose: true
           groups: [default]
@@ -14,6 +23,12 @@ Carbon\ApiBundle\Entity\User:
           expose: true
           groups: [default]
         updatedAt:
+          expose: true
+          groups: [default]
+        last_login:
+          expose: true
+          groups: [default]
+        enabled:
           expose: true
           groups: [default]
     virtual_properties:
