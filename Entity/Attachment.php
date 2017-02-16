@@ -32,7 +32,7 @@ class Attachment
     protected $id;
 
     /**
-     * @ORM\Column(type="string", length=55)
+     * @ORM\Column(type="string", length=500)
      * @JMS\Groups({"default"})
      *
      * @var string the name of the original file
@@ -40,7 +40,7 @@ class Attachment
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=500)
      * @JMS\Groups({"default"})
      *
      * @var string path to the file for downloads
