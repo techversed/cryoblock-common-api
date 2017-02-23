@@ -39,6 +39,7 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="Carbon\ApiBundle\Entity\UserGroup", mappedBy="user")
      */
     protected $userGroups;
+
     /**
      * The profile photo/avatar attachment
      *
@@ -51,6 +52,7 @@ class User extends BaseUser
     /**
      * @ORM\Column(type="string", length=55, nullable=true)
      * @Carbon\Searchable(name="firstName")
+     * @Gedmo\Versioned
      *
      * @var string the users first name
      */
@@ -59,6 +61,7 @@ class User extends BaseUser
     /**
      * @ORM\Column(type="string", length=55, nullable=true)
      * @Carbon\Searchable(name="lastName")
+     * @Gedmo\Versioned
      *
      * @var string the users last name
      */
@@ -66,11 +69,13 @@ class User extends BaseUser
 
     /**
      * @Carbon\Searchable(name="username")
+     * @Gedmo\Versioned
      */
     protected $username;
 
     /**
      * @Carbon\Searchable(name="email")
+     * @Gedmo\Versioned
      */
     protected $email;
 
@@ -92,7 +97,14 @@ class User extends BaseUser
      */
     private $updatedAt;
 
+    /**
+     * @Gedmo\Versioned
+     */
+    protected $enabled;
+
     protected $roles = array();
+
+    public $groups;
 
     public function __construct()
     {
