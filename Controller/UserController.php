@@ -192,6 +192,39 @@ class UserController extends CarbonApiController
             'confirmationUrl' => $url,
         ), $from);
 
+        $this->getEntityManager()->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
+    }
+
+    /**
+     * @Route("/user/password-reset-confirm", name="user_password_reset_confirm")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function passwordResetConfirmAction(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $token = $data['token'];
+        $password = $data['password'];
+        $um = $this->get('fos_user.user_manager');
+
+        $user = $um->findUserByConfirmationToken($token);
+
+        if (!$user) {
+            throw new \RuntimeException(sprintf('No user found with confirmation token %s.', $token));
+        }
+
+        if (!$password || $password == '') {
+            throw new \RuntimeException('Password must not be empty');
+        }
+
+        $user->setPlainPassword($password);
+        $um->updatePassword($user);
+
+        $this->getEntityManager()->flush();
+
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 }

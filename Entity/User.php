@@ -102,6 +102,16 @@ class User extends BaseUser
     }
 
     /**
+     * Set id
+     *
+     * @param integer $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
      * Returns the user roles
      *
      * @JMS\VirtualProperty()

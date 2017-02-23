@@ -59,6 +59,15 @@ class Group extends BaseGroup
     }
 
     /**
+     * Set name
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
      * @JMS\VirtualProperty()
      * @JMS\Groups({"default"})
      */
@@ -129,8 +138,6 @@ class Group extends BaseGroup
      */
     public function hasRole( $role )
     {
-        var_dump(123);
-        die;
         if ($this->getRole('ROLE_ADMIN')) {
             return true;
         }
