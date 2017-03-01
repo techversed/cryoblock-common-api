@@ -38,7 +38,7 @@ class UserGroup
     private $userId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User", inversedBy="userGroups")
      * @ORM\JoinColumn(name="user_id", nullable=false)
      * @JMS\Groups({"default"})
      */
@@ -53,7 +53,7 @@ class UserGroup
     private $groupId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Group")
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Group", inversedBy="groupUsers")
      * @ORM\JoinColumn(name="group_id", nullable=false)
      * @JMS\Groups({"default"})
      */

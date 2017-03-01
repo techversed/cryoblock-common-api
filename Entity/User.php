@@ -39,6 +39,7 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="Carbon\ApiBundle\Entity\UserGroup", mappedBy="user")
      */
     protected $userGroups;
+
     /**
      * The profile photo/avatar attachment
      *

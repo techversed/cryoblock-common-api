@@ -38,7 +38,7 @@ class GroupRole
     private $groupId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Group")
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Group", inversedBy="groupRoles")
      * @ORM\JoinColumn(name="group_id", nullable=false)
      * @JMS\Groups({"default"})
      */
