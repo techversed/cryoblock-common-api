@@ -50,7 +50,7 @@ fos_user:
         email:
             template: CarbonApiBundle:user:password_reset.html.twig
             from_email:
-                address: crowelabutilities@gmail.com
+                address: %mailer_user%
                 sender_name: %app.name%
 
 uecode_api_key:
