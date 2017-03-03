@@ -8,10 +8,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use FOS\UserBundle\Model\Group as BaseGroup;
 use JMS\Serializer\Annotation as JMS;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="cryoblock.carbon_group", schema="cryoblock")
+ * @Gedmo\Loggable
  */
 class Group extends BaseGroup
 {
@@ -26,6 +28,7 @@ class Group extends BaseGroup
     /**
      * @Carbon\Searchable(name="name")
      * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
      */
     protected $name;
 
