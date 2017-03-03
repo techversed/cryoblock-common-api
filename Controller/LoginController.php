@@ -31,6 +31,10 @@ class LoginController extends BaseController
             throw new AccessDeniedHttpException("No matching user account found");
         }
 
+        if (!$user->isEnabled()) {
+            throw new AccessDeniedHttpException(sprintf("User %s is not enabled.", $user->getFullName()));
+        }
+
         $encoder_service = $this->get('security.encoder_factory');
         $encoder = $encoder_service->getEncoder($user);
         $encoded_pass = $encoder->encodePassword($password, $user->getSalt());
