@@ -85,3 +85,10 @@ services:
             - { name: doctrine.event_listener, event: postPersist }
             - { name: doctrine.event_listener, event: postUpdate }
             - { name: doctrine.event_listener, event: postRemove }
+
+    carbon_api.cryoblock_voter:
+        class: Carbon\ApiBundle\Voter\CommentVoter
+        tags:
+            - { name: security.voter }
+        # small performance boost
+        public: false
