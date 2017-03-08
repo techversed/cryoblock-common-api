@@ -227,4 +227,33 @@ class UserController extends CarbonApiController
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
+
+        /**
+     * @Route("/user/password/reset", name="user_password_change")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function passwordChangeAction(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $currentPassword = $data['currentPassword'];
+
+        $password = $data['password'];
+        $um = $this->get('fos_user.user_manager');
+
+        $user = $um->findUserByConfirmationToken($token);
+
+        if (!$password || $password == '') {
+            throw new \RuntimeException('Password must not be empty');
+        }
+
+        $user->setPlainPassword($password);
+        $um->updatePassword($user);
+
+        $this->getEntityManager()->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
+    }
 }
