@@ -228,9 +228,10 @@ class UserController extends CarbonApiController
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 
-        /**
+    /**
      * @Route("/user/password/reset", name="user_password_change")
      * @Method("POST")
+     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
