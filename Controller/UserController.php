@@ -241,12 +241,21 @@ class UserController extends CarbonApiController
         $currentPassword = $data['currentPassword'];
 
         $password = $data['password'];
+
         $um = $this->get('fos_user.user_manager');
 
-        $user = $um->findUserByConfirmationToken($token);
+        $user = $this->getUser();
 
         if (!$password || $password == '') {
             throw new \RuntimeException('Password must not be empty');
+        }
+
+        $encoder_service = $this->get('security.encoder_factory');
+        $encoder = $encoder_service->getEncoder($user);
+        $encoded_pass = $encoder->encodePassword($currentPassword, $user->getSalt());
+
+        if ($encoded_pass != $user->getPassword()) {
+            throw new AccessDeniedHttpException("Password does not match password on record");
         }
 
         $user->setPlainPassword($password);
