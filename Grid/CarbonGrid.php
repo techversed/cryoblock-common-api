@@ -127,6 +127,7 @@ class CarbonGrid extends Grid
 
             }
 
+
             // if ($filteredValueMap = $this->getFilteredValueMap()) {
 
             //     foreach ($filteredValueMap as $prop => $filteredValues) {
