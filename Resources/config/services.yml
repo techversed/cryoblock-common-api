@@ -10,7 +10,7 @@ services:
 
     carbon_api.serialization_helper:
         class: Carbon\ApiBundle\Service\SerializationHelper
-        arguments: ['@request_stack', '@file_locator']
+        arguments: ['@jms_serializer', '@request_stack']
 
     carbon_api.annotation_reader:
         class: Carbon\ApiBundle\Service\CarbonAnnotationReader

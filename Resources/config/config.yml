@@ -8,6 +8,7 @@ parameters:
 
     carbon_api.upload_dir: "%kernel.root_dir%/../uploads"
     frontend_password_reset_url: "%frontend.url%/user/password-reset/confirm"
+    jms_serializer.serialized_name_annotation_strategy.class: JMS\Serializer\Naming\IdenticalPropertyNamingStrategy
 
 
 # Doctrine Configuration
@@ -69,3 +70,15 @@ oneup_uploader:
                 directory:            %carbon_api.upload_dir%/profile
                 stream_wrapper:       ~
                 sync_buffer_size:     100K
+
+jms_serializer:
+
+     metadata:
+
+        debug: "%kernel.debug%"
+
+        auto_detection: false
+
+        directories:
+            test:
+                path: "@CarbonApiBundle/Resources/config/serializer"
