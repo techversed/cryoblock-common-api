@@ -37,6 +37,11 @@ Carbon\ApiBundle\Entity\User:
             expose: true
             type: string
             groups: [default]
+        getStringLabel:
+            serialized_name: stringLabel
+            expose: true
+            type: string
+            groups: [default]
         getRoles:
             serialized_name: fullName
             expose: true

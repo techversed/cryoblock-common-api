@@ -20,6 +20,11 @@ class StringToObjectValidator extends ConstraintValidator
 
     public function validate($value, Constraint $constraint)
     {
+
+        if (!$value) {
+            return;
+        }
+
         $results = $this->em->getRepository($constraint->entity)->findBy(array(
             $constraint->property => $value
         ));

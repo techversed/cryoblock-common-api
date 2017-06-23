@@ -21,6 +21,16 @@ class CommentController extends CarbonApiController
      */
     const FORM_TYPE = "comment";
 
+    protected $resourceSecurity = array(
+        'put' => array(
+            'user' => array('createdBy'),
+        ),
+        'delete' => array(
+            'user' => array('createdBy'),
+            'roles' => array('ROLE_ADMIN')
+        )
+    );
+
     /**
      * Handles the HTTP get request for the division entity
      *

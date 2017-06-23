@@ -36,31 +36,15 @@ class SerializationHelper
      *
      * @param RequestStack $requestStack
      */
-    public function __construct(RequestStack $requestStack, FileLocator $fileLocator)
+    public function __construct(Serializer $serializer, RequestStack $requestStack)
     {
-        $this->serializer = $this->buildSerializer(
-           $fileLocator->locate('@CarbonApiBundle/Resources/config/serializer')
-        );
+        $this->serializer = $serializer;
         $this->request = $requestStack->getCurrentRequest();
     }
 
     public function serialize($data, $groups = array(), $type = 'json')
     {
         return $this->serializer->serialize($data, $type, $this->buildSerializationContext($groups));
-    }
-
-    /**
-     * Customize the build of JMS serializer
-     *
-     * @return JMS\Serializer\Serializer
-     */
-    public function buildSerializer($metaDataDir)
-    {
-        return SerializerBuilder::create()
-            ->setPropertyNamingStrategy(new IdenticalPropertyNamingStrategy())
-            ->addMetadataDir($metaDataDir)
-            ->build()
-        ;
     }
 
     /**

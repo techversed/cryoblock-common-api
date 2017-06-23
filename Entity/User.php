@@ -15,7 +15,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Entity()
  * @ORM\Table(name="cryoblock.user", schema="cryoblock")
- * @JMS\ExclusionPolicy("all")
  * @Gedmo\Loggable
  * @UniqueEntity(
  *     fields={"email"},

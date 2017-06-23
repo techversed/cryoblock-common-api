@@ -14,7 +14,7 @@ use Symfony\Component\Form\Form;
  * @author Andre Jon Branchizio <andrejbranch@gmail.com>
  * @version 1.01
  */
-abstract class CarbonApiController extends Controller
+abstract class DocumentApiController  extends Controller
 {
     /**
      * Handles the HTTP GET for any resource/entity
@@ -23,14 +23,12 @@ abstract class CarbonApiController extends Controller
      */
     protected function handleGet()
     {
-        $entityRepository = $this->getEntityRepository();
+        $documentReposistory = $this->getDocumentRepository();
 
         $request = $this->getRequest();
 
-        $isDataTableRequest = $this->isDataTableRequest($request);
-
         $data = $this->getSerializationHelper()->serialize(
-            $this->getGrid($isDataTableRequest)->getResult($this->getEntityRepository())
+            $this->getGrid()->getResult($this->getDocumentRepository())
         );
 
         return $this->getJsonResponse($data);
@@ -209,13 +207,13 @@ abstract class CarbonApiController extends Controller
     }
 
     /**
-     * Get the doctrine entity manager
+     * Get the doctrine document manager
      *
-     * @return Doctrine\ORM\EntityManager
+     * @return DDoctrine\ODM\MongoDB\DocumentManager
      */
-    protected function getEntityManager()
+    protected function getDocumentManager()
     {
-        return $this->get('doctrine.orm.default_entity_manager');
+        return $this->get('doctrine_mongodb.odm.default_document_manager');
     }
 
     /**
@@ -224,13 +222,13 @@ abstract class CarbonApiController extends Controller
      * @throws \LogicException
      * @return string
      */
-    protected function getEntityClass()
+    protected function getDocumentClass()
     {
-        if (!defined('static::RESOURCE_ENTITY')) {
-            throw new \LogicException('No resource entity is defined. Did you add the RESOURCE_ENTITY const to your resource controller?');
+        if (!defined('static::RESOURCE_DOCUMENT')) {
+            throw new \LogicException('No resource entity is defined. Did you add the RESOURCE_DOCUMENT const to your resource controller?');
         }
 
-        return static::RESOURCE_ENTITY;
+        return static::RESOURCE_DOCUMENT;
     }
 
     /**
@@ -238,9 +236,9 @@ abstract class CarbonApiController extends Controller
      *
      * @return Doctrine\ORM\EntityRepository
      */
-    protected function getEntityRepository()
+    protected function getDocumentRepository()
     {
-        return $this->getEntityManager()->getRepository($this->getEntityClass());
+        return $this->getDocumentManager()->getRepository($this->getDocumentClass());
     }
 
     /**

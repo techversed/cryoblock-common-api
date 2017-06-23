@@ -56,6 +56,11 @@ abstract class Grid implements GridInterface
 
     const QUERY_NOT = "cNot";
 
+    /**
+     * @var bool Flag for many to many
+     */
+    const QUERY_SELECTABLE = "cSelectable";
+
     // const QUERY_OPERATORS = array(
     //     'EQ' => '=',
     //     'LTE' => '<=',
@@ -80,6 +85,7 @@ abstract class Grid implements GridInterface
         self::QUERY_ORDER_BY_DIRECTION,
         self::QUERY_SHOW_DELETED,
         self::QUERY_NOT,
+        self::QUERY_SELECTABLE,
     );
 
     /**
