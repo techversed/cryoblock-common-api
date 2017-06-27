@@ -10,7 +10,7 @@ FOS\UserBundle\Model\User:
     email:
       expose: true
       groups: [default]
-    last_login:
+    lastLogin:
       expose: true
       groups: [default]
     enabled:
