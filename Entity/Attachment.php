@@ -43,6 +43,7 @@ class Attachment
      * @var string $objectId
      *
      * @ORM\Column(name="object_id", length=64, nullable=true)
+     * @JMS\Groups({"default"})
      */
     protected $objectId;
 
@@ -50,6 +51,7 @@ class Attachment
      * @var string $objectClass
      *
      * @ORM\Column(name="object_class", type="string", length=500, nullable=true)
+     * @JMS\Groups({"default"})
      */
     protected $objectClass;
 
