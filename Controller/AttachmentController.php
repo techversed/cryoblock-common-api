@@ -39,6 +39,24 @@ class AttachmentController extends CarbonApiController
      */
     public function handleDelete()
     {
-        return parent::handleDelete();
+        $gridResult = $this->getGrid()->getResult($this->getEntityRepository());
+
+        if (($foundResultsCount = count($gridResult['data'])) > 1 || $foundResultsCount === 0) {
+            return new Response(sprintf(
+                'Delete method expects one entity to be found for deletion, %s found from GET params',
+                $foundResultsCount
+            ), 401);
+        }
+
+        $attachment = $gridResult['data'][0];
+
+        $uploadDir = realpath($this->container->getParameter('carbon_api.upload_dir')) . DIRECTORY_SEPARATOR;
+
+        unlink($uploadDir . $attachment->getDownloadPath());
+
+        $this->getEntityManager()->remove($attachment);
+        $this->getEntityManager()->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => true)));
     }
 }
