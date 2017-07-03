@@ -266,4 +266,35 @@ class UserController extends CarbonApiController
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
+
+    /**
+     * @Route("/user/password/admin-reset", name="admin_password_change")
+     * @Method("POST")
+     * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @return Response
+     */
+    public function passwordAdminResetAction(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $um = $this->get('fos_user.user_manager');
+
+        $password = $data['password'];
+
+        $userArray = $data['user'];
+
+        $user = $this->get('fos_user.user_manager')->findUserByUsernameOrEmail($userArray['username']);
+
+        if (!$password || $password == '') {
+            throw new \RuntimeException('Password must not be empty');
+        }
+
+        $user->setPlainPassword($password);
+        $um->updatePassword($user);
+
+        $this->getEntityManager()->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
+    }
 }
