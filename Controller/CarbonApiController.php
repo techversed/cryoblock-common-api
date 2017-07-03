@@ -197,10 +197,10 @@ abstract class CarbonApiController extends Controller
 
         $entity = $gridResult['data'][0];
 
-        if ($this->resourceSecurity) {
-            $resourceSecurity = $this->resourceSecurity;
-            $this->denyAccessUnlessGranted('delete', array($entity, $resourceSecurity));
-        }
+        // if ($this->resourceSecurity) {
+        //     $resourceSecurity = $this->resourceSecurity;
+        //     $this->denyAccessUnlessGranted('delete', array($entity, $resourceSecurity));
+        // }
 
         $this->getEntityManager()->remove($entity);
         $this->getEntityManager()->flush();

@@ -54,6 +54,11 @@ class LoginController extends BaseController
         $response = new Response($userData);
         $response->headers->set('Content-Type', 'application/json');
 
+        $em = $this->container->get('doctrine.orm.default_entity_manager');
+        $user->setLastLogin(new \DateTime());
+        $em->persist($user);
+        $em->flush();
+
         return $response;
     }
 }

@@ -20,7 +20,6 @@ class StringToObjectValidator extends ConstraintValidator
 
     public function validate($value, Constraint $constraint)
     {
-
         if (!$value) {
             return;
         }
@@ -48,21 +47,6 @@ class StringToObjectValidator extends ConstraintValidator
                 ->addViolation()
             ;
         }
-
-        // if (!preg_match('/^[a-zA-Z0-9]+$/', $value, $matches)) {
-        //     // If you're using the new 2.5 validation API (you probably are!)
-        //     $this->context->buildViolation($constraint->message)
-        //         ->setParameter('%string%', $value)
-        //         ->addViolation();
-
-        //     // If you're using the old 2.4 validation API
-        //     /*
-        //     $this->context->addViolation(
-        //         $constraint->message,
-        //         array('%string%' => $value)
-        //     );
-        //     */
-        // }
     }
 
     public function getRequiredOptions()

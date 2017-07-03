@@ -59,6 +59,8 @@ uecode_api_key:
     parameter_name: apikey # defaults to `api_key`
 
 oneup_uploader:
+    chunks:
+        load_distribution: true
     mappings:
         profile:
             frontend: blueimp # or any uploader you use in the frontend
@@ -68,6 +70,16 @@ oneup_uploader:
                 type:                 filesystem
                 filesystem:           ~
                 directory:            %carbon_api.upload_dir%/profile
+                stream_wrapper:       ~
+                sync_buffer_size:     100K
+        cryoblock:
+            frontend: blueimp # or any uploader you use in the frontend
+            namer: carbon_api.upload_namer
+            storage:
+                service:              ~
+                type:                 filesystem
+                filesystem:           ~
+                directory:            %carbon_api.upload_dir%/cryoblock
                 stream_wrapper:       ~
                 sync_buffer_size:     100K
 
