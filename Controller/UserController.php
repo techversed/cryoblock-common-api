@@ -239,7 +239,13 @@ class UserController extends CarbonApiController
     {
         $data = json_decode($request->getContent(), true);
 
-        $currentPassword = $data['currentPassword'];
+        $loggedInUser = $this->getUser();
+        $isAdmin = $loggedInUser->hasRole('ROLE_ADMIN');
+        $userToChange = $this->getEntityRepository('Carbon\ApiBundle\Entity\User')->find($data['userId']);
+
+        if (!$isAdmin && ($loggedInUser->getId() !== $userToChange->getId())) {
+            throw new \RuntimeException('You don not have permission to do this');
+        }
 
         $password = $data['password'];
 
@@ -251,46 +257,22 @@ class UserController extends CarbonApiController
             throw new \RuntimeException('Password must not be empty');
         }
 
-        $encoder_service = $this->get('security.encoder_factory');
-        $encoder = $encoder_service->getEncoder($user);
-        $encoded_pass = $encoder->encodePassword($currentPassword, $user->getSalt());
+        // a user is doing this
+        if (!$isAdmin) {
 
-        if ($encoded_pass != $user->getPassword()) {
-            throw new AccessDeniedHttpException("Password does not match password on record");
+            $currentPassword = $data['currentPassword'];
+
+            $encoder_service = $this->get('security.encoder_factory');
+            $encoder = $encoder_service->getEncoder($user);
+            $encoded_pass = $encoder->encodePassword($currentPassword, $user->getSalt());
+
+            if ($encoded_pass != $user->getPassword()) {
+                throw new AccessDeniedHttpException("Password does not match password on record");
+            }
         }
 
         $user->setPlainPassword($password);
-        $um->updatePassword($user);
 
-        $this->getEntityManager()->flush();
-
-        return $this->getJsonResponse(json_encode(array('success' => 'success')));
-    }
-
-    /**
-     * @Route("/user/password/admin-reset", name="admin_password_change")
-     * @Method("POST")
-     * @Security("has_role('ROLE_ADMIN')")
-     *
-     * @return Response
-     */
-    public function passwordAdminResetAction(Request $request)
-    {
-        $data = json_decode($request->getContent(), true);
-
-        $um = $this->get('fos_user.user_manager');
-
-        $password = $data['password'];
-
-        $userArray = $data['user'];
-
-        $user = $this->get('fos_user.user_manager')->findUserByUsernameOrEmail($userArray['username']);
-
-        if (!$password || $password == '') {
-            throw new \RuntimeException('Password must not be empty');
-        }
-
-        $user->setPlainPassword($password);
         $um->updatePassword($user);
 
         $this->getEntityManager()->flush();
