@@ -40,6 +40,22 @@ class Attachment
     private $name;
 
     /**
+     * @var string $objectId
+     *
+     * @ORM\Column(name="object_id", length=64, nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $objectId;
+
+    /**
+     * @var string $objectClass
+     *
+     * @ORM\Column(name="object_class", type="string", length=500, nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $objectClass;
+
+    /**
      * @ORM\Column(type="string", length=500)
      * @JMS\Groups({"default"})
      *
@@ -176,5 +192,101 @@ class Attachment
     public function getSize()
     {
         return $this->size;
+    }
+
+    /**
+     * Gets the value of objectId.
+     *
+     * @return string $objectId
+     */
+    public function getObjectId()
+    {
+        return $this->objectId;
+    }
+
+    /**
+     * Sets the value of objectId.
+     *
+     * @param string $objectId $objectId the object id
+     *
+     * @return self
+     */
+    public function setObjectId($objectId)
+    {
+        $this->objectId = $objectId;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of objectClass.
+     *
+     * @return string $objectClass
+     */
+    public function getObjectClass()
+    {
+        return $this->objectClass;
+    }
+
+    /**
+     * Sets the value of objectClass.
+     *
+     * @param string $objectClass $objectClass the object class
+     *
+     * @return self
+     */
+    public function setObjectClass($objectClass)
+    {
+        $this->objectClass = $objectClass;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of updatedAt.
+     *
+     * @return \DateTime $updated
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * Sets the value of updatedAt.
+     *
+     * @param \DateTime $updated $updatedAt the updated at
+     *
+     * @return self
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of deletedAt.
+     *
+     * @return mixed
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * Sets the value of deletedAt.
+     *
+     * @param mixed $deletedAt the deleted at
+     *
+     * @return self
+     */
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
     }
 }

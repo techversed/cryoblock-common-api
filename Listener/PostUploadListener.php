@@ -2,6 +2,7 @@
 
 namespace Carbon\ApiBundle\Listener;
 
+use Carbon\ApiBundle\Entity\User;
 use Carbon\ApiBundle\Entity\Attachment;
 use Oneup\UploaderBundle\Event\PostPersistEvent;
 use Symfony\Component\DependencyInjection\Container;
@@ -17,6 +18,11 @@ class PostUploadListener
 
     public function onPostUpload(PostPersistEvent $event)
     {
+        $request = $event->getRequest();
+        $objectId = $request->get('object_id');
+        $objectClass = $request->get('object_class');
+        $type = $event->getType();
+
         $logger = $this->container->get('logger');
 
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -29,28 +35,35 @@ class PostUploadListener
 
         $downloadPath = str_replace($uploadDir, '', $file->getRealPath());
 
-        $oldAttachment = $user->getAvatarAttachment();
-
         $attachment = new Attachment();
         $attachment->setName($file->getFilename());
         $attachment->setDownloadPath($downloadPath);
         $attachment->setMimeType($file->getMimeType());
         $attachment->setSize($file->getSize());
-
-        $user->setAvatarAttachment($attachment);
+        $attachment->setObjectId($objectId);
+        $attachment->setObjectClass($objectClass);
 
         $em = $this->container->get('doctrine.orm.default_entity_manager');
 
-        // now delete old profile photo
-        if ($oldAttachment) {
+        if ($objectClass === 'Carbon\ApiBundle\Entity\User' && $type === 'profile') {
 
-            unlink($uploadDir . $oldAttachment->getDownloadPath());
-            $em->remove($oldAttachment);
+            $oldAttachment = $user->getAvatarAttachment();
+
+            $user->setAvatarAttachment($attachment);
+
+            // now delete old profile photo
+            if ($oldAttachment) {
+
+                unlink($uploadDir . $oldAttachment->getDownloadPath());
+                $em->remove($oldAttachment);
+
+            }
+
+            $em->persist($user);
 
         }
 
         $em->persist($attachment);
-        $em->persist($user);
         $em->flush();
     }
 }
