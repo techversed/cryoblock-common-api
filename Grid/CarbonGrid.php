@@ -208,13 +208,17 @@ class CarbonGrid extends Grid
             $filter->disableForEntity($className);
         }
 
+        // used for for pagination to see how many total results there are
+        // before limit and offset
+        $countQb = clone $qb;
+        $countQb->select('COUNT(' . $alias . ')');
+
+        $this->setUnpaginatedTotal($countQb->getQuery()->getSingleScalarResult());
+
         if ($orderBy = $this->getOrderBy()) {
             $qb->orderBy(sprintf('%s.%s', $alias, $orderBy[0]), $orderBy[1]);
         }
 
-        // used for for pagination to see how many total results there are
-        // before limit and offset
-        $this->setUnpaginatedTotal(count($qb->getQuery()->getResult()));
 
         $qb
             ->setFirstResult($this->getOffset())
