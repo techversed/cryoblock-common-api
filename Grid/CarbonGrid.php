@@ -212,13 +212,13 @@ class CarbonGrid extends Grid
         // before limit and offset
         $countQb = clone $qb;
         $countQb->select('COUNT(' . $alias . ')');
+        $countQb->resetDQLPart('orderBy');
 
         $this->setUnpaginatedTotal($countQb->getQuery()->getSingleScalarResult());
 
         if ($orderBy = $this->getOrderBy()) {
             $qb->orderBy(sprintf('%s.%s', $alias, $orderBy[0]), $orderBy[1]);
         }
-
 
         $qb
             ->setFirstResult($this->getOffset())
