@@ -1022,4 +1022,18 @@ class BaseDivision
 
         return $this;
     }
+
+    /**
+     * Check if the division has children
+     *
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     *
+     * @return boolean
+     */
+    public function hasChildren()
+    {
+        return ($this->getRgt() - $this->getLft()) > 1;
+    }
+
 }
