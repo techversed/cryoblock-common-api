@@ -2,15 +2,29 @@
 
 namespace Carbon\ApiBundle\Entity\Storage;
 
-use JMS\Serializer\Annotation AS JMS;
+use AppBundle\Entity\Storage\SampleType;
+use AppBundle\Entity\Storage\StorageContainer;
 use Carbon\ApiBundle\Annotation AS Carbon;
+use Carbon\ApiBundle\Entity\Storage\BaseSample;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @ORM\MappedSuperclass */
 class BaseSample
 {
+    /**
+     * Valid concentration units
+     *
+     * @var array
+     */
+    private $validConcentrationUnits = array(
+        'mg/mL',
+        'ng/uL',
+        'Molar',
+    );
+
     /**
      * Valid sample statuses
      *
@@ -22,16 +36,6 @@ class BaseSample
         'Destroyed',
         'Shipped'
     );
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @JMS\Groups({"default"})
-     */
-    protected $id;
 
     /**
      * @var string
@@ -205,6 +209,54 @@ class BaseSample
      * @Gedmo\Versioned
      */
     protected $status;
+
+    /**
+     * @var float $concentration
+     *
+     * @ORM\Column(name="concentration", type="decimal", precision=20, scale=3, nullable=true)
+     * @Gedmo\Versioned
+     * @JMS\Groups({"default"})
+     * @JMS\Type("double")
+     * @Gedmo\Versioned
+     */
+    private $concentration;
+
+    /**
+     * @var string $concentrationUnits
+     *
+     * @ORM\Column(name="concentration_units", type="string", nullable=true, length=15)
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    private $concentrationUnits;
+
+    /**
+     * @var float $volume
+     *
+     * @ORM\Column(name="volume", type="decimal", precision=3, nullable=true)
+     * @Gedmo\Versioned
+     * @JMS\Groups({"default"})
+     */
+    private $volume;
+
+    /**
+     * @var float $mass
+     *
+     * @ORM\Column(name="mass", type="decimal", precision=20, scale=3, nullable=true)
+     * @Gedmo\Versioned
+     * @JMS\Groups({"default"})
+     * @JMS\Type("double")
+     */
+    private $mass;
+
+    /**
+     * @var integer $lot
+     *
+     * @ORM\Column(name="lot", type="string", length=300, nullable=true)
+     * @Gedmo\Versioned
+     * @JMS\Groups({"default"})
+     */
+    private $lot;
 
     /**
      * @JMS\Groups({"default"})
@@ -759,7 +811,6 @@ class BaseSample
         return $this;
     }
 
-
     /**
      * Gets the Created by id.
      *
@@ -768,5 +819,133 @@ class BaseSample
     public function getStorageContainerId()
     {
         return $this->storageContainerId;
+    }
+
+    public function getConcentration()
+    {
+        return $this->concentration;
+    }
+
+    public function setConcentration($concentration)
+    {
+        $this->concentration = (string) $concentration;
+    }
+
+    public function getConcentrationUnits()
+    {
+        return $this->concentrationUnits;
+    }
+
+    public function setConcentrationUnits($concentrationUnits)
+    {
+        $this->concentrationUnits = $concentrationUnits;
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getConcentrationString()
+    {
+        return $this->concentration
+            ? $this->concentration . ' ' . $this->concentrationUnits
+            : ''
+        ;
+    }
+
+    /**
+     * Gets the Valid concentration units.
+     *
+     * @return array
+     */
+    public function getValidConcentrationUnits()
+    {
+        return $this->validConcentrationUnits;
+    }
+
+    /**
+     * Sets the Valid concentration units.
+     *
+     * @param array $validConcentrationUnits the valid concentration units
+     *
+     * @return self
+     */
+    public function setValidConcentrationUnits(array $validConcentrationUnits)
+    {
+        $this->validConcentrationUnits = $validConcentrationUnits;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of volume.
+     *
+     * @return float $volume
+     */
+    public function getVolume()
+    {
+        return $this->volume;
+    }
+
+    /**
+     * Sets the value of volume.
+     *
+     * @param float $volume $volume the volume
+     *
+     * @return self
+     */
+    public function setVolume($volume)
+    {
+        $this->volume = $volume;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of mass.
+     *
+     * @return float $mass
+     */
+    public function getMass()
+    {
+        return $this->mass;
+    }
+
+    /**
+     * Sets the value of mass.
+     *
+     * @param float $mass $mass the mass
+     *
+     * @return self
+     */
+    public function setMass($mass)
+    {
+        $this->mass = $mass;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of lot.
+     *
+     * @return integer $lot
+     */
+    public function getLot()
+    {
+        return $this->lot;
+    }
+
+    /**
+     * Sets the value of lot.
+     *
+     * @param integer $lot $lot the lot
+     *
+     * @return self
+     */
+    public function setLot($lot)
+    {
+        $this->lot = $lot;
+
+        return $this;
     }
 }

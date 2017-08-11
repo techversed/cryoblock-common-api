@@ -1036,4 +1036,13 @@ class BaseDivision
         return ($this->getRgt() - $this->getLft()) > 1;
     }
 
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getStringLabel()
+    {
+        return $this->getPath();
+    }
+
 }
