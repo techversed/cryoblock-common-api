@@ -14,15 +14,22 @@ use Symfony\Component\Security\Core\Description\DescriptionInterface;
 class BoxFlag
 {
     /**
-     * @ORM\name
-     * @ORM\Column(type="string")
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="SEQUENCE")
+     * @JMS\Groups({"default"})
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="string", name="name")
+     * @Carbon\Searchable(name="name")
      * @JMS\Groups({"default"})
      */
     protected $name;
 
     /**
-     * @ORM\Column(type="string", name="description", unique=true)
+     * @ORM\Column(type="string", name="description")
      * @Carbon\Searchable(name="description")
      * @JMS\Groups({"default"})
      */
@@ -37,10 +44,12 @@ class BoxFlag
     {
         $this->description = $description;
     }
+
     public function __toString()
     {
         return $this->description;
     }
+
     /**
      * Return the description field.
      *
@@ -50,6 +59,7 @@ class BoxFlag
     {
         return $this->description;
     }
+
     /**
      * @JMS\VirtualProperty()
      * @JMS\Groups({"default"})
