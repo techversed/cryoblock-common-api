@@ -1,11 +1,12 @@
 <?php
 
-namespace Carbon\ApiBundle\Entity;
+namespace Carbon\ApiBundle\Entity\Storage;
 
 use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Security\Core\Description\DescriptionInterface;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity()

@@ -83,12 +83,6 @@ class BaseDivision
     protected $idPath;
 
     /**
-     * @ORM\Column(name="flag_id", type="string", nullable=true)
-     * @JMS\Groups({"default"})
-     */
-    protected $flagId;
-
-    /**
      * @Gedmo\TreePathSource
      * @ORM\Column(name="title", type="string", length=64)
      * @JMS\Groups({"default"})
@@ -119,6 +113,24 @@ class BaseDivision
      * @JMS\Groups({"parent"})
      */
     protected $parent;
+
+     /**
+     * @var integer
+     *
+     * @ORM\Column(name="box_flag_id", type="integer", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $boxFlagId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\BoxFlag", inversedBy="boxFlag")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="box_flag_id", referencedColumnName="id")
+     * })
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $boxFlag;
 
     /**
      * @Gedmo\TreeLevel
