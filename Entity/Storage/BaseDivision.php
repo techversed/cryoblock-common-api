@@ -123,7 +123,7 @@ class BaseDivision
     protected $boxFlagId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\BoxFlag", inversedBy="boxFlag")
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Storage\BoxFlag", inversedBy="boxFlag")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="box_flag_id", referencedColumnName="id")
      * })
