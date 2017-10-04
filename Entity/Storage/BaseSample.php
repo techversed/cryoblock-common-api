@@ -19,7 +19,7 @@ class BaseSample
      *
      * @var array
      */
-    private $validConcentrationUnits = array(
+    protected $validConcentrationUnits = array(
         'mg/mL',
         'ng/uL',
         'Molar',
@@ -64,7 +64,7 @@ class BaseSample
      *
      * @ORM\Column(name="notes", type="text", nullable=true)
      * @JMS\Groups({"default"})
-     * @Carbon\Searchable(name="name")
+     * @Carbon\Searchable(name="notes")
      */
     protected $notes;
 
@@ -219,7 +219,7 @@ class BaseSample
      * @JMS\Type("double")
      * @Gedmo\Versioned
      */
-    private $concentration;
+    protected $concentration;
 
     /**
      * @var string $concentrationUnits
@@ -228,7 +228,7 @@ class BaseSample
      * @JMS\Groups({"default"})
      * @Gedmo\Versioned
      */
-    private $concentrationUnits;
+    protected $concentrationUnits;
 
     /**
      * @var float $volume
@@ -237,7 +237,7 @@ class BaseSample
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
-    private $volume;
+    protected $volume;
 
     /**
      * @var float $mass
@@ -247,7 +247,7 @@ class BaseSample
      * @JMS\Groups({"default"})
      * @JMS\Type("double")
      */
-    private $mass;
+    protected $mass;
 
     /**
      * @var integer $lot
@@ -255,8 +255,9 @@ class BaseSample
      * @ORM\Column(name="lot", type="string", length=300, nullable=true)
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
+     * @Carbon\Searchable(name="lot")
      */
-    private $lot;
+    protected $lot;
 
     /**
      * @JMS\Groups({"default"})
