@@ -37,18 +37,18 @@ class BoxFlag
     protected $description;
 
     /**
-     * Populate the description field
+     * Populate the name field
      *
-     * @param string $description ROLE_FOO etc
+     * @param string $name ROLE_FOO etc
      */
-    public function __construct($description)
+    public function __construct($name)
     {
-        $this->description = $description;
+        $this->name = $name;
     }
 
     public function __toString()
     {
-        return $this->description;
+        return $this->name;
     }
 
     /**
@@ -67,6 +67,6 @@ class BoxFlag
      */
     public function getStringLabel()
     {
-        return $this->id . ': ' . $this->getDescription();
+        return $this->id . ': ' . $this->getName();
     }
 }
