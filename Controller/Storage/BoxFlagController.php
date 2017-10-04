@@ -1,6 +1,6 @@
 <?php
 
-namespace Carbon\ApiBundle\Controller;
+namespace Carbon\ApiBundle\Controller\Storage;
 
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -14,7 +14,7 @@ class BoxFlagController extends CarbonApiController
     /**
      * @var string The namespace of the resource entity
      */
-    const RESOURCE_ENTITY = "Carbon\ApiBundle\Entity\BoxFlag";
+    const RESOURCE_ENTITY = "Carbon\ApiBundle\Entity\Storage\BoxFlag";
 
     /**
      * @var string The form type for this resource
@@ -22,7 +22,7 @@ class BoxFlagController extends CarbonApiController
     const FORM_TYPE = "boxflag";
 
     /**
-     * @Route("/box-flag", name="box_flag_get")
+     * @Route("/storage/box-flag", name="box_flag_get")
      * @Method("GET")
      * @Security("has_role('ROLE_USER')")
      *
@@ -36,7 +36,7 @@ class BoxFlagController extends CarbonApiController
     /**
      * Handles the HTTP POST request for the boxflag entity
      *
-     * @Route("/box-flag", name="box_flag_post")
+     * @Route("/storage/box-flag", name="box_flag_post")
      * @Method("POST")
      * @Security("has_role('ROLE_ADMIN')")
      *
@@ -50,7 +50,7 @@ class BoxFlagController extends CarbonApiController
     /**
      * Handles the HTTP PUT request for the boxflag entity
      *
-     * @Route("/box-flag", name="boxflag_put")
+     * @Route("/storage/box-flag", name="boxflag_put")
      * @Method("PUT")
      * @Security("has_role('ROLE_ADMIN')")
      *
