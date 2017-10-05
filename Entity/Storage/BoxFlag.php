@@ -36,16 +36,6 @@ class BoxFlag
      */
     protected $description;
 
-    /**
-     * Populate the name field
-     *
-     * @param string $name ROLE_FOO etc
-     */
-    public function __construct($name)
-    {
-        $this->name = $name;
-    }
-
     public function __toString()
     {
         return $this->name;
