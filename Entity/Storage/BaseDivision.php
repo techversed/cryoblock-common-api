@@ -586,6 +586,54 @@ class BaseDivision
     }
 
     /**
+     * Gets the value of boxFlagId.
+     *
+     * @return mixed
+     */
+    public function getBoxFlagId()
+    {
+        return $this->boxFlagId;
+    }
+
+    /**
+     * Sets the value of boxFlagId.
+     *
+     * @param mixed $boxFlagId the boxFlag id
+     *
+     * @return self
+     */
+    public function setBoxFlagId($boxFlagId)
+    {
+        $this->boxFlagId = $boxFlagId;
+
+        return $this;
+    }
+
+    /**
+     * Gets the }).
+     *
+     * @return mixed
+     */
+    public function getBoxFlag()
+    {
+        return $this->boxFlag;
+    }
+
+    /**
+     * Sets the }).
+     *
+     * @param mixed $boxFlag the boxFlag
+     *
+     * @return self
+     */
+    public function setBoxFlag($boxFlag)
+    {
+        $this->boxFlag = $boxFlag;
+
+        return $this;
+    }
+
+    /**
      * Gets the value of level.
      *
      * @return mixed
