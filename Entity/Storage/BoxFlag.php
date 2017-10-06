@@ -17,7 +17,7 @@ class BoxFlag
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="SEQUENCE")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @JMS\Groups({"default"})
      */
     protected $id;
@@ -36,11 +36,6 @@ class BoxFlag
      */
     protected $description;
 
-    public function __toString()
-    {
-        return $this->name;
-    }
-
     /**
      * Return the description field.
      *
@@ -57,6 +52,68 @@ class BoxFlag
      */
     public function getStringLabel()
     {
-        return $this->id . ': ' . $this->getName();
+        return $this->getName();
+    }
+
+    /**
+     * Gets the value of id.
+     *
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Sets the value of id.
+     *
+     * @param mixed $id the id
+     *
+     * @return self
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of name.
+     *
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Sets the value of name.
+     *
+     * @param mixed $name the name
+     *
+     * @return self
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Sets the value of description.
+     *
+     * @param mixed $description the description
+     *
+     * @return self
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
     }
 }
