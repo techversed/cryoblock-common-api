@@ -98,3 +98,8 @@ services:
         arguments: ["@doctrine.orm.default_entity_manager", "@security.token_storage"]
         tags:
             - { name: validator.constraint_validator, alias: storage_location_validator }
+
+    carbon_api.production.request.listener:
+        class: Carbon\ApiBundle\Listener\Production\ProductionRequestListener
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
