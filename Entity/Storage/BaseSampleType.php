@@ -21,6 +21,15 @@ class BaseSampleType
     private $name;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=255)
+     * @JMS\Groups({"default"})
+     * @Carbon\Searchable(name="description")
+     */
+    private $description;
+
+    /**
      * Set name
      *
      * @param string $name
@@ -50,5 +59,29 @@ class BaseSampleType
     public function getStringLabel()
     {
         return $this->getName();
+    }
+
+    /**
+     * Gets the value of description.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Sets the value of description.
+     *
+     * @param string $description the description
+     *
+     * @return self
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
     }
 }
