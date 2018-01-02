@@ -108,6 +108,14 @@ class CarbonGrid extends Grid
 
             }
 
+            if (array_key_exists('EXISTS', $v)) {
+
+                if ((bool) $v['EXISTS']) {
+                    $qb->andWhere(sprintf('%s.%s IS NOT NULL', $alias, $k));
+                }
+
+            }
+
             if (array_key_exists('LIKE', $v)) {
 
                 $qb->andWhere(sprintf('lower(%s.%s) LIKE lower(:%sLIKE)', $alias, $k, $k))
@@ -236,7 +244,7 @@ class CarbonGrid extends Grid
      *
      * @return array
      */
-    protected function getQueryParams()
+    public function getQueryParams()
     {
         return array_diff_key($this->request->query->all(), array_flip($this->validGridQueryParams));
     }

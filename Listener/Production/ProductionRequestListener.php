@@ -11,6 +11,12 @@ use Symfony\Bridge\Monolog\Logger;
 
 class ProductionRequestListener
 {
+    /**
+     * inserted requests to make sure we don't have the same alias for two requests of
+     * the same type being submitted in one request
+     */
+    public $insertedRequests = array();
+
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
@@ -122,11 +128,22 @@ class ProductionRequestListener
             ;
 
             $total = $total + 1;
-            $alias = sprintf('%s%s-%s', 'D', $startOfMonth->format('my'), $total);
+
+            if (array_key_exists(get_class($entity), $this->insertedRequests)) {
+                $total = $total + $this->insertedRequests[get_class($entity)];
+            }
+
+            $alias = sprintf('%s%s-%s', $entity->getAliasPrefix(), $startOfMonth->format('my'), $total);
 
             $metaDna = $em->getClassMetadata(get_class($entity));
 
             $entity->setAlias($alias);
+
+            if (array_key_exists(get_class($entity), $this->insertedRequests)) {
+                $this->insertedRequests[get_class($entity)] = $this->insertedRequests[get_class($entity)] + 1;
+            } else {
+                $this->insertedRequests[get_class($entity)] = 1;
+            }
 
             $uow->recomputeSingleEntityChangeSet($metaDna, $entity);
 

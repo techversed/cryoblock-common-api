@@ -11,4 +11,6 @@ interface BaseRequestInterface
     public function getOutputSamples();
 
     public function setOutputSamples($outputSamples);
+
+    public function getAliasPrefix();
 }

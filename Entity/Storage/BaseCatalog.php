@@ -109,6 +109,11 @@ class BaseCatalog
     protected $status;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ParentCatalog", mappedBy="childCatalog")
+     */
+    protected $parentCatalogs;
+
+    /**
      * Gets the value of name.
      *
      * @return string
@@ -344,6 +349,30 @@ class BaseCatalog
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of parentCatalogs.
+     *
+     * @return mixed
+     */
+    public function getParentCatalogs()
+    {
+        return $this->parentCatalogs;
+    }
+
+    /**
+     * Sets the value of parentCatalogs.
+     *
+     * @param mixed $parentCatalogs the parent catalogs
+     *
+     * @return self
+     */
+    public function setParentCatalogs($parentCatalogs)
+    {
+        $this->parentCatalogs = $parentCatalogs;
 
         return $this;
     }

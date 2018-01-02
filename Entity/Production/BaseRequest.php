@@ -51,7 +51,7 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @JMS\Groups({"default"})
      * @Gedmo\Versioned
      */
-    private $status;
+    protected $status;
 
     /**
      * @var string
@@ -62,7 +62,7 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @Carbon\Searchable(name="name")
      * @Assert\NotBlank()
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string
@@ -73,7 +73,7 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @Carbon\Searchable(name="description")
      * @Assert\NotBlank()
      */
-    private $description;
+    protected $description;
 
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Production\Pipeline")
@@ -81,14 +81,14 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
-    private $pipeline;
+    protected $pipeline;
 
     /**
      * @ORM\Column(name="pipeline_step", type="integer", nullable=true)
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
-    private $pipelineStep;
+    protected $pipelineStep;
 
     /**
      * @var User $createdBy
@@ -98,14 +98,14 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @ORM\JoinColumn(name="created_by_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
      */
-    private $createdBy;
+    protected $createdBy;
 
     /**
      * Created by id
      * @ORM\Column(name="created_by_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
-    private $createdById;
+    protected $createdById;
 
     /**
      * @var User $updatedBy
@@ -116,14 +116,14 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @JMS\Groups({"default"})
      * @JMS\MaxDepth(1)
      */
-    private $updatedBy;
+    protected $updatedBy;
 
     /**
      * Created by id
      * @ORM\Column(name="updated_by_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
-    private $updatedById;
+    protected $updatedById;
 
     /**
      * @var \DateTime $created
@@ -132,7 +132,7 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @ORM\Column(type="datetime")
      * @JMS\Groups({"default"})
      */
-    private $createdAt;
+    protected $createdAt;
 
     /**
      * @var \DateTime $updated
@@ -141,7 +141,7 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @ORM\Column(type="datetime")
      * @JMS\Groups({"default"})
      */
-    private $updatedAt;
+    protected $updatedAt;
 
     /**
      * @var \DateTime $deletedAt
@@ -150,7 +150,7 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
-    private $deletedAt;
+    protected $deletedAt;
 
 
     /**
