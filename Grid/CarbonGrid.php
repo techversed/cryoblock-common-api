@@ -108,6 +108,14 @@ class CarbonGrid extends Grid
 
             }
 
+            if (array_key_exists('EXISTS', $v)) {
+
+                if ((bool) $v['EXISTS']) {
+                    $qb->andWhere(sprintf('%s.%s IS NOT NULL', $alias, $k));
+                }
+
+            }
+
             if (array_key_exists('LIKE', $v)) {
 
                 $qb->andWhere(sprintf('lower(%s.%s) LIKE lower(:%sLIKE)', $alias, $k, $k))
@@ -208,13 +216,17 @@ class CarbonGrid extends Grid
             $filter->disableForEntity($className);
         }
 
+        // used for for pagination to see how many total results there are
+        // before limit and offset
+        $countQb = clone $qb;
+        $countQb->select('COUNT(' . $alias . ')');
+        $countQb->resetDQLPart('orderBy');
+
+        $this->setUnpaginatedTotal($countQb->getQuery()->getSingleScalarResult());
+
         if ($orderBy = $this->getOrderBy()) {
             $qb->orderBy(sprintf('%s.%s', $alias, $orderBy[0]), $orderBy[1]);
         }
-
-        // used for for pagination to see how many total results there are
-        // before limit and offset
-        $this->setUnpaginatedTotal(count($qb->getQuery()->getResult()));
 
         $qb
             ->setFirstResult($this->getOffset())
@@ -232,7 +244,7 @@ class CarbonGrid extends Grid
      *
      * @return array
      */
-    protected function getQueryParams()
+    public function getQueryParams()
     {
         return array_diff_key($this->request->query->all(), array_flip($this->validGridQueryParams));
     }
