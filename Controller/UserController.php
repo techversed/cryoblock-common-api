@@ -180,11 +180,6 @@ class UserController extends CarbonApiController
         $from = $this->getParameter('fos_user.resetting.email.from_email');
         $templating = $this->get('templating');
 
-        // $rendered = $templating->render($template, array(
-        //     'user' => $user,
-        //     'confirmationUrl' => $url
-        // ));
-
         $subject = 'Password Reset';
 
         $this->get('carbon_api.mailer')->send($subject, $template, $user->getEmail(), array(
@@ -251,8 +246,6 @@ class UserController extends CarbonApiController
 
         $um = $this->get('fos_user.user_manager');
 
-        $user = $this->getUser();
-
         if (!$password || $password == '') {
             throw new \RuntimeException('Password must not be empty');
         }
@@ -263,17 +256,17 @@ class UserController extends CarbonApiController
             $currentPassword = $data['currentPassword'];
 
             $encoder_service = $this->get('security.encoder_factory');
-            $encoder = $encoder_service->getEncoder($user);
-            $encoded_pass = $encoder->encodePassword($currentPassword, $user->getSalt());
+            $encoder = $encoder_service->getEncoder($userToChange);
+            $encoded_pass = $encoder->encodePassword($currentPassword, $userToChange->getSalt());
 
             if ($encoded_pass != $user->getPassword()) {
                 throw new AccessDeniedHttpException("Password does not match password on record");
             }
         }
 
-        $user->setPlainPassword($password);
+        $userToChange->setPlainPassword($password);
 
-        $um->updatePassword($user);
+        $um->updatePassword($userToChange);
 
         $this->getEntityManager()->flush();
 
