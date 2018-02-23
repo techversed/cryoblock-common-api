@@ -45,6 +45,12 @@ services:
         tags:
             - { name: form.type, alias: cryoblock_mtm }
 
+    carbon_api.form.type.sample_catalog:
+        class: Carbon\ApiBundle\Form\Type\SampleCatalogFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
+        tags:
+            - { name: form.type, alias: cryoblock_sample_catalog }
+
     carbon_api.form.type.user:
         class: Carbon\ApiBundle\Form\Type\UserFormType
         tags:
@@ -101,10 +107,5 @@ services:
 
     carbon_api.production.request.listener:
         class: Carbon\ApiBundle\Listener\Production\ProductionRequestListener
-        tags:
-            - { name: doctrine.event_listener, event: onFlush }
-
-    carbon_api.storage.catalog.listener:
-        class: Carbon\ApiBundle\Listener\Storage\CatalogListener
         tags:
             - { name: doctrine.event_listener, event: onFlush }

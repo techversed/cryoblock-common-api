@@ -38,15 +38,21 @@ class BaseSample
     );
 
     /**
-     * @var string
+     * @var Catalog $catalog
      *
-     * @ORM\Column(name="name", type="string", length=300)
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Catalog")
+     * @ORM\JoinColumn(name="catalog_id", referencedColumnName="id")
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
-     * @Carbon\Searchable(name="name")
-     * @Assert\NotBlank()
      */
-    protected $name;
+    protected $catalog;
+
+    /**
+     * Catalog id
+     * @ORM\Column(name="catalog_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
+     */
+    protected $catalogId;
 
     /**
      * @var string
@@ -410,29 +416,6 @@ class BaseSample
     }
 
     /**
-     * Set name
-     *
-     * @param string $name
-     * @return Sample
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * Get created by id
      *
      * @return integer
@@ -553,7 +536,7 @@ class BaseSample
      */
     public function getStringLabel()
     {
-        return $this->getName();
+        return $this->getCatalog()->getName();
     }
 
     /**
@@ -946,6 +929,54 @@ class BaseSample
     public function setLot($lot)
     {
         $this->lot = $lot;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of catalog.
+     *
+     * @return Catalog $catalog
+     */
+    public function getCatalog()
+    {
+        return $this->catalog;
+    }
+
+    /**
+     * Sets the value of catalog.
+     *
+     * @param Catalog $catalog $catalog the catalog
+     *
+     * @return self
+     */
+    public function setCatalog($catalog)
+    {
+        $this->catalog = $catalog;
+
+        return $this;
+    }
+
+    /**
+     * Gets the Catalog id.
+     *
+     * @return mixed
+     */
+    public function getCatalogId()
+    {
+        return $this->catalogId;
+    }
+
+    /**
+     * Sets the Catalog id.
+     *
+     * @param mixed $catalogId the catalog id
+     *
+     * @return self
+     */
+    public function setCatalogId($catalogId)
+    {
+        $this->catalogId = $catalogId;
 
         return $this;
     }
