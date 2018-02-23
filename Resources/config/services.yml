@@ -92,3 +92,19 @@ services:
             - { name: security.voter }
         # small performance boost
         public: false
+
+    carbon_api.validator.storage_location_validator:
+        class: Carbon\ApiBundle\Validator\Constraints\Storage\StorageLocationValidator
+        arguments: ["@doctrine.orm.default_entity_manager", "@security.token_storage"]
+        tags:
+            - { name: validator.constraint_validator, alias: storage_location_validator }
+
+    carbon_api.production.request.listener:
+        class: Carbon\ApiBundle\Listener\Production\ProductionRequestListener
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
+    carbon_api.storage.catalog.listener:
+        class: Carbon\ApiBundle\Listener\Storage\CatalogListener
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
