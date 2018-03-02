@@ -80,6 +80,36 @@ class BaseSampleListener
     {
         foreach ($uow->getEntityChangeSet($entity) as $keyField => $field) {
 
+            if ($keyField === 'status') {
+                $oldStatus = $field[0];
+                $newStatus = $field[1];
+
+                if (
+                    $newStatus === 'Depleted' ||
+                    $newStatus === 'Destroyed' ||
+                    $newStatus === 'Shipped'
+                )
+                {
+                    $oldDivision = $entity->getDivision();
+                    if ($oldDivision) {
+                        $oldDivisionId = $oldDivision->getId();
+                        if (!isset($divisionsToUpdate[$oldDivisionId])) {
+                            $divisionsToUpdate[$oldDivisionId] = array(
+                                'division' => $oldDivision,
+                                'removeCount' => 0,
+                                'addCount' => 0
+                            );
+                        }
+                        $divisionsToUpdate[$oldDivisionId]['removeCount']++;
+                    }
+
+                    $entity->setDivision(null);
+                    $entity->setDivisionId(null);
+                    $entity->setDivisionRow(null);
+                    $entity->setDivisionColumn(null);
+                }
+            }
+
             if ($keyField === 'division') {
 
                 $oldDivision = $field[0];

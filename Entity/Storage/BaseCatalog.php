@@ -376,4 +376,13 @@ class BaseCatalog
 
         return $this;
     }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getStringLabel()
+    {
+        return $this->getName();
+    }
 }

@@ -180,11 +180,6 @@ class UserController extends CarbonApiController
         $from = $this->getParameter('fos_user.resetting.email.from_email');
         $templating = $this->get('templating');
 
-        // $rendered = $templating->render($template, array(
-        //     'user' => $user,
-        //     'confirmationUrl' => $url
-        // ));
-
         $subject = 'Password Reset';
 
         $this->get('carbon_api.mailer')->send($subject, $template, $user->getEmail(), array(
@@ -222,6 +217,56 @@ class UserController extends CarbonApiController
 
         $user->setPlainPassword($password);
         $um->updatePassword($user);
+
+        $this->getEntityManager()->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
+    }
+
+    /**
+     * @Route("/user/password/reset", name="user_password_change")
+     * @Method("POST")
+     * @Security("has_role('ROLE_USER')")
+     *
+     * @return Response
+     */
+    public function passwordChangeAction(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $loggedInUser = $this->getUser();
+        $isAdmin = $loggedInUser->hasRole('ROLE_ADMIN');
+        $userToChange = $this->getEntityRepository('Carbon\ApiBundle\Entity\User')->find($data['userId']);
+
+        if (!$isAdmin && ($loggedInUser->getId() !== $userToChange->getId())) {
+            throw new \RuntimeException('You don not have permission to do this');
+        }
+
+        $password = $data['password'];
+
+        $um = $this->get('fos_user.user_manager');
+
+        if (!$password || $password == '') {
+            throw new \RuntimeException('Password must not be empty');
+        }
+
+        // a user is doing this
+        if (!$isAdmin) {
+
+            $currentPassword = $data['currentPassword'];
+
+            $encoder_service = $this->get('security.encoder_factory');
+            $encoder = $encoder_service->getEncoder($userToChange);
+            $encoded_pass = $encoder->encodePassword($currentPassword, $userToChange->getSalt());
+
+            if ($encoded_pass != $user->getPassword()) {
+                throw new AccessDeniedHttpException("Password does not match password on record");
+            }
+        }
+
+        $userToChange->setPlainPassword($password);
+
+        $um->updatePassword($userToChange);
 
         $this->getEntityManager()->flush();
 
