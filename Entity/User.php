@@ -67,6 +67,33 @@ class User extends BaseUser
     protected $lastName;
 
     /**
+     * @ORM\Column(type="string", length=55, nullable=true)
+     * @Carbon\Searchable(name="middleName")
+     * @Gedmo\Versioned
+     *
+     * @var string the users middle name
+     */
+    protected $middleName;
+
+    /**
+     * @ORM\Column(type="string", length=55, nullable=true)
+     * @Carbon\Searchable(name="phone")
+     * @Gedmo\Versioned
+     *
+     * @var string the users phone
+     */
+    protected $phone;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Carbon\Searchable(name="about")
+     * @Gedmo\Versioned
+     *
+     * @var string the users last name
+     */
+    protected $about;
+
+    /**
      * @Carbon\Searchable(name="username")
      * @Gedmo\Versioned
      */
