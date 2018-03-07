@@ -114,6 +114,24 @@ class BaseDivision
      */
     protected $parent;
 
+     /**
+     * @var integer
+     *
+     * @ORM\Column(name="box_flag_id", type="integer", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $boxFlagId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Storage\BoxFlag", inversedBy="boxFlag")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="box_flag_id", referencedColumnName="id")
+     * })
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $boxFlag;
+
     /**
      * @Gedmo\TreeLevel
      * @ORM\Column(name="level", type="integer", nullable=true)
@@ -563,6 +581,54 @@ class BaseDivision
     public function setParent($parent)
     {
         $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of boxFlagId.
+     *
+     * @return mixed
+     */
+    public function getBoxFlagId()
+    {
+        return $this->boxFlagId;
+    }
+
+    /**
+     * Sets the value of boxFlagId.
+     *
+     * @param mixed $boxFlagId the boxFlag id
+     *
+     * @return self
+     */
+    public function setBoxFlagId($boxFlagId)
+    {
+        $this->boxFlagId = $boxFlagId;
+
+        return $this;
+    }
+
+    /**
+     * Gets the }).
+     *
+     * @return mixed
+     */
+    public function getBoxFlag()
+    {
+        return $this->boxFlag;
+    }
+
+    /**
+     * Sets the }).
+     *
+     * @param mixed $boxFlag the boxFlag
+     *
+     * @return self
+     */
+    public function setBoxFlag($boxFlag)
+    {
+        $this->boxFlag = $boxFlag;
 
         return $this;
     }
