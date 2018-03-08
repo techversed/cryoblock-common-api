@@ -70,6 +70,7 @@ class User extends BaseUser
      * @ORM\Column(type="text", nullable=true)
      * @Carbon\Searchable(name="title")
      * @Gedmo\Versioned
+     * @JMS\Groups({"default"})
      *
      * @var string the users title (research interests)
      */
@@ -79,6 +80,7 @@ class User extends BaseUser
      * @ORM\Column(type="text", nullable=true)
      * @Carbon\Searchable(name="about")
      * @Gedmo\Versioned
+     * @JMS\Groups({"default"})
      *
      * @var string the users about (research interests)
      */
@@ -282,4 +284,53 @@ class User extends BaseUser
     {
         return $this->updatedAt;
     }
+
+    /**
+     * Gets the value of title.
+     *
+     * @return string the users title (research interests)
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * Sets the value of title.
+     *
+     * @param string the users title (research interests) $title the title
+     *
+     * @return self
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of about.
+     *
+     * @return string the users about (research interests)
+     */
+    public function getAbout()
+    {
+        return $this->about;
+    }
+
+    /**
+     * Sets the value of about.
+     *
+     * @param string the users about (research interests) $about the about
+     *
+     * @return self
+     */
+    public function setAbout($about)
+    {
+        $this->about = $about;
+
+        return $this;
+    }
+
 }
