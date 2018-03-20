@@ -18,7 +18,7 @@ class BaseSampleType
      * @JMS\Groups({"default"})
      * @Carbon\Searchable(name="name")
      */
-    private $name;
+    protected $name;
 
     /**
      * Set name
