@@ -43,8 +43,6 @@ class CryoblockMailer
             foreach ($users as $user){
                 $sendTo[$user->getUser()->getEmail()] = $user->getUser()->getStringLabel();
             }
-
-            print_r($sendTo);
         }
 
         $content = $this->getTemplatingEngine()->render($template, $params);
