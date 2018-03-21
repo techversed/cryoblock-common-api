@@ -24,6 +24,53 @@ class CryoblockMailer
         $this->mailer = $container->get('mailer');
     }
 
+    //Takes an array of group names looks up contact information for users in the set of groups and sends emails to all of them.
+    public function sendToGroup($subject, $template, $toArray = array(), $params = array(), $from = null)
+    {
+        $em = $this->container->get('doctrine.orm.default_entity_manager');
+        $sendTo = array();
+        foreach ($toArray as $to){
+
+            $groups = $em->getRepository("Carbon\ApiBundle\Entity\Group")->findBy(
+                array('name' => $to)
+            );
+            $group = $groups[0];
+
+            $users = $em->getRepository("Carbon\ApiBundle\Entity\UserGroup")->findBy(
+                array('groupId' => $group->getId())
+            );
+
+            foreach ($users as $user){
+                $sendTo[$user->getUser()->getEmail()] = $user->getUser()->getStringLabel();
+            }
+
+            print_r($sendTo);
+        }
+
+        $content = $this->getTemplatingEngine()->render($template, $params);
+
+        $fromArray = [];
+        if (!$from) {
+
+            $from = $this->getLoggedInUser();
+            $fromEmail = $from->getEmail();
+            $fromName = '=?UTF-8?B?' . base64_encode($from->getFullName() . ' ' . '(' . $this->getAppName() . ')') . '?=';
+            $fromArray[$fromEmail] = $fromName;
+
+        } else {
+            $fromArray = $from;
+        }
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($fromArray)
+            ->setTo($sendTo)
+            ->setBody($content, 'text/html')
+        ;
+
+        $this->mailer->send($message);
+    }
+
     public function send($subject, $template, $to, $params = array(), $from = null)
     {
         $content = $this->getTemplatingEngine()->render($template, $params);
