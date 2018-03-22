@@ -536,6 +536,10 @@ class BaseSample
      */
     public function getStringLabel()
     {
+        if (!is_object($this->getCatalog())) {
+            return '';
+        }
+
         return $this->getCatalog()->getName();
     }
 

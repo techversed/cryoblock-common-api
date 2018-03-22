@@ -109,7 +109,8 @@ class BaseCatalog
     protected $status;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ParentCatalog", mappedBy="childCatalog")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ParentCatalog", mappedBy="parentCatalog")
+     * @JMS\Groups({"default"})
      */
     protected $parentCatalogs;
 
