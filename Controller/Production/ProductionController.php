@@ -351,20 +351,17 @@ class ProductionController extends CarbonApiController
 
         $outputSampleDefaults = $data['outputSampleDefaults'];
         $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
-        $inputSamples = $prodRequest->getInputSamples();
-        $inputSample = $inputSamples[0]->getSample();
 
         $importer = $this->container->get('sample.importer');
+        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->findOneByName($outputSampleDefaults['sampleType']);
+        $sampleTypeMapping = $importer->getMapping($sampleType);
 
         $fileName = 'Request ' . $data['id'] . ' Output Samples Template.csv';
 
-        $content = $importer->getTemplateContent($inputSample->getSampleType());
+        $content = $importer->getTemplateContent($sampleType);
 
         $count = 0;
 
-        $sampleTypeMapping = $importer->getMapping($inputSample->getSampleType());
-
-        $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($inputSample), true);
 
         while ($count < $data['totalOutputSamples']) {
 
@@ -403,11 +400,8 @@ class ProductionController extends CarbonApiController
 
         $objPHPExcel = new \PHPExcel();
 
-        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->findOneByName($data['sampleType']);
+        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->findOneByName($outputSampleDefaults['sampleType']);
 
-        $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
-        $prodRequestInputSamples = $prodRequest->getInputSamples();
-        $prodRequestInputSample = $prodRequestInputSamples[0]->getSample();
         $importer = $this->container->get('sample.importer');
         $sampleTypeMapping = $importer->getMapping($sampleType);
 
@@ -415,13 +409,34 @@ class ProductionController extends CarbonApiController
 
         $aRange = range('A', 'Z');
         $current = 0;
-        foreach ($sampleTypeMapping as $label => $column) {
+
+        // $enumMap = [];
+        foreach ($sampleTypeMapping as $label => &$column) {
 
             $objPHPExcel->getActiveSheet()->getColumnDimension($aRange[$current])->setWidth(15);
             $cell = $objPHPExcel->getActiveSheet()->getCell($aRange[$current] . '1');
             $cell->setValue($label);
             $style = $objPHPExcel->getActiveSheet()->getStyle($aRange[$current] . '1');
             $style->getFont()->setBold(true);
+
+
+            if (array_key_exists('enum', $column)) {
+
+                if (is_array($column['enum'])) {
+
+                } else {
+                    $itemArray = [];
+                    $itemEntities = $this->getEntityManager()->getRepository($column['enum'])->findAll();
+                    foreach ($itemEntities as $itemEntity) {
+                        $itemArray[] = $itemEntity->getName();
+                    }
+                    // $column['enumItems'] = implode(', ', $itemArray);
+                    $column['enumItems'] = implode(', ', array_slice($itemArray, 0, 19));
+                    var_dump($column['enumItems']);
+                    die;
+                }
+
+            }
 
             $current++;
         }
@@ -460,15 +475,7 @@ class ProductionController extends CarbonApiController
         $currentOutputSampleIndex = 0;
         while ($currentOutputSampleIndex < $totalOutputSamples) {
 
-        // }
-
-        // foreach ($prodRequestInputSamples as $prodRequestInputSample) {
-
             $current = 0;
-
-            // $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample()), true);
-
-            // $data = new Dot($serializedInputSample);
 
             foreach ($sampleTypeMapping as $label => $column) {
 
@@ -557,8 +564,6 @@ class ProductionController extends CarbonApiController
                 if (array_key_exists($column['prop'], $outputSampleDefaults)) {
                     $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$column['prop']]);
                 }
-
-                // $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($data->get($column['bindTo']));
 
                 $current++;
             }
