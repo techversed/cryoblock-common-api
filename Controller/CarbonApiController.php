@@ -4,12 +4,14 @@ namespace Carbon\ApiBundle\Controller;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Query\Expr\Join;
+use JMS\Serializer\Naming\CamelCaseNamingStrategy;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Form\Form;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * Abstract class to be extended by all api resources
@@ -218,7 +220,9 @@ abstract class CarbonApiController extends Controller
                     $associationMapping['mappedBy'] => $entity
                 ));
                 if ($undeletableRelationsExist) {
-                    $message = 'The object your trying to delete is linked to objects that can not be deleted.';
+                    $relationName = preg_replace('/[A-Z]/', ' ' . '\\0', $associationMapping['fieldName']);
+                    $relationName = ucfirst($relationName);
+                    $message = 'The object your trying to delete has links to "' . $relationName . '" that can not be deleted.';
                     $headers = array('CB-DELETE-MESSAGE' => $message);
                     throw new HttpException(403, $message, null, $headers);
                 }
@@ -227,7 +231,7 @@ abstract class CarbonApiController extends Controller
 
         // we can delete the entity, lets soft delete any deletable relations
         foreach ($metadata->associationMappings as $associationMapping) {
-            if ($associationMapping['isCascadeRemove']) {
+            if ($associationMapping['isCascadeRemove'] && $associationMapping['type'] != ClassMetadataInfo::MANY_TO_MANY) {
                 $now = new \DateTime();
                 $q = $this->getEntityManager()->createQuery(sprintf(
                     'UPDATE %s e SET e.deletedAt = \'%s\' WHERE e.%s = %s',
@@ -273,7 +277,7 @@ abstract class CarbonApiController extends Controller
 
         // we can delete the entity, lets soft delete any deletable relations
         foreach ($metadata->associationMappings as $associationMapping) {
-            if ($associationMapping['isCascadeRemove']) {
+            if ($associationMapping['isCascadeRemove'] && $associationMapping['type'] != ClassMetadataInfo::MANY_TO_MANY) {
                 $filter->disableForEntity($associationMapping['targetEntity']);
                 $now = new \DateTime();
                 $q = $this->getEntityManager()->createQuery(sprintf(
@@ -313,13 +317,13 @@ abstract class CarbonApiController extends Controller
 
         $entity = $gridResult['data'][0];
 
-        $this->checkPermission('PATCH', $entity);
+        $this->checkPermission('DELETE', $entity);
 
         $metadata = $this->getEntityManager()->getClassMetaData(get_class($entity));
 
         // we can delete the entity, lets soft delete any deletable relations
         foreach ($metadata->associationMappings as $associationMapping) {
-            if ($associationMapping['isCascadeRemove']) {
+            if ($associationMapping['isCascadeRemove'] && $associationMapping['type'] != ClassMetadataInfo::MANY_TO_MANY) {
                 $filter->disableForEntity($associationMapping['targetEntity']);
                 $now = new \DateTime();
                 $q = $this->getEntityManager()->createQuery(sprintf(
