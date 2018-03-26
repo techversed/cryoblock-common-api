@@ -4,12 +4,13 @@ namespace Carbon\ApiBundle\Entity\Storage;
 
 use JMS\Serializer\Annotation AS JMS;
 use Carbon\ApiBundle\Annotation AS Carbon;
+use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @ORM\MappedSuperclass */
-class BaseSampleType
+class BaseSampleType extends BaseCryoblockEntity
 {
     /**
      * @var string
@@ -20,15 +21,6 @@ class BaseSampleType
      * @Gedmo\Versioned
      */
     protected $name;
-
-    /**
-     * @var \DateTime $deletedAt
-     *
-     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
-     * @JMS\Groups({"default"})
-     * @Gedmo\Versioned
-     */
-    protected $deletedAt;
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\Sample", mappedBy="sampleType")
@@ -70,29 +62,5 @@ class BaseSampleType
     public function getStringLabel()
     {
         return $this->getName();
-    }
-
-    /**
-     * Gets the value of deletedAt.
-     *
-     * @return \DateTime $deletedAt
-     */
-    public function getDeletedAt()
-    {
-        return $this->deletedAt;
-    }
-
-    /**
-     * Sets the value of deletedAt.
-     *
-     * @param \DateTime $deletedAt $deletedAt the deleted at
-     *
-     * @return self
-     */
-    public function setDeletedAt($deletedAt)
-    {
-        $this->deletedAt = $deletedAt;
-
-        return $this;
     }
 }

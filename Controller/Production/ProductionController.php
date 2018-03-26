@@ -465,6 +465,11 @@ class ProductionController extends CarbonApiController
             'Molar',
         ));
 
+        $volumeUnits = implode(', ', array(
+            'mL',
+            'uL'
+        ));
+
         $statuses = implode(', ', array(
             'Available',
             'Depleted',
@@ -542,6 +547,23 @@ class ProductionController extends CarbonApiController
                     $objValidation->setPromptTitle('Pick from list');
                     $objValidation->setPrompt('Please pick a value from the drop-down list.');
                     $objValidation->setFormula1('"' . $concentrationUnits . '"');
+
+                }
+
+                if ($label == 'Volume Units') {
+
+                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
+                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
+                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
+                    $objValidation->setAllowBlank(false);
+                    $objValidation->setShowInputMessage(true);
+                    $objValidation->setShowErrorMessage(true);
+                    $objValidation->setShowDropDown(true);
+                    $objValidation->setErrorTitle('Input error');
+                    $objValidation->setError('Value is not in list.');
+                    $objValidation->setPromptTitle('Pick from list');
+                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
+                    $objValidation->setFormula1('"' . $volumeUnits . '"');
 
                 }
 
