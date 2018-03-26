@@ -20,7 +20,7 @@ class BaseSampleTypeController extends CarbonApiController
      *
      * @Route("/storage/sample-type", name="sample_type_get")
      * @Method("GET")
-     * @return [type] [description]
+     * @return Response
      */
     public function handleGet()
     {
@@ -32,7 +32,7 @@ class BaseSampleTypeController extends CarbonApiController
      *
      * @Route("/storage/sample-type", name="sample_type_post")
      * @Method("POST")
-     * @return [type] [description]
+     * @return Response
      */
     public function handlePost()
     {
@@ -45,7 +45,7 @@ class BaseSampleTypeController extends CarbonApiController
      * @todo  figure out why PUT method has no request params
      * @Route("/storage/sample-type", name="sample_type_put")
      * @Method("PUT")
-     * @return [type] [description]
+     * @return Response
      */
     public function handlePut()
     {
@@ -57,10 +57,32 @@ class BaseSampleTypeController extends CarbonApiController
      *
      * @Route("/storage/sample-type", name="sample_type_delete")
      * @Method("DELETE")
-     * @return [type] [description]
+     * @return Response
      */
     public function handleDelete()
     {
         return parent::handleDelete();
+    }
+
+    /**
+     * @Route("/storage/sample-type", name="sample_type_patch")
+     * @Method("PATCH")
+     *
+     * @return Response
+     */
+    public function handlePatch()
+    {
+        return parent::handlePatch();
+    }
+
+    /**
+     * @Route("/storage/sample-type", name="sample_type_purge")
+     * @Method("PURGE")
+     *
+     * @return Response
+     */
+    public function handlePurge()
+    {
+        return parent::handlePurge();
     }
 }

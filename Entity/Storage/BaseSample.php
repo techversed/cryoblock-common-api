@@ -26,6 +26,16 @@ class BaseSample
     );
 
     /**
+     * Valid volume units
+     *
+     * @var array
+     */
+    protected $validVolumeUnits = array(
+        'mL',
+        'uL',
+    );
+
+    /**
      * Valid sample statuses
      *
      * @var array
@@ -223,7 +233,6 @@ class BaseSample
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      * @JMS\Type("double")
-     * @Gedmo\Versioned
      */
     protected $concentration;
 
@@ -239,11 +248,21 @@ class BaseSample
     /**
      * @var float $volume
      *
-     * @ORM\Column(name="volume", type="decimal", precision=3, nullable=true)
+     * @ORM\Column(name="volume", type="decimal", precision=20, scale=3, nullable=true)
      * @Gedmo\Versioned
+     * @JMS\Type("double")
      * @JMS\Groups({"default"})
      */
     protected $volume;
+
+    /**
+     * @var string $volumeUnits
+     *
+     * @ORM\Column(name="volume_units", type="string", nullable=true, length=15)
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $volumeUnits;
 
     /**
      * @var float $mass
@@ -981,6 +1000,30 @@ class BaseSample
     public function setCatalogId($catalogId)
     {
         $this->catalogId = $catalogId;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of volumeUnits.
+     *
+     * @return string $volumeUnits
+     */
+    public function getVolumeUnits()
+    {
+        return $this->volumeUnits;
+    }
+
+    /**
+     * Sets the value of volumeUnits.
+     *
+     * @param string $volumeUnits $volumeUnits the volume units
+     *
+     * @return self
+     */
+    public function setVolumeUnits($volumeUnits)
+    {
+        $this->volumeUnits = $volumeUnits;
 
         return $this;
     }
