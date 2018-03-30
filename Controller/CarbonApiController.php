@@ -2,11 +2,16 @@
 
 namespace Carbon\ApiBundle\Controller;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Query\Expr\Join;
+use JMS\Serializer\Naming\CamelCaseNamingStrategy;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Form\Form;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * Abstract class to be extended by all api resources
@@ -23,6 +28,8 @@ abstract class CarbonApiController extends Controller
      */
     protected function handleGet()
     {
+        $this->checkPermission('GET');
+
         $entityRepository = $this->getEntityRepository();
 
         $request = $this->getRequest();
@@ -46,6 +53,8 @@ abstract class CarbonApiController extends Controller
      */
     protected function handleMTMGet($type, $id)
     {
+        $this->checkPermission('GET');
+
         if (!defined('static::RESOURCE_ENTITY')) {
             throw new \LogicException('No resource entity is defined. Did you add the RESOURCE_ENTITY const to your resource controller?');
         }
@@ -102,6 +111,8 @@ abstract class CarbonApiController extends Controller
      */
     protected function handlePost()
     {
+        $this->checkPermission('POST');
+
         $request = $this->getRequest();
 
         if (($contentType = $request->getContentType()) !== 'json') {
@@ -161,6 +172,8 @@ abstract class CarbonApiController extends Controller
 
         $entity = $gridResult['data'][0];
 
+        $this->checkPermission('PUT', $entity);
+
         if (!defined('static::FORM_TYPE')) {
             throw new \LogicException('No form type specified. Did you add the FORM_TYPE const to your resource controller?');
         }
@@ -180,7 +193,7 @@ abstract class CarbonApiController extends Controller
     }
 
     /**
-     * Default DELETE handling for resource update
+     * Default DELETE handling for resource
      *
      * @return Symfony\Component\HttpFoundation\Response
      */
@@ -197,12 +210,133 @@ abstract class CarbonApiController extends Controller
 
         $entity = $gridResult['data'][0];
 
-        // if ($this->resourceSecurity) {
-        //     $resourceSecurity = $this->resourceSecurity;
-        //     $this->denyAccessUnlessGranted('delete', array($entity, $resourceSecurity));
-        // }
+        $this->checkPermission('DELETE', $entity);
+
+        $metadata = $this->getEntityManager()->getClassMetaData(get_class($entity));
+
+        foreach ($metadata->associationMappings as $associationMapping) {
+            if (!$associationMapping['isCascadeRemove'] && $associationMapping['type'] != ClassMetadataInfo::MANY_TO_ONE) {
+                $undeletableRelationsExist = $this->getEntityManager()->getRepository($associationMapping['targetEntity'])->findOneBy(array(
+                    $associationMapping['mappedBy'] => $entity
+                ));
+                if ($undeletableRelationsExist) {
+                    $relationName = preg_replace('/[A-Z]/', ' ' . '\\0', $associationMapping['fieldName']);
+                    $relationName = ucfirst($relationName);
+                    $message = 'The object your trying to delete has links to "' . $relationName . '" that can not be deleted.';
+                    $headers = array('CB-DELETE-MESSAGE' => $message);
+                    throw new HttpException(403, $message, null, $headers);
+                }
+            }
+        }
+
+        // we can delete the entity, lets soft delete any deletable relations
+        foreach ($metadata->associationMappings as $associationMapping) {
+            if ($associationMapping['isCascadeRemove'] && $associationMapping['type'] != ClassMetadataInfo::MANY_TO_MANY) {
+                $now = new \DateTime();
+                $q = $this->getEntityManager()->createQuery(sprintf(
+                    'UPDATE %s e SET e.deletedAt = \'%s\' WHERE e.%s = %s',
+                    $associationMapping['targetEntity'],
+                    $now->format('Y-m-d H:i:s'),
+                    $associationMapping['mappedBy'],
+                    $entity->getId()
+                ));
+                $q->execute();
+            }
+        }
 
         $this->getEntityManager()->remove($entity);
+        $this->getEntityManager()->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => true)));
+    }
+
+    /**
+     * Default PURGE handling for resource
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     */
+    protected function handlePurge()
+    {
+        $filter = $this->getEntityManager()->getFilters()->enable('softdeleteable');
+        $filter->disableForEntity($this->getEntityClass());
+
+        $gridResult = $this->getGrid()->getResult($this->getEntityRepository());
+
+        if (($foundResultsCount = count($gridResult['data'])) > 1 || $foundResultsCount === 0) {
+            return new Response(sprintf(
+                'Delete method expects one entity to be found for deletion, %s found from GET params',
+                $foundResultsCount
+            ), 401);
+        }
+
+        $entity = $gridResult['data'][0];
+
+        $this->checkPermission('DELETE', $entity);
+
+        $metadata = $this->getEntityManager()->getClassMetaData(get_class($entity));
+
+        // we can delete the entity, lets soft delete any deletable relations
+        foreach ($metadata->associationMappings as $associationMapping) {
+            if ($associationMapping['isCascadeRemove'] && $associationMapping['type'] != ClassMetadataInfo::MANY_TO_MANY) {
+                $filter->disableForEntity($associationMapping['targetEntity']);
+                $now = new \DateTime();
+                $q = $this->getEntityManager()->createQuery(sprintf(
+                    'DELETE FROM %s e WHERE e.%s = %s',
+                    $associationMapping['targetEntity'],
+                    $associationMapping['mappedBy'],
+                    $entity->getId()
+                ));
+                $q->execute();
+            }
+        }
+
+        $this->getEntityManager()->remove($entity);
+        $this->getEntityManager()->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => true)));
+    }
+
+    /**
+     * Default PATCH handling used for restoring an object
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     */
+    protected function handlePatch()
+    {
+        $filter = $this->getEntityManager()->getFilters()->enable('softdeleteable');
+        $filter->disableForEntity($this->getEntityClass());
+
+        $gridResult = $this->getGrid()->getResult($this->getEntityRepository());
+
+        if (($foundResultsCount = count($gridResult['data'])) > 1 || $foundResultsCount === 0) {
+            return new Response(sprintf(
+                'Delete method expects one entity to be found for deletion, %s found from GET params',
+                $foundResultsCount
+            ), 401);
+        }
+
+        $entity = $gridResult['data'][0];
+
+        $this->checkPermission('DELETE', $entity);
+
+        $metadata = $this->getEntityManager()->getClassMetaData(get_class($entity));
+
+        // we can delete the entity, lets soft delete any deletable relations
+        foreach ($metadata->associationMappings as $associationMapping) {
+            if ($associationMapping['isCascadeRemove'] && $associationMapping['type'] != ClassMetadataInfo::MANY_TO_MANY) {
+                $filter->disableForEntity($associationMapping['targetEntity']);
+                $now = new \DateTime();
+                $q = $this->getEntityManager()->createQuery(sprintf(
+                    'UPDATE %s e SET e.deletedAt = NULL WHERE e.%s = %s',
+                    $associationMapping['targetEntity'],
+                    $associationMapping['mappedBy'],
+                    $entity->getId()
+                ));
+                $q->execute();
+            }
+        }
+
+        $entity->setDeletedAt(null);
         $this->getEntityManager()->flush();
 
         return $this->getJsonResponse(json_encode(array('success' => true)));
@@ -325,5 +459,36 @@ abstract class CarbonApiController extends Controller
         }
 
         return $this->getJsonResponse($this->getSerializationHelper()->serialize($errors), 400);
+    }
+
+    protected function checkPermission($method, $entity = null)
+    {
+        if (isset($this->security) && array_key_exists($method, $this->security)) {
+
+            $allowedRoles = $this->security[$method]['roles'];
+            $hasPermission = false;
+            $user = $this->getUser();
+            foreach ($allowedRoles as $allowedRole) {
+                if ($user->hasRole($allowedRole)) {
+                    $hasPermission = true;
+                }
+            }
+            $allowedRolesString = implode(', ', $allowedRoles);
+            $message = "Action only allowed for users with role(s) " . $allowedRolesString;
+
+            // allow creator of object to perform action
+            if (array_key_exists('allow_creator', $this->security[$method]) && $entity) {
+                if (method_exists($entity, 'getCreatedBy') && ($entity->getCreatedBy()->getId() == $this->getUser()->getId())) {
+                    $hasPermission = true;
+                }
+                $message .= ' or user ' . $entity->getCreatedBy()->getStringLabel();
+            }
+
+            $message .='.';
+
+            if (!$hasPermission) {
+                throw new UnauthorizedHttpException($message);
+            }
+        }
     }
 }
