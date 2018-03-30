@@ -24,7 +24,7 @@ class CryoblockMailer
         $this->mailer = $container->get('mailer');
     }
 
-    public function send($subject, $template, $to, $params = array(), $from = null)
+    public function send($subject, $template, $to, $params = array(), $from = null, $groups = array())
     {
         $content = $this->getTemplatingEngine()->render($template, $params);
 
@@ -38,6 +38,27 @@ class CryoblockMailer
 
         } else {
             $fromArray = $from;
+        }
+
+        if (count($groups)) {
+
+            $em = $this->container->get('doctrine.orm.default_entity_manager');
+
+            $groups = $em->getRepository("Carbon\ApiBundle\Entity\Group")->findBy(
+                array('name' => $groups)
+            );
+
+            foreach ($groups as $group) {
+                foreach ($group->getGroupUsers() as $groupUser) {
+                    $user = $groupUser->getUser();
+                    $to[$user->getEmail()] = $user->getStringLabel();
+                }
+            }
+
+        }
+
+        if (count($to) == 0) {
+            throw new \UnexpectedValueException('Can not send email to no one. $to array is empty');
         }
 
         $message = \Swift_Message::newInstance()
