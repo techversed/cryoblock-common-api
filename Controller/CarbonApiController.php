@@ -101,7 +101,6 @@ abstract class CarbonApiController extends Controller
         $serialized = $this->getSerializationHelper()->serialize($results);
 
         return $this->getJsonResponse($serialized);
-
     }
 
     /**

@@ -78,14 +78,12 @@ abstract class BaseRequest Implements BaseRequestInterface
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Production\Pipeline")
      * @ORM\JoinColumn(name="pipeline_id", referencedColumnName="id", nullable=true)
-     * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
     protected $pipeline;
 
     /**
      * @ORM\Column(name="pipeline_step", type="integer", nullable=true)
-     * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
     protected $pipelineStep;
@@ -146,11 +144,9 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @var \DateTime $deletedAt
      *
      * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
-     * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
     protected $deletedAt;
-
 
     /**
      * Gets the Valid statuses.

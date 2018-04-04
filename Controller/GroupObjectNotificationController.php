@@ -10,38 +10,34 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NotFoundHttpException;
 
-class ObjectNotificationController extends CarbonApiController
+class GroupObjectNotificationController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity
      */
-    const RESOURCE_ENTITY = "Carbon\ApiBundle\Entity\ObjectNotification";
+    const RESOURCE_ENTITY = "Carbon\ApiBundle\Entity\GroupObjectNotification";
 
     /**
      * @var string The form type for this resource
      */
-    const FORM_TYPE = "object_notification";
+    const FORM_TYPE = "group_object_notification";
 
     /**
-     * Handles the HTTP GET request for the object notification entity
-     *
-     * @Route("/object-notification", name="object_notification_get")
+     * @Route("/cryoblock/group-object-notification", name="group_object_notification_get")
      * @Method("GET")
-     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
-    public function handleGet()
+    public function getAction()
     {
         return parent::handleGet();
     }
 
     /**
-     * Handles the HTTP POST request for the object notification entity
+     * Handles the HTTP POST request for the group entity
      *
-     * @Route("/object-notification", name="object_notification_post")
+     * @Route("/cryoblock/group-object-notification", name="group_object_notification_post")
      * @Method("POST")
-     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
@@ -51,11 +47,10 @@ class ObjectNotificationController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP PUT request for the object notification entity
+     * Handles the HTTP PUT request for the group entity
      *
-     * @Route("/object-notification", name="object_notification_put")
+     * @Route("/cryoblock/group-object-notification", name="group_object_notification_put")
      * @Method("PUT")
-     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
