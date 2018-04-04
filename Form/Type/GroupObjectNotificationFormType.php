@@ -8,7 +8,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class ObjectNotificationFormType extends CryoblockAbstractType
+class GroupObjectNotificationFormType extends CryoblockAbstractType
 {
     private $class;
 
@@ -20,7 +20,9 @@ class ObjectNotificationFormType extends CryoblockAbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('objectType', 'text')
+            ->add('entity', 'text')
+            ->add('url', 'text')
+            ->add('objectDescription', 'text')
             ->add('onCreateGroup', 'entity', array(
                 'class' => 'Carbon\\ApiBundle\\Entity\\Group',
                 'property' => 'on_create_group_id',
@@ -62,6 +64,7 @@ class ObjectNotificationFormType extends CryoblockAbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
+            'data_class' => 'Carbon\ApiBundle\Entity\GroupObjectNotification',
             'csrf_protection' => false,
         ));
     }
@@ -73,6 +76,6 @@ class ObjectNotificationFormType extends CryoblockAbstractType
 
     public function getName()
     {
-        return 'object_notification';
+        return 'group_object_notification';
     }
 }
