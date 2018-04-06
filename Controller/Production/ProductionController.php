@@ -67,6 +67,8 @@ class ProductionController extends CarbonApiController
     {
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
+        $requestObjectFormData = $data['requestObject'];
+        $requestFormType = $data['requestFormType'];
 
         $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
 
@@ -95,7 +97,10 @@ class ProductionController extends CarbonApiController
 
         }
 
-        $prodRequest->setStatus(BaseRequest::STATUS_COMPLETED);
+        $em->flush();
+
+        $form = $this->createForm($requestFormType, $prodRequest);
+        $form->submit($requestObjectFormData, true);
 
         $em->flush();
 
@@ -400,7 +405,7 @@ class ProductionController extends CarbonApiController
 
         $objPHPExcel = new \PHPExcel();
 
-        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->findOneByName($outputSampleDefaults['sampleType']);
+        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->find(1);
 
         $importer = $this->container->get('sample.importer');
         $sampleTypeMapping = $importer->getMapping($sampleType);
@@ -419,38 +424,21 @@ class ProductionController extends CarbonApiController
             $style = $objPHPExcel->getActiveSheet()->getStyle($aRange[$current] . '1');
             $style->getFont()->setBold(true);
 
-
-            if (array_key_exists('enum', $column)) {
-
-                if (is_array($column['enum'])) {
-
-                } else {
-                    $itemArray = [];
-                    $itemEntities = $this->getEntityManager()->getRepository($column['enum'])->findAll();
-                    foreach ($itemEntities as $itemEntity) {
-                        $itemArray[] = $itemEntity->getName();
-                    }
-                    // $column['enumItems'] = implode(', ', $itemArray);
-                    $column['enumItems'] = implode(', ', array_slice($itemArray, 0, 19));
-                    var_dump($column['enumItems']);
-                    die;
-                }
-
-            }
-
             $current++;
         }
 
         $currentSample = 1;
-        $protectedLabels = array(
-            'Id',
-            'Sample Type',
-            'Catalog',
-            'Lot',
-            'Division',
-            'Division Row',
-            'Division Column',
-        );
+
+        $protectedLabels = array();
+        // $protectedLabels = array(
+        //     'Id',
+        //     'Sample Type',
+        //     'Catalog',
+        //     'Lot',
+        //     'Division',
+        //     'Division Row',
+        //     'Division Column',
+        // );
 
         $storageContainers = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\StorageContainer')->findAll();
 
@@ -584,7 +572,28 @@ class ProductionController extends CarbonApiController
                 }
 
                 if (array_key_exists($column['prop'], $outputSampleDefaults)) {
-                    $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$column['prop']]);
+
+                    if (is_array($outputSampleDefaults[$column['prop']])) {
+                        $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
+                        $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
+                        $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
+                        $objValidation->setAllowBlank(false);
+                        $objValidation->setShowInputMessage(true);
+                        $objValidation->setShowErrorMessage(true);
+                        $objValidation->setShowDropDown(true);
+                        $objValidation->setErrorTitle('Input error');
+                        $objValidation->setError('Value is not in list.');
+                        $objValidation->setPromptTitle('Pick from list');
+                        $objValidation->setPrompt('Please pick a value from the drop-down list.');
+                        $objValidation->setFormula1('"' . implode(', ', $outputSampleDefaults[$column['prop']]) . '"');
+
+                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$column['prop']][0]);
+                    } else {
+
+                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$column['prop']]);
+
+                    }
+
                 }
 
                 $current++;

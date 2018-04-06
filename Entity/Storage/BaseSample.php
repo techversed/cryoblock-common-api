@@ -1027,4 +1027,16 @@ class BaseSample
 
         return $this;
     }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getVolumeString()
+    {
+        return $this->volume
+            ? $this->volume . ' ' . $this->volumeUnits
+            : ''
+        ;
+    }
 }

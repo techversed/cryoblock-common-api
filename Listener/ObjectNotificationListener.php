@@ -212,6 +212,10 @@ class ObjectNotificationListener
             }
         }
 
+        if (count($changeSets) == 0) {
+            return;
+        }
+
         $linkUrl = sprintf(
             "%s%s/%s",
             $this->frontendUrl,
