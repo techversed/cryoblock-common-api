@@ -457,7 +457,7 @@ abstract class CarbonApiController extends Controller
 
         }
 
-        return $this->getJsonResponse($this->getSerializationHelper()->serialize($errors), 400);
+        return $this->getJsonResponse($this->getSerializationHelper()->serialize(array('violations' => $errors)), 400);
     }
 
     protected function checkPermission($method, $entity = null)

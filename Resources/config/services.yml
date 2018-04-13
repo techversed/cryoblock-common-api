@@ -99,11 +99,11 @@ services:
         # small performance boost
         public: false
 
-    carbon_api.validator.storage_location_validator:
-        class: Carbon\ApiBundle\Validator\Constraints\Storage\StorageLocationValidator
-        arguments: ["@doctrine.orm.default_entity_manager", "@security.token_storage"]
-        tags:
-            - { name: validator.constraint_validator, alias: storage_location_validator }
+    # carbon_api.validator.storage_location_validator:
+    #     class: Carbon\ApiBundle\Validator\Constraints\Storage\StorageLocationValidator
+    #     arguments: ["@doctrine.orm.default_entity_manager", "@security.token_storage"]
+    #     tags:
+    #         - { name: validator.constraint_validator, alias: storage_location_validator }
 
     carbon_api.production.request.listener:
         class: Carbon\ApiBundle\Listener\Production\ProductionRequestListener

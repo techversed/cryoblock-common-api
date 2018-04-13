@@ -121,10 +121,20 @@ class BaseSampleController extends CarbonApiController
         $repo = $this->getEntityRepository();
 
         foreach ($sampleMoveMap as $map) {
-            $sample = $repo->find($map['sampleId']);
-            $sample->setDivisionRow($map['row']);
-            $sample->setDivisionColumn($map['column']);
+
+            $sample = $repo->find($map['id']);
+
+            $form = $this->createForm('sample', $sample);
+            $form->submit($map);
+
+            if (!$form->isValid()) {
+
+                return $this->getFormErrorResponse($form);
+
+            }
+
         }
+
 
         $this->getEntityManager()->flush();
 
