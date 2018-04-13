@@ -143,6 +143,10 @@ class BaseDivisionRepository extends NestedTreeRepository
             return true;
         }
 
+        if ($user->hasRole('ROLE_INVENTORY_ADMIN')) {
+            return true;
+        }
+
         # check for view groups
         $viewGroups = $this->getEntityManager()->createQueryBuilder()
             ->select('dgv')
@@ -180,6 +184,10 @@ class BaseDivisionRepository extends NestedTreeRepository
     public function canUserEdit(Division $division, User $user)
     {
         if ($division->getIsPublicEdit()) {
+            return true;
+        }
+
+        if ($user->hasRole('ROLE_INVENTORY_ADMIN')) {
             return true;
         }
 
