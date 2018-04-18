@@ -23,6 +23,14 @@ class BaseTag extends BaseCryoblockEntity
     protected $name;
 
     /**
+     * @ORM\Column(nullable=true)
+     * @JMS\Groups("default")
+     * @Carbon\Searchable(name="description")
+     * @Gedmo\Versioned
+     */
+    protected $description;
+
+    /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\Sample", mappedBy="tag")
      */
     protected $tagSamples;
@@ -57,5 +65,53 @@ class BaseTag extends BaseCryoblockEntity
     public function getStringLabel()
     {
         return $this->getName();
+    }
+
+    /**
+     * Gets the value of description.
+     *
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Sets the value of description.
+     *
+     * @param mixed $description the description
+     *
+     * @return self
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of tagSamples.
+     *
+     * @return mixed
+     */
+    public function getTagSamples()
+    {
+        return $this->tagSamples;
+    }
+
+    /**
+     * Sets the value of tagSamples.
+     *
+     * @param mixed $tagSamples the tag samples
+     *
+     * @return self
+     */
+    public function setTagSamples($tagSamples)
+    {
+        $this->tagSamples = $tagSamples;
+
+        return $this;
     }
 }
