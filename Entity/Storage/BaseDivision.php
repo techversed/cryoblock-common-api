@@ -160,18 +160,6 @@ class BaseDivision
     protected $divisionSampleTypes;
 
     /**
-     * @ORM\Column(name="allow_all_tags", type="boolean")
-     * @JMS\Groups({"default"})
-     */
-    protected $allowAllTags = true;
-
-    /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionTag", mappedBy="division")
-     * @JMS\Groups({"children"})
-     */
-    protected $divisionTags;
-
-    /**
      * @ORM\Column(name="allow_all_storage_containers", type="boolean")
      * @JMS\Groups({"default"})
      */

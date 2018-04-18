@@ -28,11 +28,6 @@ class BaseTag extends BaseCryoblockEntity
     protected $tagSamples;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionTag", mappedBy="tag")
-     */
-    protected $divisionTags;
-
-    /**
      * Set name
      *
      * @param string $name
