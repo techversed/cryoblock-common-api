@@ -20,7 +20,7 @@ class BaseSampleTagController extends CarbonApiController
             'joinColumn' => 'tagId',
             'whereColumn' => 'sampleId',
         ),
-        'sample-type' => array(
+        'tag' => array(
             'returnedEntity' => 'AppBundle\Entity\Storage\Sample',
             'joinColumn' => 'sampleId',
             'whereColumn' => 'tagId',

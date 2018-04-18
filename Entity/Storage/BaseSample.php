@@ -293,6 +293,11 @@ class BaseSample
     /**
      * @JMS\Groups({"default"})
      */
+    public $tags;
+
+    /**
+     * @JMS\Groups({"default"})
+     */
     public $storageRecommended;
 
     /**
@@ -1044,5 +1049,75 @@ class BaseSample
             ? $this->volume . ' ' . $this->volumeUnits
             : ''
         ;
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getTagString()
+    {
+
+        $tagNames = [];
+
+        if(isset($this->sampleTags)) {
+
+            foreach($this->sampleTags as $sampleTag) {
+
+                $tagNames[] = $sampleTag->getTag()->getName();
+
+            }
+
+            return implode(", ", $tagNames);
+        }
+
+    }
+
+    /**
+     * Gets the value of sampleTags.
+     *
+     * @return mixed
+     */
+    public function getSampleTags()
+    {
+        return $this->sampleTags;
+    }
+
+    /**
+     * Sets the value of sampleTags.
+     *
+     * @param mixed $sampleTags the sample tags
+     *
+     * @return self
+     */
+    public function setSampleTags($sampleTags)
+    {
+        $this->sampleTags = $sampleTags;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of tags.
+     *
+     * @return mixed
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * Sets the value of tags.
+     *
+     * @param mixed $tags the tags
+     *
+     * @return self
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+
+        return $this;
     }
 }

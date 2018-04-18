@@ -31,9 +31,15 @@ class BaseTag extends BaseCryoblockEntity
     protected $description;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\Sample", mappedBy="tag")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SampleTag", mappedBy="tag")
+     * @JMS\Groups({"children"})
      */
-    protected $tagSamples;
+    protected $sampleTags;
+
+    /**
+     * @JMS\Groups({"default"})
+     */
+    public $samples;
 
     /**
      * Set name
