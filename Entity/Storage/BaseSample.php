@@ -285,6 +285,12 @@ class BaseSample
     protected $lot;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SampleTag", mappedBy="sample")
+     * @JMS\Groups({"children"})
+     */
+    protected $sampleTags;
+
+    /**
      * @JMS\Groups({"default"})
      */
     public $storageRecommended;

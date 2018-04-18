@@ -160,6 +160,18 @@ class BaseDivision
     protected $divisionSampleTypes;
 
     /**
+     * @ORM\Column(name="allow_all_tags", type="boolean")
+     * @JMS\Groups({"default"})
+     */
+    protected $allowAllTags = true;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionTag", mappedBy="division")
+     * @JMS\Groups({"children"})
+     */
+    protected $divisionTags;
+
+    /**
      * @ORM\Column(name="allow_all_storage_containers", type="boolean")
      * @JMS\Groups({"default"})
      */
@@ -196,6 +208,8 @@ class BaseDivision
     protected $divisionGroupViewers;
 
     public $sampleTypes;
+
+    public $tags;
 
     public $storageContainers;
 
@@ -1045,4 +1059,76 @@ class BaseDivision
         return $this->getPath();
     }
 
+
+    /**
+     * Gets the value of allowAllTags.
+     *
+     * @return mixed
+     */
+    public function getAllowAllTags()
+    {
+        return $this->allowAllTags;
+    }
+
+    /**
+     * Sets the value of allowAllTags.
+     *
+     * @param mixed $allowAllTags the allow all tags
+     *
+     * @return self
+     */
+    public function setAllowAllTags($allowAllTags)
+    {
+        $this->allowAllTags = $allowAllTags;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of divisionTags.
+     *
+     * @return mixed
+     */
+    public function getDivisionTags()
+    {
+        return $this->divisionTags;
+    }
+
+    /**
+     * Sets the value of divisionTags.
+     *
+     * @param mixed $divisionTags the division tags
+     *
+     * @return self
+     */
+    public function setDivisionTags($divisionTags)
+    {
+        $this->divisionTags = $divisionTags;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of tags.
+     *
+     * @return mixed
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * Sets the value of tags.
+     *
+     * @param mixed $tags the tags
+     *
+     * @return self
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
 }
