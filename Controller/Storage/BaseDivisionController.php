@@ -7,6 +7,7 @@ use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class BaseDivisionController extends CarbonApiController
 {
@@ -98,9 +99,30 @@ class BaseDivisionController extends CarbonApiController
      */
     public function handlePut()
     {
-        $response = parent::handlePut();
+        $gridResult = $this->getGrid()->getResult($this->getEntityRepository());
 
-        return $response;
+        if (($foundResultsCount = count($gridResult['data'])) > 1 || $foundResultsCount === 0) {
+            return new Response(sprintf(
+                'Delete method expects one entity to be found for deletion, %s found from GET params',
+                $foundResultsCount
+            ), 401);
+        }
+
+        $division = $gridResult['data'][0];
+
+        $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')
+            ->canUserEdit($division, $this->getUser())
+        ;
+
+        if (!$canEdit) {
+            return $this->getJsonResponse($this->getSerializationHelper()->serialize(
+                array('violations' => array(array(
+                    'Sorry, you do not have permission to edit division ' . $division->getId(),
+                )))
+            ), 400);
+        }
+
+        return parent::handlePut();
     }
 
     /**
@@ -113,7 +135,80 @@ class BaseDivisionController extends CarbonApiController
      */
     public function handleDelete()
     {
-        return parent::handleDelete();
+        $gridResult = $this->getGrid()->getResult($this->getEntityRepository());
+
+        if (($foundResultsCount = count($gridResult['data'])) > 1 || $foundResultsCount === 0) {
+            return new Response(sprintf(
+                'Delete method expects one entity to be found for deletion, %s found from GET params',
+                $foundResultsCount
+            ), 401);
+        }
+
+        $division = $gridResult['data'][0];
+
+        $canEdit = $this->getEntityRepository()->canUserEdit($division, $this->getUser());
+
+        if (!$canEdit) {
+            $message = 'You do not have permission to delete this division.';
+            throw new UnauthorizedHttpException($message);
+        }
+
+        $response = parent::handleDelete();
+
+        return $response;
+    }
+
+    /**
+     * @Route("/storage/division", name="division_patch")
+     * @Method("PATCH")
+     *
+     * @return Response
+     */
+    public function handlePatch()
+    {
+        $filter = $this->getEntityManager()->getFilters()->enable('softdeleteable');
+        $filter->disableForEntity($this->getEntityClass());
+
+        $gridResult = $this->getGrid()->getResult($this->getEntityRepository());
+
+        if (($foundResultsCount = count($gridResult['data'])) > 1 || $foundResultsCount === 0) {
+            return new Response(sprintf(
+                'Delete method expects one entity to be found for deletion, %s found from GET params',
+                $foundResultsCount
+            ), 401);
+        }
+
+        $division = $gridResult['data'][0];
+
+        $canEdit = $this->getEntityRepository()->canUserEdit($division, $this->getUser());
+
+        if (!$canEdit) {
+            $message = 'You do not have permission to restore this division.';
+            throw new UnauthorizedHttpException($message);
+        }
+
+        $response = parent::handlePatch();
+
+        if ($response->getStatusCode() == 200) {
+
+            $this->getEntityRepository()->recover();
+            $this->getEntityManager()->flush();
+
+        }
+
+
+        return $response;
+    }
+
+    /**
+     * @Route("/storage/division", name="division_purge")
+     * @Method("PURGE")
+     *
+     * @return Response
+     */
+    public function handlePurge()
+    {
+        return parent::handlePurge();
     }
 
     /**

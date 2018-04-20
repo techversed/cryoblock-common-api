@@ -157,28 +157,50 @@ class BaseDivisionListener
             $isPublicEdit = $parentDivision->getIsPublicEdit();
         }
 
-        foreach ($currentDivisionEditors as $currentDivisionEditor) {
-            if (!isset($removingDivisionEditors[$currentDivisionEditor->getUser()->getId()])) {
-                $divisionEditors[] = $currentDivisionEditor->getUser();
+        if ($currentDivisionEditors) {
+
+            foreach ($currentDivisionEditors as $currentDivisionEditor) {
+                if (!isset($removingDivisionEditors[$currentDivisionEditor->getUser()->getId()])) {
+                    $divisionEditors[] = $currentDivisionEditor->getUser();
+                }
             }
+
         }
 
-        foreach ($currentDivisionGroupEditors as $currentDivisionGroupEditor) {
-            if (!isset($removingDivisionGroupEditors[$currentDivisionGroupEditor->getGroup()->getId()])) {
-                $divisionGroupEditors[] = $currentDivisionGroupEditor->getGroup();
+        if ($currentDivisionGroupEditors) {
+
+            foreach ($currentDivisionGroupEditors as $currentDivisionGroupEditor) {
+                if (!isset($removingDivisionGroupEditors[$currentDivisionGroupEditor->getGroup()->getId()])) {
+                    $divisionGroupEditors[] = $currentDivisionGroupEditor->getGroup();
+                }
             }
+
         }
 
-        foreach ($currentDivisionViewers as $currentDivisionViewer) {
-            if (!isset($removingDivisionViewers[$currentDivisionViewer->getUser()->getId()])) {
-                $divisionViewers[] = $currentDivisionViewer;
+        if ($currentDivisionViewers) {
+
+            foreach ($currentDivisionViewers as $currentDivisionViewer) {
+                if (!isset($removingDivisionViewers[$currentDivisionViewer->getUser()->getId()])) {
+                    $divisionViewers[] = $currentDivisionViewer;
+                }
             }
+
         }
 
-        foreach ($currentDivisionGroupViewers as $currentDivisionGroupViewer) {
-            if (!isset($removingDivisionGroupViewers[$currentDivisionGroupViewer->getGroup()->getId()])) {
-                $divisionGroupViewers[] = $currentDivisionGroupViewer->getGroup();
+        if ($currentDivisionGroupViewers) {
+
+            foreach ($currentDivisionGroupViewers as $currentDivisionGroupViewer) {
+                if (!isset($removingDivisionGroupViewers[$currentDivisionGroupViewer->getGroup()->getId()])) {
+                    $divisionGroupViewers[] = $currentDivisionGroupViewer->getGroup();
+                }
             }
+
+        }
+
+        if (!$parentDivision->getChildren()) {
+
+            return;
+
         }
 
         foreach ($parentDivision->getChildren() as $child) {
