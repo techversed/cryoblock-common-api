@@ -156,7 +156,7 @@ class BaseDivision extends BaseCryoblockEntity
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionSampleType", mappedBy="division", cascade={"remove"})
-     * @JMS\Groups({"children"})
+     * @JMS\Groups({"children", "sampleTypes"})
      */
     protected $divisionSampleTypes;
 
@@ -168,31 +168,31 @@ class BaseDivision extends BaseCryoblockEntity
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionStorageContainer", mappedBy="division", cascade={"remove"})
-     * @JMS\Groups({"children"})
+     * @JMS\Groups({"children", "containers"})
      */
     protected $divisionStorageContainers;
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionGroupEditor", mappedBy="division", cascade={"remove"})
-     * @JMS\Groups({"children"})
+     * @JMS\Groups({"children", "groupEditors"})
      */
     protected $divisionGroupEditors;
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionEditor", mappedBy="division", cascade={"remove"})
-     * @JMS\Groups({"children"})
+     * @JMS\Groups({"children", "editors"})
      */
     protected $divisionEditors;
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionViewer", mappedBy="division", cascade={"remove"})
-     * @JMS\Groups({"children"})
+     * @JMS\Groups({"children", "viewers"})
      */
     protected $divisionViewers;
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionGroupViewer", mappedBy="division", cascade={"remove"})
-     * @JMS\Groups({"children"})
+     * @JMS\Groups({"children", "groupViewers"})
      */
     protected $divisionGroupViewers;
 

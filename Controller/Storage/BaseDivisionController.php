@@ -99,9 +99,30 @@ class BaseDivisionController extends CarbonApiController
      */
     public function handlePut()
     {
-        $response = parent::handlePut();
+        $gridResult = $this->getGrid()->getResult($this->getEntityRepository());
 
-        return $response;
+        if (($foundResultsCount = count($gridResult['data'])) > 1 || $foundResultsCount === 0) {
+            return new Response(sprintf(
+                'Delete method expects one entity to be found for deletion, %s found from GET params',
+                $foundResultsCount
+            ), 401);
+        }
+
+        $division = $gridResult['data'][0];
+
+        $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')
+            ->canUserEdit($division, $this->getUser())
+        ;
+
+        if (!$canEdit) {
+            return $this->getJsonResponse($this->getSerializationHelper()->serialize(
+                array('violations' => array(array(
+                    'Sorry, you do not have permission to edit division ' . $division->getId(),
+                )))
+            ), 400);
+        }
+
+        return parent::handlePut();
     }
 
     /**
