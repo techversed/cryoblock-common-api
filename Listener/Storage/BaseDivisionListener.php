@@ -11,6 +11,8 @@ use AppBundle\Entity\Storage\DivisionEditor;
 use AppBundle\Entity\Storage\DivisionViewer;
 use AppBundle\Entity\Storage\DivisionGroupEditor;
 use AppBundle\Entity\Storage\DivisionGroupViewer;
+use AppBundle\Entity\Storage\DivisionStorageContainer;
+use AppBundle\Entity\Storage\DivisionSampleType;
 
 class BaseDivisionListener
 {
@@ -26,16 +28,23 @@ class BaseDivisionListener
         $parentDivision = null;
         $isPublicEdit = null;
         $isPublicView = null;
+        $allowAllStorageContainers = null;
+        $allowAllSampleTypes = null;
+
 
         $divisionEditors = array();
         $divisionGroupEditors = array();
         $divisionViewers = array();
         $divisionGroupViewers = array();
+        $divisionStorageContainers = array();
+        $divisionSampleTypes = array();
 
         $removingDivisionEditors = array();
         $removingDivisionGroupEditors = array();
         $removingDivisionViewers = array();
         $removingDivisionGroupViewers = array();
+        $removingDivisionStorageContainers = array();
+        $removingDivisionSampleTypes = array();
 
         foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
@@ -71,6 +80,22 @@ class BaseDivisionListener
                 }
             }
 
+            if ($entity instanceof DivisionStorageContainer) {
+                $division = $entity->getDivision();
+                if (!$parentDivision) {
+                    $parentDivision = $division;
+                    $divisionStorageContainers[] = $entity->getStorageContainer();
+                }
+            }
+
+            if ($entity instanceof DivisionSampleType) {
+                $division = $entity->getDivision();
+                if (!$parentDivision) {
+                    $parentDivision = $division;
+                    $divisionSampleTypes[] = $entity->getSampleType();
+                }
+            }
+
         }
 
         // handle is is public edit or is public view
@@ -92,6 +117,20 @@ class BaseDivisionListener
                             $parentDivision = $entity;
                         }
                         $isPublicView = $field[1];
+                    }
+
+                    if ($keyField === 'allowAllStorageContainers') {
+                        if (!$parentDivision) {
+                            $parentDivision = $entity;
+                        }
+                        $allowAllStorageContainers = $field[1];
+                    }
+
+                    if ($keyField === 'allowAllSampleTypes') {
+                        if (!$parentDivision) {
+                            $parentDivision = $entity;
+                        }
+                        $allowAllSampleTypes = $field[1];
                     }
 
                 }
@@ -138,6 +177,24 @@ class BaseDivisionListener
                 }
             }
 
+            if ($entity instanceof DivisionStorageContainer) {
+                $division = $entity->getDivision();
+                $storageContainer = $entity->getStorageContainer();
+                if (!$parentDivision) {
+                    $parentDivision = $division;
+                    $removingDivisionStorageContainers[$storageContainer->getId()] = $storageContainer;
+                }
+            }
+
+            if ($entity instanceof DivisionSampleType) {
+                $division = $entity->getDivision();
+                $sampleType = $entity->getSampleType();
+                if (!$parentDivision) {
+                    $parentDivision = $division;
+                    $removingDivisionSampleTypes[$sampleType->getId()] = $sampleType;
+                }
+            }
+
         }
 
         if (!$parentDivision) {
@@ -148,6 +205,8 @@ class BaseDivisionListener
         $currentDivisionGroupEditors = $parentDivision->getDivisionGroupEditors();
         $currentDivisionViewers = $parentDivision->getDivisionViewers();
         $currentDivisionGroupViewers = $parentDivision->getDivisionGroupViewers();
+        $currentDivisionStorageContainers = $parentDivision->getDivisionStorageContainers();
+        $currentDivisionSampleTypes = $parentDivision->getDivisionSampleTypes();
 
         if ($isPublicView == null) {
             $isPublicView = $parentDivision->getIsPublicView();
@@ -155,6 +214,15 @@ class BaseDivisionListener
 
         if ($isPublicEdit == null) {
             $isPublicEdit = $parentDivision->getIsPublicEdit();
+        }
+        /* Storage Containers */
+        if ($allowAllStorageContainers == null) {
+            $allowAllStorageContainers = $parentDivision->getAllowAllStorageContainers();
+        }
+
+        /* Sample Types */
+        if ($allowAllSampleTypes == null) {
+            $allowAllSampleTypes = $parentDivision->getAllowAllSampleTypes();
         }
 
         if ($currentDivisionEditors) {
@@ -203,12 +271,29 @@ class BaseDivisionListener
 
         }
 
+        foreach ($currentDivisionStorageContainers as $currentDivisionStorageContainer) {
+            if (!isset($removingDivisionStorageContainers[$currentDivisionStorageContainer->getStorageContainer()->getId()])) {
+                $divisionStorageContainers[] = $currentDivisionStorageContainer->getStorageContainer();
+            }
+        }
+
+        foreach ($currentDivisionSampleTypes as $currentDivisionSampleType) {
+            // echo "foreach";
+            if (!isset($removingDivisionSampleTypes[$currentDivisionSampleType->getSampleType()->getId()])){
+                // echo "isset";
+                $divisionSampleTypes[] = $currentDivisionSampleType->getSampleType();
+            }
+        }
+
+
         foreach ($parentDivision->getChildren() as $child) {
 
             $newEditors = array();
             $newGroupEditors = array();
             $newViewers = array();
             $newGroupViewers = array();
+            $newStorageContainers = array();
+            $newSampleTypes = array();
 
             foreach ($child->getDivisionEditors() as $childEditor) {
                 $uow->remove($childEditor);
@@ -224,6 +309,14 @@ class BaseDivisionListener
 
             foreach ($child->getDivisionGroupViewers() as $childGroupViewer) {
                 $uow->remove($childGroupViewer);
+            }
+
+            foreach ($child->getDivisionStorageContainers() as $childStorageContainer){
+                $uow->remove($childStorageContainer);
+            }
+
+            foreach ($child->getDivisionSampleTypes() as $childSampleType){
+                $uow->remove($childSampleType);
             }
 
             foreach ($divisionEditors as $divisionEditor) {
@@ -278,6 +371,30 @@ class BaseDivisionListener
                 $newGroupViewers[] = $newGroupViewer;
             }
 
+            foreach ($divisionStorageContainers as $divisionStorageContainer) {
+                $newStorageContainer = new DivisionStorageContainer();
+                $newStorageContainer->setDivision($child);
+                $newStorageContainer->setStorageContainer($divisionStorageContainer);
+
+                $uow->persist($newStorageContainer);
+                $metaStorageContainer = $em->getClassMetadata(get_class($newStorageContainer));
+                $uow->computeChangeSet($metaStorageContainer, $newStorageContainer);
+
+                $newStorageContainers[] = $newStorageContainer;
+            }
+
+            foreach ($divisionSampleTypes as $divisionSampleType) {
+                $newSampleType = new DivisionSampleType();
+                $newSampleType->setDivision($child);
+                $newSampleType->setSampleType($divisionSampleType);
+
+                $uow->persist($newSampleType);
+                $metaSampleType = $em->getClassMetadata(get_class($newSampleType));
+                $uow->computeChangeSet($metaSampleType, $newSampleType);
+
+                $newSampleTypes[] = $newSampleType;
+            }
+
             $child->setIsPublicEdit($isPublicEdit);
             $child->setIsPublicView($isPublicView);
 
@@ -285,10 +402,13 @@ class BaseDivisionListener
             $child->setDivisionGroupEditors($newGroupEditors);
             $child->setDivisionViewers($newViewers);
             $child->setDivisionGroupViewers($newGroupViewers);
+            /* Container */
+            $child->setDivisionStorageContainers($newStorageContainers);
+            /* Sample Type */
+            $child->setDivisionSampleTypes($newSampleTypes);
 
             $metaDivision = $em->getClassMetadata(get_class($child));
             $uow->computeChangeSet($metaDivision, $child);
-
         }
 
     }
