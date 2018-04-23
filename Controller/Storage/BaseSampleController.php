@@ -72,9 +72,13 @@ class BaseSampleController extends CarbonApiController
 
         $sample = $gridResult['data'][0];
 
-        $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')
-            ->canUserEdit($sample->getDivision(), $this->getUser())
-        ;
+        if ($sample->getDivision()) {
+            $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')
+                ->canUserEdit($sample->getDivision(), $this->getUser())
+            ;
+        } else {
+            $canEdit = true;
+        }
 
         if (!$canEdit) {
             return $this->getJsonResponse($this->getSerializationHelper()->serialize(
