@@ -71,12 +71,13 @@ class ProductionController extends CarbonApiController
         $requestFormType = $data['requestFormType'];
 
         $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
+        $em = $this->getEntityManager();
 
         if ($data['resultSampleIds']) {
 
             $outputSampleIds = $data['resultSampleIds'];
 
-            $em = $this->getEntityManager();
+            // $em = $this->getEntityManager();
 
             $samples = $em->getRepository('AppBundle\Entity\Storage\Sample')->findBy(array('id' => $outputSampleIds));
 
@@ -96,6 +97,29 @@ class ProductionController extends CarbonApiController
             $prodRequest->setOutputSamples($requestOutputSamples);
 
         }
+
+        if ($data['depletedAllInputSamples']) {
+            // $em = $this->getEntityManager();
+
+            // change this to check for all inputs that have input associated with them
+            if ($data['entity'] == 'AppBundle\Entity\Production\Purification\Request') {
+                $prodRequest = $em->getRepository($data['entity'])->find($data['id']);
+                $inputSamples = $prodRequest->getInputSamples();
+                foreach ($inputSamples as $inputSample) {
+                    echo "testing";
+                }
+            }
+        }
+
+        /*
+        if data[property...]{
+        foreach input sample...{
+            get sample from em
+            set samples to depleted.
+        }
+        }
+        else{}
+        */
 
         $em->flush();
 
