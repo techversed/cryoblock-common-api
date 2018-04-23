@@ -99,20 +99,10 @@ class ProductionController extends CarbonApiController
         }
 
         if ($data['depletedAllInputSamples'] == true) {
-
-            $hasInputSample = array(
-                'AppBundle\Entity\Production\ProteinExpression\Request',
-                'AppBundle\Entity\Production\ProteinPurification\Request',
-                'AppBundle\Entity\Production\Dna\Request',
-                'AppBundle\Entity\Production\Pbmc\Request',
-            );
-
-            if (in_array($data['entity'], $hasInputSample)) {
-                $prodRequest = $em->getRepository($data['entity'])->find($data['id']);
-                $inputSamples = $prodRequest->getInputSamples();
-                foreach ($inputSamples as $inputSample) {
-                    $inputSample->getSample()->setStatus('Depleted');
-                }
+            $prodRequest = $em->getRepository($data['entity'])->find($data['id']);
+            $inputSamples = $prodRequest->getInputSamples();
+            foreach ($inputSamples as $inputSample) {
+                $inputSample->getSample()->setStatus('Depleted');
             }
         }
 
