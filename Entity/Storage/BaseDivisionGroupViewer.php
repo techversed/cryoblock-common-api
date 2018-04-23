@@ -2,10 +2,10 @@
 
 namespace Carbon\ApiBundle\Entity\Storage;
 
-use JMS\Serializer\Annotation AS JMS;
 use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @ORM\MappedSuperclass */
@@ -17,14 +17,14 @@ class BaseDivisionGroupViewer
      * @ORM\Column(name="group_id", type="integer")
      * @JMS\Groups({"default"})
      */
-    private $groupId;
+    protected $groupId;
 
     /**
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\Group")
      * @ORM\JoinColumn(name="group_id", nullable=false)
      * @JMS\Groups({"default"})
      */
-    private $group;
+    protected $group;
 
     /**
      * @var integer
@@ -32,14 +32,22 @@ class BaseDivisionGroupViewer
      * @ORM\Column(name="division_id", type="integer")
      * @JMS\Groups({"default"})
      */
-    private $divisionId;
+    protected $divisionId;
 
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Division", inversedBy="divisionGroupViewers")
      * @ORM\JoinColumn(name="division_id", nullable=false)
      * @JMS\Groups({"default"})
      */
-    private $division;
+    protected $division;
+
+    /**
+     * @var \DateTime $deletedAt
+     *
+     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $deletedAt;
 
     /**
      * Gets the value of divisionId.
@@ -133,6 +141,30 @@ class BaseDivisionGroupViewer
     public function setGroup($group)
     {
         $this->group = $group;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of deletedAt.
+     *
+     * @return \DateTime $deletedAt
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * Sets the value of deletedAt.
+     *
+     * @param \DateTime $deletedAt $deletedAt the deleted at
+     *
+     * @return self
+     */
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
 
         return $this;
     }

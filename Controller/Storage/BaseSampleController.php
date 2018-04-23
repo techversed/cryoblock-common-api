@@ -61,6 +61,33 @@ class BaseSampleController extends CarbonApiController
      */
     public function handlePut()
     {
+        $gridResult = $this->getGrid()->getResult($this->getEntityRepository());
+
+        if (($foundResultsCount = count($gridResult['data'])) > 1 || $foundResultsCount === 0) {
+            return new Response(sprintf(
+                'Delete method expects one entity to be found for deletion, %s found from GET params',
+                $foundResultsCount
+            ), 401);
+        }
+
+        $sample = $gridResult['data'][0];
+
+        if ($sample->getDivision()) {
+            $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')
+                ->canUserEdit($sample->getDivision(), $this->getUser())
+            ;
+        } else {
+            $canEdit = true;
+        }
+
+        if (!$canEdit) {
+            return $this->getJsonResponse($this->getSerializationHelper()->serialize(
+                array('violations' => array(array(
+                    'Sorry, you do not have permission to edit sample ' . $sample->getId(),
+                )))
+            ), 400);
+        }
+
         return parent::handlePut();
     }
 

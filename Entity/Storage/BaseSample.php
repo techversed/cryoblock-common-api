@@ -108,7 +108,6 @@ class BaseSample
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
      * @ORM\JoinColumn(name="updated_by_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
-     * @JMS\MaxDepth(1)
      */
     protected $updatedBy;
 
