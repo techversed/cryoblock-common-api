@@ -249,7 +249,7 @@ class BaseDivisionListener
 
             foreach ($currentDivisionViewers as $currentDivisionViewer) {
                 if (!isset($removingDivisionViewers[$currentDivisionViewer->getUser()->getId()])) {
-                    $divisionViewers[] = $currentDivisionViewer;
+                    $divisionViewers[] = $currentDivisionViewer->getUser();
                 }
             }
 
