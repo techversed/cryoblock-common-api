@@ -207,6 +207,7 @@ class Dot implements ArrayAccess
      */
     public function exists($array, $key)
     {
+        if($array == null) return false;
         if ($array instanceof ArrayAccess) {
             return isset($array[$key]);
         }
