@@ -285,7 +285,7 @@ class BaseSample
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SampleTag", mappedBy="sample")
-     * @JMS\Groups({"children"})
+     * @JMS\Groups({"default"})
      */
     protected $sampleTags;
 
@@ -1059,9 +1059,9 @@ class BaseSample
 
         $tagNames = [];
 
-        if(isset($this->sampleTags)) {
+        if (isset($this->sampleTags)) {
 
-            foreach($this->sampleTags as $sampleTag) {
+            foreach ($this->sampleTags as $sampleTag) {
 
                 $tagNames[] = $sampleTag->getTag()->getName();
 
