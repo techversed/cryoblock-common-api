@@ -209,7 +209,7 @@ class BaseProject extends BaseCryoblockEntity
      */
     public function setStatus($status)
     {
-        if (in_array($status, $validStatuses)) {
+        if (in_array($status, $this->validStatuses)) {
             $this->status = $status;
         }
         return $this;
