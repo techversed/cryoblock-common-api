@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class BaseProject extends BaseCryoblockEntity
 {
 
+//createdBy, createdById, updatedBy, updatedById, createdAt, updatedAt, deletedAt in BaseCryoblockEntity
 
     /**
      * @var string
@@ -23,24 +24,42 @@ class BaseProject extends BaseCryoblockEntity
      */
     protected $name;
 
-    //createdBy, createdBiId, updatedBy, updatedById, createdAt, updatedAt, deletedAt in BaseCryoblockEntity
+    /**
+     * Valid Project Statuses
+     *
+     * @var array
+    */
+    protected $validStatuses = array(
+        'Ongoing',
+        'Completed'
+    );
 
-    //I DON'T KNOW WHAT IS NEEDED HERE...
-    //Many to many on samples
-    //Many to many on pipeline
-    //Many to many on users
-    //One to many on requests
-    //Many to one on project lead
-    //group that contains the members who are part of this project
-    //One to Many on grants
-    //One to Many on reports
-    //MTA
-    //VIM
-    //CDA
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text")
+     * @JMS\Groups({"default"})
+     * @Carbon\Searchable(name="description")
+     * @Gedmo\Versioned
+    */
+    protected $description;
 
-    //May want a smaller unit than project -- such as objective... You could allocate the resources that belong to the project to the series of objectives that sit below it...
-        //Example -- you could create an objective for performing crystallography and you could then reserve samples for that purpose...
+    /**
+     * @var string
+     *
+     * @Carbon\Searchable(name="status")
+     * @ORM\Column(name="status", type="string", length=255)
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $status;
 
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ProjectSample", mappedBy="project")
+     */
+    protected $projectSamples;
+
+    public $samples;
 
     /**
      * @JMS\VirtualProperty()
@@ -72,6 +91,127 @@ class BaseProject extends BaseCryoblockEntity
     {
         $this->name = $name;
 
+        return $this;
+    }
+
+    /**
+     * Gets the Valid Project Statuses.
+     *
+     * @return array
+     */
+    public function getValidStatuses()
+    {
+        return $this->validStatuses;
+    }
+
+    /**
+     * Sets the Valid Project Statuses.
+     *
+     * @param array $validStatuses the valid statuses
+     *
+     * @return self
+     */
+    public function setValidStatuses(array $validStatuses)
+    {
+        $this->validStatuses = $validStatuses;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of description.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Sets the value of description.
+     *
+     * @param string $description the description
+     *
+     * @return self
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of projectSamples.
+     *
+     * @return mixed
+     */
+    public function getProjectSamples()
+    {
+        return $this->projectSamples;
+    }
+
+    /**
+     * Sets the value of projectSamples.
+     *
+     * @param mixed $projectSamples the project samples
+     *
+     * @return self
+     */
+    public function setProjectSamples($projectSamples)
+    {
+        $this->projectSamples = $projectSamples;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of samples.
+     *
+     * @return mixed
+     */
+    public function getSamples()
+    {
+        return $this->samples;
+    }
+
+    /**
+     * Sets the value of samples.
+     *
+     * @param mixed $samples the samples
+     *
+     * @return self
+     */
+    public function setSamples($samples)
+    {
+        $this->samples = $samples;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of status.
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Sets the value of status.
+     *
+     * @param string $status the status
+     *
+     * @return self
+     */
+    public function setStatus($status)
+    {
+        if (in_array($status, $validStatuses)) {
+            $this->status = $status;
+        }
         return $this;
     }
 }

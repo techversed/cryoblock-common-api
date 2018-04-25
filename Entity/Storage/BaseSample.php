@@ -274,6 +274,11 @@ class BaseSample
     protected $mass;
 
     /**
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ProjectSample", mappedBy="sample")
+    */
+    protected $projectSamples;
+
+    /**
      * @var integer $lot
      *
      * @ORM\Column(name="lot", type="string", length=300, nullable=true)
