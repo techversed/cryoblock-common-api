@@ -98,7 +98,7 @@ class BaseDivisionListener
 
         }
 
-        // handle is is public edit or is public view
+        // handle is is public edit or is public view and allowAllStorageContainers and allowAllSampleTypes
         foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
             if ($entity instanceof Division) {
@@ -215,12 +215,9 @@ class BaseDivisionListener
         if ($isPublicEdit == null) {
             $isPublicEdit = $parentDivision->getIsPublicEdit();
         }
-        /* Storage Containers */
         if ($allowAllStorageContainers == null) {
             $allowAllStorageContainers = $parentDivision->getAllowAllStorageContainers();
         }
-
-        /* Sample Types */
         if ($allowAllSampleTypes == null) {
             $allowAllSampleTypes = $parentDivision->getAllowAllSampleTypes();
         }
@@ -278,9 +275,7 @@ class BaseDivisionListener
         }
 
         foreach ($currentDivisionSampleTypes as $currentDivisionSampleType) {
-            // echo "foreach";
             if (!isset($removingDivisionSampleTypes[$currentDivisionSampleType->getSampleType()->getId()])){
-                // echo "isset";
                 $divisionSampleTypes[] = $currentDivisionSampleType->getSampleType();
             }
         }
@@ -397,14 +392,14 @@ class BaseDivisionListener
 
             $child->setIsPublicEdit($isPublicEdit);
             $child->setIsPublicView($isPublicView);
+            $child->setAllowAllSampleTypes($allowAllSampleTypes);
+            $child->setAllowAllStorageContainers($allowAllStorageContainers);
 
             $child->setDivisionEditors($newEditors);
             $child->setDivisionGroupEditors($newGroupEditors);
             $child->setDivisionViewers($newViewers);
             $child->setDivisionGroupViewers($newGroupViewers);
-            /* Container */
             $child->setDivisionStorageContainers($newStorageContainers);
-            /* Sample Type */
             $child->setDivisionSampleTypes($newSampleTypes);
 
             $metaDivision = $em->getClassMetadata(get_class($child));
