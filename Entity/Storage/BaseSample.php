@@ -845,7 +845,7 @@ class BaseSample
 
     public function setConcentration($concentration)
     {
-        $this->concentration = (string) $concentration;
+        $this->concentration = $concentration == $this->concentration ? $this->concentration : $concentration;
     }
 
     public function getConcentrationUnits()
@@ -913,7 +913,7 @@ class BaseSample
      */
     public function setVolume($volume)
     {
-        $this->volume = $volume;
+        $this->volume = $volume == $this->volume ? $this->volume : $volume;
 
         return $this;
     }
