@@ -321,7 +321,7 @@ class ProductionController extends CarbonApiController
                 if (array_key_exists('mtm', $column) && $column['mtm']) {
                     $itemIds = array();
                     foreach ($data->get($column['prop']) as $item) {
-                        $itemIds[] = $item[$column['mtm_bind']];
+                        $itemIds[] = $item[$column['bindTo']];
                     }
                     if (count($itemIds)) {
                         $objPHPExcel->getActiveSheet()->getCell($cell)->setValue(implode(',', $itemIds));

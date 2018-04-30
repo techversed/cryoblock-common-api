@@ -72,7 +72,7 @@ class CryoblockMtmItemConverter implements ItemConverterInterface
 
         }
 
-        $finalItemIds = explode(',', $input[$this->accessor]);
+        $finalItemIds = $input[$this->accessor] ? explode(',', $input[$this->accessor]) : array();
 
         foreach ($currentItemIds as $currentItemId) {
             if (!in_array($currentItemId, $finalItemIds)) {
@@ -102,7 +102,6 @@ class CryoblockMtmItemConverter implements ItemConverterInterface
             $propertyAccessor->setValue($mtmObject, $this->childAccessor, $this->em->getRepository($childEntity)->find($finalItemId));
             $input[$this->accessor][] = $mtmObject;
         }
-
         return $input;
     }
 }
