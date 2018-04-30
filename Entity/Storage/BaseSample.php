@@ -274,7 +274,7 @@ class BaseSample
     protected $mass;
 
     /**
-    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ProjectSample", mappedBy="sample")
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
     */
     protected $projectSamples;
 

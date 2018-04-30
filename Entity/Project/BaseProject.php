@@ -55,7 +55,7 @@ class BaseProject extends BaseCryoblockEntity
     protected $status;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ProjectSample", mappedBy="project")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="project")
      */
     protected $projectSamples;
 
