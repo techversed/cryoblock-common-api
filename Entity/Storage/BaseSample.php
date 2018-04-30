@@ -1056,10 +1056,9 @@ class BaseSample
      */
     public function getTagString()
     {
-
         $tagNames = [];
 
-        if (isset($this->sampleTags)) {
+        if ($this->sampleTags && is_array($this->sampleTags)) {
 
             foreach ($this->sampleTags as $sampleTag) {
 
@@ -1069,7 +1068,6 @@ class BaseSample
 
             return implode(", ", $tagNames);
         }
-
     }
 
     /**

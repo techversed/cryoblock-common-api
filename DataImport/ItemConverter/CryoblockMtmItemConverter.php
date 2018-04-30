@@ -7,11 +7,6 @@ use Ddeboer\DataImport\ItemConverter\ItemConverterInterface;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-/**
- * Converts a string to an object
- *
- * @author Markus Bachmann <markus.bachmann@bachi.biz>
- */
 class CryoblockMtmItemConverter implements ItemConverterInterface
 {
     /**
