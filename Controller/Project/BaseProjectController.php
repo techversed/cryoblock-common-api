@@ -64,10 +64,50 @@ class BaseProjectController extends CarbonApiController
         return parent::handlePost();
     }
 
-    //FOR LATER
-    //put
-    //patch
-    //purge
-    //delete
+    /**
+    * Handle PUT requests for Project
+    * @Route("/project/project", name="project_put")
+    * @Method("PUT")
+    *
+    * @return Response
+    */
+    public function handlePut()
+    {
+        return parent::handlePut();
+    }
+
+    /**
+     *
+     * @Route("/project/project", name="project_delete")
+     * @Method("DELETE")
+     *
+     * @return Response
+     */
+    public function handleDelete()
+    {
+        return parent::handleDelete();
+    }
+
+    /**
+     * @Route("/project/project", name="project_patch")
+     * @Method("PATCH")
+     *
+     * @return Response
+     */
+    public function handlePatch()
+    {
+        return parent::handlePatch();
+    }
+
+    /**
+     * @Route("/project/project", name="project_purge")
+     * @Method("PURGE")
+     *
+     * @return Response
+     */
+    public function handlePurge()
+    {
+        return parent::handlePurge();
+    }
 
 }
