@@ -42,7 +42,7 @@ class BaseProjectController extends CarbonApiController
 
     /**
     * Handle the HTTP get request for project
-    * @Route("/project", name="project_get")
+    * @Route("/project/project", name="project_get")
     * @Method("GET")
     *
     * @return Response
@@ -54,7 +54,7 @@ class BaseProjectController extends CarbonApiController
 
     /**
     * Handle POST requests for Project
-    * @Route("/project", name="project_post")
+    * @Route("/project/project", name="project_post")
     * @Method("POST")
     *
     * @return Response

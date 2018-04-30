@@ -1,5 +1,5 @@
 <?php
-namespace Carbon\ApiBundle\Entity\Storage;
+namespace Carbon\ApiBundle\Entity\Project;
 
 use Carbon\ApiBundle\Annotation As Carbon;
 use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
@@ -15,7 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class BaseProjectSample extends BaseCryoblockEntity
 {
-
     /**
     * @var integer
     * @ORM\Column(name="project_id", type="integer")
