@@ -1058,7 +1058,7 @@ class BaseSample
     {
         $tagNames = [];
 
-        if ($this->sampleTags && is_array($this->sampleTags)) {
+        if ($this->sampleTags && (is_array($this->sampleTags) || is_object($this->sampleTags))) {
 
             foreach ($this->sampleTags as $sampleTag) {
 
