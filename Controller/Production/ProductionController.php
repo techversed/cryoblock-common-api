@@ -71,12 +71,11 @@ class ProductionController extends CarbonApiController
         $requestFormType = $data['requestFormType'];
 
         $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
+        $em = $this->getEntityManager();
 
         if ($data['resultSampleIds']) {
 
             $outputSampleIds = $data['resultSampleIds'];
-
-            $em = $this->getEntityManager();
 
             $samples = $em->getRepository('AppBundle\Entity\Storage\Sample')->findBy(array('id' => $outputSampleIds));
 
@@ -95,6 +94,14 @@ class ProductionController extends CarbonApiController
 
             $prodRequest->setOutputSamples($requestOutputSamples);
 
+        }
+
+        if ($data['depletedAllInputSamples'] == true) {
+            $prodRequest = $em->getRepository($data['entity'])->find($data['id']);
+            $inputSamples = $prodRequest->getInputSamples();
+            foreach ($inputSamples as $inputSample) {
+                $inputSample->getSample()->setStatus('Depleted');
+            }
         }
 
         $em->flush();
