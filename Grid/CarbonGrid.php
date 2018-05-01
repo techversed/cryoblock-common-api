@@ -87,7 +87,7 @@ class CarbonGrid extends Grid
                 # is this mtm
                 if (strpos($k, '_')) {
 
-                    $mtmParams = split('_', $k);
+                    $mtmParams = explode("_", $k);
                     $mtmAlias = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), -5);
 
                     $qb->innerJoin($alias . '.' . $mtmParams[0], $mtmAlias, 'WITH', $mtmAlias . '.' . $mtmParams[1] . ' IN (' . implode(',', $v['IN']) . ')' );
