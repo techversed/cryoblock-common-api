@@ -412,7 +412,12 @@ class ProductionController extends CarbonApiController
         $totalOutputSamples = $data['totalOutputSamples'];
         $outputSampleDefaults = $data['outputSampleDefaults'];
 
-        $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
+        if (array_key_exists('id', $data)) {
+            $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
+        } else {
+            $fileName = 'Sample Import Template.xls';
+        }
+
 
         $objPHPExcel = new \PHPExcel();
 
@@ -615,10 +620,12 @@ class ProductionController extends CarbonApiController
 
         }
 
-        $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setInsertRows(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setFormatCells(true);
+        if (array_key_exists('id', $data)) {
+            $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
+            $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
+            $objPHPExcel->getActiveSheet()->getProtection()->setInsertRows(true);
+            $objPHPExcel->getActiveSheet()->getProtection()->setFormatCells(true);
+        }
 
         // Set active sheet index to the first sheet, so Excel opens this as the first sheet
         $objPHPExcel->setActiveSheetIndex(0);
