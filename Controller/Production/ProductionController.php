@@ -77,8 +77,6 @@ class ProductionController extends CarbonApiController
 
             $outputSampleIds = $data['resultSampleIds'];
 
-            // $em = $this->getEntityManager();
-
             $samples = $em->getRepository('AppBundle\Entity\Storage\Sample')->findBy(array('id' => $outputSampleIds));
 
             $prodRequestMeta = $em->getMetadataFactory()->getMetadataFor(get_class($prodRequest));
