@@ -19,11 +19,14 @@ class StringToObject extends Constraint
 
     public $property;
 
+    public $regex;
+
     public function __construct($options)
     {
         $this->entity = $options['entity'];
         $this->property = $options['property'];
         $this->objectName = $options['objectName'];
+        $this->regex = array_key_exists('regex', $options) ? $options['regex'] : null;
     }
 
     public function validatedBy()
