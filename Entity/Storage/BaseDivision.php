@@ -1045,5 +1045,4 @@ class BaseDivision extends BaseCryoblockEntity
     {
         return $this->getPath();
     }
-
 }
