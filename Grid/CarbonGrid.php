@@ -43,15 +43,6 @@ class CarbonGrid extends Grid
 
         foreach ($queryParams as $k => $v) {
 
-            if (array_key_exists('in', $v)) {
-
-                $qb->andWhere($qb->expr()->in(
-                    $alias . '.' . $k,
-                    $v['in']
-                ));
-
-            }
-
             if (array_key_exists('GTE', $v)) {
 
                 $qb->andWhere(sprintf('%s.%s >= :%sGTE', $alias, $k, $k))
@@ -93,10 +84,22 @@ class CarbonGrid extends Grid
                     $v['IN'] = explode(',', $v['IN']);
                 }
 
-                $qb->andWhere($qb->expr()->in(
-                    $alias . '.' . $k,
-                    $v['IN']
-                ));
+                # is this mtm
+                if (strpos($k, '_')) {
+
+                    $mtmParams = explode("_", $k);
+                    $mtmAlias = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), -5);
+
+                    $qb->innerJoin($alias . '.' . $mtmParams[0], $mtmAlias, 'WITH', $mtmAlias . '.' . $mtmParams[1] . ' IN (' . implode(',', $v['IN']) . ')' );
+
+                } else {
+
+                    $qb->andWhere($qb->expr()->in(
+                        $alias . '.' . $k,
+                        $v['IN']
+                    ));
+
+                }
 
             }
 

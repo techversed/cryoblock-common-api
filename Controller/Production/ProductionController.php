@@ -71,12 +71,11 @@ class ProductionController extends CarbonApiController
         $requestFormType = $data['requestFormType'];
 
         $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
+        $em = $this->getEntityManager();
 
         if ($data['resultSampleIds']) {
 
             $outputSampleIds = $data['resultSampleIds'];
-
-            $em = $this->getEntityManager();
 
             $samples = $em->getRepository('AppBundle\Entity\Storage\Sample')->findBy(array('id' => $outputSampleIds));
 
@@ -95,6 +94,14 @@ class ProductionController extends CarbonApiController
 
             $prodRequest->setOutputSamples($requestOutputSamples);
 
+        }
+
+        if ($data['depletedAllInputSamples'] == true) {
+            $prodRequest = $em->getRepository($data['entity'])->find($data['id']);
+            $inputSamples = $prodRequest->getInputSamples();
+            foreach ($inputSamples as $inputSample) {
+                $inputSample->getSample()->setStatus('Depleted');
+            }
         }
 
         $em->flush();
@@ -318,7 +325,18 @@ class ProductionController extends CarbonApiController
 
                 }
 
-                $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($data->get($column['bindTo']));
+                if (array_key_exists('mtm', $column) && $column['mtm']) {
+                    $itemIds = array();
+                    foreach ($data->get($column['prop']) as $item) {
+                        $itemIds[] = $item[$column['bindTo']];
+                    }
+                    if (count($itemIds)) {
+                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue(implode(',', $itemIds));
+                    }
+                } else {
+                    $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($data->get($column['bindTo']));
+                }
+
                 $current++;
             }
 
@@ -401,7 +419,12 @@ class ProductionController extends CarbonApiController
         $totalOutputSamples = $data['totalOutputSamples'];
         $outputSampleDefaults = $data['outputSampleDefaults'];
 
-        $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
+        if (array_key_exists('id', $data)) {
+            $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
+        } else {
+            $fileName = 'Sample Import Template.xls';
+        }
+
 
         $objPHPExcel = new \PHPExcel();
 
@@ -604,10 +627,12 @@ class ProductionController extends CarbonApiController
 
         }
 
-        $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setInsertRows(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setFormatCells(true);
+        if (array_key_exists('id', $data)) {
+            $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
+            $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
+            $objPHPExcel->getActiveSheet()->getProtection()->setInsertRows(true);
+            $objPHPExcel->getActiveSheet()->getProtection()->setFormatCells(true);
+        }
 
         // Set active sheet index to the first sheet, so Excel opens this as the first sheet
         $objPHPExcel->setActiveSheetIndex(0);

@@ -105,6 +105,7 @@ class ProductionRequestListener
 
             $startOfMonth = new \DateTime($entity->getCreatedAt()->format('Y-m-01'));
             $endOfMonth = new \DateTime($entity->getCreatedAt()->format('Y-m-t'));
+            $endOfMonth->setTime(23, 59, 59);
 
             $total = $qb
                 ->select('count(d.id)')
