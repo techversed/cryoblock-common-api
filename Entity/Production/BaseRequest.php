@@ -89,11 +89,6 @@ abstract class BaseRequest Implements BaseRequestInterface
     protected $pipelineStep;
 
     /**
-    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="request")
-    */
-    protected $projectRequests;
-
-    /**
      * @var User $createdBy
      *
      * @Gedmo\Blameable(on="create")

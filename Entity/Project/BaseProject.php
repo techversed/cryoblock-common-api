@@ -62,11 +62,39 @@ class BaseProject extends BaseCryoblockEntity
     public $samples;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="project")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\Dna\RequestProject", mappedBy="project")
      */
-    protected $projectRequests;
+    protected $projectDnaRequests;
 
-    public $requests;
+    public $dnaRequests;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\HumanSpecimen\RequestProject", mappedBy="project")
+     */
+    protected $projectHumanSpecimenRequests;
+
+    public $humanSpecimenRequests;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\Pbmc\RequestProject", mappedBy="project")
+     */
+    protected $projectPbmcRequests;
+
+    public $pbmcRequests;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\ProteinExpression\RequestProject", mappedBy="project")
+     */
+    protected $projectProteinExpressionRequests;
+
+    public $proteinExpressionRequests;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\ProteinPurification\RequestProject", mappedBy="project")
+     */
+    protected $projectProteinPurificationRequests;
+
+    public $proteinPurificationRequests;
 
     /**
      * @JMS\VirtualProperty()
