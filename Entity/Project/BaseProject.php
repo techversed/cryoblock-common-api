@@ -62,6 +62,13 @@ class BaseProject extends BaseCryoblockEntity
     public $samples;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="project")
+     */
+    protected $projectRequests;
+
+    public $requests;
+
+    /**
      * @JMS\VirtualProperty()
      * @JMS\Groups({"default"})
      */
@@ -212,6 +219,54 @@ class BaseProject extends BaseCryoblockEntity
         if (in_array($status, $this->validStatuses)) {
             $this->status = $status;
         }
+        return $this;
+    }
+
+    /**
+     * Gets the value of projectRequests.
+     *
+     * @return mixed
+     */
+    public function getProjectRequests()
+    {
+        return $this->projectRequests;
+    }
+
+    /**
+     * Sets the value of projectRequests.
+     *
+     * @param mixed $projectRequests the project requests
+     *
+     * @return self
+     */
+    public function setProjectRequests($projectRequests)
+    {
+        $this->projectRequests = $projectRequests;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of requests.
+     *
+     * @return mixed
+     */
+    public function getRequests()
+    {
+        return $this->requests;
+    }
+
+    /**
+     * Sets the value of requests.
+     *
+     * @param mixed $requests the requests
+     *
+     * @return self
+     */
+    public function setRequests($requests)
+    {
+        $this->requests = $requests;
+
         return $this;
     }
 }

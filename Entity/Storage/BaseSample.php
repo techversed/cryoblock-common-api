@@ -299,6 +299,11 @@ class BaseSample
      */
     public $tags;
 
+   /**
+     * @JMS\Groups({"default"})
+     */
+    public $projects;
+
     /**
      * @JMS\Groups({"default"})
      */
@@ -1075,6 +1080,27 @@ class BaseSample
         }
     }
 
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getProjectString()
+    {
+        $projectNames = [];
+
+        if ($this->projectSamples && (is_array($this->projectSamples) || is_object($this->projectSamples))) {
+
+            foreach ($this->projectSamples as $sampleProject) {
+
+                $projectNames[] = $sampleProject->getProject()->getName();
+
+            }
+
+            return implode(", ", $projectNames);
+        }
+    }
+
     /**
      * Gets the value of sampleTags.
      *
@@ -1119,6 +1145,30 @@ class BaseSample
     public function setTags($tags)
     {
         $this->tags = $tags;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of projectSamples.
+     *
+     * @return mixed
+     */
+    public function getProjectSamples()
+    {
+        return $this->projectSamples;
+    }
+
+    /**
+     * Sets the value of projectSamples.
+     *
+     * @param mixed $projectSamples the project samples
+     *
+     * @return self
+     */
+    public function setProjectSamples($projectSamples)
+    {
+        $this->projectSamples = $projectSamples;
 
         return $this;
     }
