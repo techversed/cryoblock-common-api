@@ -462,49 +462,5 @@ abstract class BaseRequest Implements BaseRequestInterface
         $this->status = $status;
 
         return $this;
-    }
-
-    /**
-     * @JMS\VirtualProperty()
-     * @JMS\Groups({"default"})
-     */
-    public function getProjectString()
-    {
-        $projectNames = [];
-
-        if ($this->projectRequests && (is_array($this->projectRequests) || is_object($this->projectRequests))) {
-
-            foreach ($this->projectRequests as $requestProject) {
-
-                $projectNames[] = $requestProject->getProject()->getName();
-
-            }
-
-            return implode(", ", $projectNames);
-        }
-    }
-
-    /**
-     * Gets the value of projectRequests.
-     *
-     * @return mixed
-     */
-    public function getProjectRequests()
-    {
-        return $this->projectRequests;
-    }
-
-    /**
-     * Sets the value of projectRequests.
-     *
-     * @param mixed $projectRequests the project requests
-     *
-     * @return self
-     */
-    public function setProjectRequests($projectRequests)
-    {
-        $this->projectRequests = $projectRequests;
-
-        return $this;
-    }
+   }
 }
