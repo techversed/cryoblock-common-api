@@ -1172,4 +1172,52 @@ class BaseSample
 
         return $this;
     }
+
+    /**
+     * Gets the Valid volume units.
+     *
+     * @return array
+     */
+    public function getValidVolumeUnits()
+    {
+        return $this->validVolumeUnits;
+    }
+
+    /**
+     * Sets the Valid volume units.
+     *
+     * @param array $validVolumeUnits the valid volume units
+     *
+     * @return self
+     */
+    public function setValidVolumeUnits(array $validVolumeUnits)
+    {
+        $this->validVolumeUnits = $validVolumeUnits;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of projects.
+     *
+     * @return mixed
+     */
+    public function getProjects()
+    {
+        return $this->projects;
+    }
+
+    /**
+     * Sets the value of projects.
+     *
+     * @param mixed $projects the projects
+     *
+     * @return self
+     */
+    public function setProjects($projects)
+    {
+        $this->projects = $projects;
+
+        return $this;
+    }
 }
