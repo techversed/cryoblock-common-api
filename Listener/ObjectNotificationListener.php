@@ -34,6 +34,8 @@ class ObjectNotificationListener
 
         $creatingUser = $this->tokenStorage->getToken()->getUser();
 
+        // set creating user to watch update and complete
+
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
                 'entity' => get_class($entity)
@@ -46,6 +48,18 @@ class ObjectNotificationListener
                 'entityId' => null
             ))
         ;
+
+        // $creatorObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
+        //     ->findBy(array(
+        //         'entity' => get_class($entity),
+        //         'entityId' => null,
+        //         'user' => $creatingUser,
+        //     ))
+        // ;
+
+        // $creatingUser->getUserObjectNotification()->setOnUpdate(true);
+        // $creatingUser->getUserObjectNotification()->setOnDelete(true);
+        // $creatingUser->getUserObjectNotification()->save();
 
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
