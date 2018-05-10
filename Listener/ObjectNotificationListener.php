@@ -11,6 +11,8 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+use Carbon\ApiBundle\Entity\UserObjectNotification;
+
 class ObjectNotificationListener
 {
     public function __construct(CryoblockMailer $mailer, Logger $logger, $mailerUser, $tokenStorage, $frontendUrl)
@@ -49,17 +51,16 @@ class ObjectNotificationListener
             ))
         ;
 
-        // $creatorObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
-        //     ->findBy(array(
-        //         'entity' => get_class($entity),
-        //         'entityId' => null,
-        //         'user' => $creatingUser,
-        //     ))
-        // ;
-
-        // $creatingUser->getUserObjectNotification()->setOnUpdate(true);
-        // $creatingUser->getUserObjectNotification()->setOnDelete(true);
-        // $creatingUser->getUserObjectNotification()->save();
+        print_r(get_object_vars($entity));
+        $creatingUserObjectNotification = new UserObjectNotification();
+        //$creatingUserObjectNotification->setEntity($entity);
+        $creatingUserObjectNotification->setUser($creatingUser);
+        $creatingUserObjectNotification->setUrl($this->frontendUrl);
+        $creatingUserObjectNotification->setOnUpdate(true);
+        $creatingUserObjectNotification->setOnDelete(true);
+        die;
+        $em->persist($creatingUserObjectNotification);
+        $em->flush();
 
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
