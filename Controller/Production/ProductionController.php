@@ -428,7 +428,13 @@ class ProductionController extends CarbonApiController
 
         $objPHPExcel = new \PHPExcel();
 
-        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->find(1);
+        if (array_key_exists('outputSampleType', $data)) {
+            $outputSampleTypeId = $data['outputSampleType']['id'];
+        } else {
+            $outputSampleTypeId = 1;
+        }
+
+        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->find($outputSampleTypeId);
 
         $importer = $this->container->get('sample.importer');
         $sampleTypeMapping = $importer->getMapping($sampleType);
