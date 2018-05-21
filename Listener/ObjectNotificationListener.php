@@ -26,7 +26,7 @@ class ObjectNotificationListener
 
     public function postPersist(LifecycleEventArgs $args)
     {
-        $entity = $args->getEntity();
+        $entity = $args->getEntity(); // This will need to be changed...
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
@@ -38,7 +38,7 @@ class ObjectNotificationListener
 
         // set creating user to watch update and complete
 
-        $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
+        $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification') //Have not even changed this yet...
             ->findOneBy(array(
                 'entity' => get_class($entity)
             ))
@@ -46,19 +46,20 @@ class ObjectNotificationListener
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entity' => get_class($entity),
+                'entity' => get_class($entity), // This will need to be changed.
                 'entityId' => null
             ))
         ;
 
         print_r(get_object_vars($entity));
         $creatingUserObjectNotification = new UserObjectNotification();
-        //$creatingUserObjectNotification->setEntity($entity);
+
+        //$creatingUserObjectNotification->setEntity($entity); //This should be where it was bombing...
+
         $creatingUserObjectNotification->setUser($creatingUser);
-        $creatingUserObjectNotification->setUrl($this->frontendUrl);
+        $creatingUserObjectNotification->setUrl($this->frontendUrl);                        // This will need to be changed.... since we are moving towards storing this in the entity detail table...
         $creatingUserObjectNotification->setOnUpdate(true);
         $creatingUserObjectNotification->setOnDelete(true);
-        die;
         $em->persist($creatingUserObjectNotification);
         $em->flush();
 
@@ -83,7 +84,7 @@ class ObjectNotificationListener
         }
 
         $annotationReader = new AnnotationReader();
-        $reflectionClass = new \ReflectionClass(get_class($entity));
+        $reflectionClass = new \ReflectionClass(get_class($entity)); //This will still create problems.
         $classAnnotations = $annotationReader->getClassAnnotations($reflectionClass);
 
         $changeSets = array('ID' => $entity->getId());

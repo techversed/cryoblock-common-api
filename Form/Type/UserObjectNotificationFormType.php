@@ -20,10 +20,7 @@ class UserObjectNotificationFormType extends CryoblockAbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('entity', 'text')
             ->add('entityId', 'integer')
-            ->add('url', 'text')
-            ->add('objectDescription', 'text')
             ->add('user', 'entity', array(
                 'class' => 'Carbon\\ApiBundle\\Entity\\User',
                 'property' => 'user_id',
@@ -32,6 +29,14 @@ class UserObjectNotificationFormType extends CryoblockAbstractType
             ->add('onCreate', 'checkbox')
             ->add('onUpdate', 'checkbox')
             ->add('onDelete', 'checkbox')
+            // ->add('entityDetail', 'entity', array(
+            //     'class' => 'Carbon\\ApiBundle\\Entity\\EntityDetail',
+            //     'property' => 'object_class_name',
+            //     'multiple' => false
+
+            // ))
+            //Worry about this later....
+            //May need a transformer for the EntityDetailId object....
         ;
 
         $builder->get('user')
