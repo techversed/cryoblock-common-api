@@ -49,7 +49,7 @@ class EntityDetail extends BaseCryoblockEntity
     /**
      * @var string
      *
-     * @ORM\Column(name="object_class", type="string", nullable=false)
+     * @ORM\Column(name="object_url", type="string", nullable=false)
      * @JMS\Groups({"default"})
      */
     protected $objectUrl;
