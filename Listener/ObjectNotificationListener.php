@@ -26,6 +26,7 @@ class ObjectNotificationListener
 
     public function postPersist(LifecycleEventArgs $args)
     {
+        return; //need to get the detail id posting correctly...
         $entity = $args->getEntity(); // This will need to be changed...
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
@@ -38,37 +39,46 @@ class ObjectNotificationListener
 
         // set creating user to watch update and complete
 
-        $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification') //Have not even changed this yet...
-            ->findOneBy(array(
-                'entity' => get_class($entity)
-            ))
-        ;
+        //We will need to change what we are finding by.
+        //WE ARE JUST GOING TO WORRY ABOU THIS LATER... JUST GET USER OBJECT NOTIFICATIONS WORKING FOR THE TIME BEING....
+        // $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification') //Have not even changed this yet...
+        //     ->findOneBy(array(
+        //         'entity' => get_class($entity)
+        //     ))
+        // ;
 
+        //We will need to change what we  are finding by.
+        // $em->getRepository('Carbon\ApiBundle\EntityDetail')->findOneBy(
+        //     )
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entity' => get_class($entity), // This will need to be changed.
+                'entityDetailId' => 1, //get_class($entity), // This will need to be changed.
                 'entityId' => null
             ))
         ;
 
-        print_r(get_object_vars($entity));
-        $creatingUserObjectNotification = new UserObjectNotification();
+        //WE ARE GOING TO GET AUTOWATCHING WORKING AFTER THE MAJOR REFACTORING THAT WE NEED TO DO.... FOR THE TIME BEING LET'S JUST COMMENT THIS OUT.
+        // print_r(get_object_vars($entity));
+        // $creatingUserObjectNotification = new UserObjectNotification();
 
         //$creatingUserObjectNotification->setEntity($entity); //This should be where it was bombing...
 
-        $creatingUserObjectNotification->setUser($creatingUser);
-        $creatingUserObjectNotification->setUrl($this->frontendUrl);                        // This will need to be changed.... since we are moving towards storing this in the entity detail table...
-        $creatingUserObjectNotification->setOnUpdate(true);
-        $creatingUserObjectNotification->setOnDelete(true);
-        $em->persist($creatingUserObjectNotification);
-        $em->flush();
+        // $creatingUserObjectNotification->setUser($creatingUser);
+        // $creatingUserObjectNotification->setUrl($this->frontendUrl);                        // This will need to be changed.... since we are moving towards storing this in the entity detail table...
+        // $creatingUserObjectNotification->setOnUpdate(true);
+        // $creatingUserObjectNotification->setOnDelete(true);
+        // $em->persist($creatingUserObjectNotification);
+        // $em->flush();
+        //END OF CHANGES FOR AUTOWATCHING
 
-        $groups = array();
-        if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
-            $groups[] = $onCreateGroup->getName();
-            $url = $groupObjectNotification->getUrl();
-            $objectDescription = $groupObjectNotification->getObjectDescription();
-        }
+        //COMMENTED OUT THE GROUPS SECTION
+        // $groups = array();
+        // if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
+        //     $groups[] = $onCreateGroup->getName();
+        //     $url = $groupObjectNotification->getUrl();
+        //     $objectDescription = $groupObjectNotification->getObjectDescription();
+        // }
+        //END OF GROUPS SECTION
 
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
@@ -79,7 +89,8 @@ class ObjectNotificationListener
             }
         }
 
-        if (!count($to) && !count($groups)) {
+        //commented out the grousp section while we are getting the users working...
+        if (!count($to) /*&& !count($groups)*/) {
             return;
         }
 
@@ -128,8 +139,8 @@ class ObjectNotificationListener
                 'changeSets' => $changeSets,
                 'objectDescription' => $objectDescription,
             ),
-            $from,
-            $groups
+            $from/*,
+            $groups*/ // commented out in order to get the regular mailer working first.
         );
     }
 
@@ -145,12 +156,14 @@ class ObjectNotificationListener
 
         $updatingUser = $this->tokenStorage->getToken()->getUser();
 
+        //We will need to change what we are finding by.
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
                 'entity' => get_class($entity)
             ))
         ;
 
+        //We will need to change what we are finding by.
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
                 'entity' => get_class($entity),
@@ -158,6 +171,7 @@ class ObjectNotificationListener
             ))
         ;
 
+        //We will need to change what we are finding by.
         $watchingUserNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
                 'entity' => get_class($entity),
@@ -272,12 +286,14 @@ class ObjectNotificationListener
 
         $deletingUser = $this->tokenStorage->getToken()->getUser();
 
+        //We will need to change what we are finding by.
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
                 'entity' => get_class($entity)
             ))
         ;
 
+        //We will need to change what we are finding by.
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
                 'entity' => get_class($entity),
@@ -285,6 +301,7 @@ class ObjectNotificationListener
             ))
         ;
 
+        //We will need to change what we are finding by.
         $watchingUserNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
                 'entity' => get_class($entity),

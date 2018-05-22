@@ -16,6 +16,7 @@ use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
  * @ORM\Entity()
  * @ORM\Table(name="cryoblock.entity_detail", schema="cryoblock")
  * @Gedmo\Loggable
+ * @Gedmo\SoftDeleteable(fieldName= "deletedAt", timeAware=false)
  * @UniqueEntity(
  *     fields={"objectClassName"},
  *     message="There should only be one entry for each type of object"
@@ -27,6 +28,7 @@ class EntityDetail extends BaseCryoblockEntity
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @JMS\Groups({"default"})
      */
     protected $id;
 
