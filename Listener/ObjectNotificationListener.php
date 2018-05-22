@@ -144,6 +144,7 @@ class ObjectNotificationListener
         );
     }
 
+    //The request will still die if we make it into this function because it still uses entity which has been discontinued...
     public function postUpdate(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
@@ -274,6 +275,7 @@ class ObjectNotificationListener
         );
     }
 
+    //The request will still die if we make it into this function because we have removed the entity attritube from the UserObjectNotification class and are slowly making changes to make all this work out in the end.
     public function postSoftDelete(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
