@@ -49,6 +49,7 @@ class ObjectNotificationListener
         if ($entDetId != null) {
             $entDetId = $entDetId->getId();
         }
+        else return;
         //otherwise we should probably return...
 
         //print_r($entDetId);
