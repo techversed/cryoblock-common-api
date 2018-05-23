@@ -35,9 +35,8 @@ class UserObjectNotification extends BaseCryoblockEntity
      */
     protected $entityDetail;
 
-    //change this to nullable=false after the migration...
     /**
-     * @ORM\Column(name="entity_detail_id", type="integer", nullable=true)
+     * @ORM\Column(name="entity_detail_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
     protected $entityDetailId;
