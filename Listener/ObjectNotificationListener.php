@@ -69,6 +69,14 @@ class ObjectNotificationListener
             ))
         ;
 
+        //Don't send creation notifications to users that created the object.
+        foreach ($userObjectNotifications as $userObjectNotification) {
+            if ($userObjectNotification->getUser() == $creatingUser){
+                $key = array_search($userObjectNotification, $userObjectNotifications);
+                array_splice($userObjectNotifications, $key, 1);
+            }
+        }
+
         //AUTOWATCHING IMPLEMENTED HERE...
         $creatingUserObjectNotification = new UserObjectNotification();
         $creatingUserObjectNotification->setEntityId($entity->getId());
