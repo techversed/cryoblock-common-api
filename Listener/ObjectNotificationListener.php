@@ -69,14 +69,6 @@ class ObjectNotificationListener
             ))
         ;
 
-        //Don't send creation notifications to users that created the object.
-        foreach ($userObjectNotifications as $userObjectNotification) {
-            if ($userObjectNotification->getUser() == $creatingUser){
-                $key = array_search($userObjectNotification, $userObjectNotifications);
-                array_splice($userObjectNotifications, $key, 1);
-            }
-        }
-
         //AUTOWATCHING IMPLEMENTED HERE...
         $creatingUserObjectNotification = new UserObjectNotification();
         $creatingUserObjectNotification->setEntityId($entity->getId());
@@ -97,10 +89,10 @@ class ObjectNotificationListener
 
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
-            if ($userObjectNotification->getOnCreate()) {
+            if ($userObjectNotification->getOnCreate() && $userObjectNotification->getUser() != $creatingUser) {
                 $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
-                $url = $userObjectNotification->getEntityDetail()->getObjectUrl(); // Removed in the rework may want to insert it into the table.
-                $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription(); //Removed when we switched to the entity_detail table method.
+                $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
+                $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
             }
         }
 
