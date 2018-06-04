@@ -418,6 +418,9 @@ class ProductionController extends CarbonApiController
         $data = json_decode($request->getContent(), true);
         $totalOutputSamples = $data['totalOutputSamples'];
         $outputSampleDefaults = $data['outputSampleDefaults'];
+        if ($outputSampleDefaults == null ) {
+            $outputSampleDefaults = [];
+        }
 
         if (array_key_exists('id', $data)) {
             $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
