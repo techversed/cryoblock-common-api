@@ -418,7 +418,7 @@ class ProductionController extends CarbonApiController
         $data = json_decode($request->getContent(), true);
         $totalOutputSamples = $data['totalOutputSamples'];
         $outputSampleDefaults = $data['outputSampleDefaults'];
-        if($outputSampleDefaults == null ){
+        if ($outputSampleDefaults == null ) {
             $outputSampleDefaults = [];
         }
 
