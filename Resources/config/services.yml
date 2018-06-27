@@ -86,7 +86,7 @@ services:
 
     carbon_api.object_notification_listener:
         class: Carbon\ApiBundle\Listener\ObjectNotificationListener
-        arguments: ["@carbon_api.mailer", "@logger", "%mailer_user%", "@security.token_storage", "%frontend.url%"]
+        arguments: ["@carbon_api.mailer", "@logger", "%mailer_user%", "@security.token_storage", "%frontend.url%", "%app.name%"]
         tags:
             - { name: doctrine.event_listener, event: postPersist }
             - { name: doctrine.event_listener, event: postUpdate }

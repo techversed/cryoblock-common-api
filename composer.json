@@ -7,23 +7,6 @@
     "autoload": {
         "psr-4": {"Carbon\\ApiBundle\\": ""}
     },
-    "require": {
-        "php": ">=5.3.3",
-        "symfony/symfony": "~2.7@beta",
-        "doctrine/orm": "~2.2,>=2.2.3,<2.5",
-        "doctrine/dbal": "<2.5",
-        "doctrine/doctrine-bundle": "~1.4",
-        "symfony/assetic-bundle": "~2.3",
-        "symfony/swiftmailer-bundle": "~2.3",
-        "symfony/monolog-bundle": "~2.4",
-        "sensio/distribution-bundle": "~3.0,>=3.0.12",
-        "sensio/framework-extra-bundle": "~3.0,>=3.0.2",
-        "incenteev/composer-parameter-handler": "~2.0",
-        "jms/serializer-bundle": ">=0.13.0",
-        "friendsofsymfony/user-bundle": "~2.0@dev",
-        "uecode/api-key-bundle" : "2.1.0",
-        "gedmo/doctrine-extensions": "2.4.2",
-        "oneup/uploader-bundle": "~1.3"
-    },
+    "require": {},
     "require-dev": {}
 }
