@@ -5,7 +5,7 @@ namespace Carbon\ApiBundle\Entity\Storage;
 use AppBundle\Entity\Storage\SampleType;
 use AppBundle\Entity\Storage\StorageContainer;
 use Carbon\ApiBundle\Annotation AS Carbon;
-use Carbon\ApiBundle\Entity\Storage\BaseSample;
+// use Carbon\ApiBundle\Entity\Storage\BaseSample;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation AS JMS;
