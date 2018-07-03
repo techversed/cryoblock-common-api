@@ -13,34 +13,7 @@ use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
 class BaseSequence extends BaseCryoblockEntity
 {
 
-    /**
-    * @ORM\Column(name="nucleotide", nullable=false, type="boolean")
-    * @JMS\Groups({"default"})
-    * @Gedmo\Versioned
-    */
-    protected $nucleotide; //This will be used when we expand to using multiple -- not implemented yet.
 
-    /**
-    * @var integer
-    * @ORM\Column(name="donor_id", type="integer", nullable=true)
-    */
-    protected $donorId;
-
-    /**
-    * @ORM\ManyToOne(targetEntity="Appbundle\Entity\Donor\Donor")
-    * @ORM\JoinColumns({
-    *   @ORM\JoinColumn(name="donor_id", referencedColumnName="id")
-    * })
-    * @JMS\Groups({"default"})
-    * @Gedmo\Versioned
-    */
-    protected $donor;
-
-    /**
-    * @var integer
-    * @ORM\Column(name="target_id", type="integer", nullable=true)
-    */
-    protected $targetId;
 
     /**
      * @var integer
@@ -56,21 +29,6 @@ class BaseSequence extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      */
     protected $catalog;
-
-    /**
-    * @ORM\ManyToOne(targetEntity="Appbundle\Entity\Storage\Target")
-    * @ORM\JoinColumns({
-    *   @ORM\JoinColumn(name="target_id", referencedColumnName="id")
-    * })
-    * @JMS\Groups({"default"})
-    * @Gedmo\Versioned
-    */
-    protected $target;
-
-    /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SequenceTag", mappedBy="sequence")
-     */
-    protected $sequenceTags;
 
     /**
      * @var integer
@@ -97,130 +55,12 @@ class BaseSequence extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      * @Gedmo\Versioned
      */
-    protected $dnaSequence;
-
-    /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SequenceViewer", mappedBy="sequence", cascade={"remove"})
-     * @JMS\Groups({"default"})
-     */
-    protected $sequenceViewers; // not sure what I want to do with the serializer groups here.// changed groups from JMS\Groups({"children", "viewers"}) to default
-
-     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SequenceViewer", mappedBy="sequence", cascade={"remove"})
-     * @JMS\Groups({"default"})
-     */
-    public $sequenceGroupViewers;  // changed form this to  JMS\Groups({"children", "groupViewers"}) default...
-
-    // transient variables
-    public $groupViewers;
-    public $viewers;
-
-    /**
-     * @JMS\Groups({"default"})
-     */
-    protected $tags;
+    protected $dnaSequence; //Since we changed this to being base sequence we should probably chagne this away from dna sequence because we would also like to support having other forms of sequences for other labs -- amino acid sequences and rna sequences would be two other types that would be common throughout other labs.
 
     /**
      * @JMS\Groups({"default"})
      */
     protected $errors;
-
-
-    /**
-     * Gets the value of nucleotide.
-     *
-     * @return mixed
-     */
-    public function getNucleotide()
-    {
-        return $this->nucleotide;
-    }
-
-    /**
-     * Sets the value of nucleotide.
-     *
-     * @param mixed $nucleotide the nucleotide
-     *
-     * @return self
-     */
-    public function setNucleotide($nucleotide)
-    {
-        $this->nucleotide = $nucleotide;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of donorId.
-     *
-     * @return integer
-     */
-    public function getDonorId()
-    {
-        return $this->donorId;
-    }
-
-    /**
-     * Sets the value of donorId.
-     *
-     * @param integer $donorId the donor id
-     *
-     * @return self
-     */
-    public function setDonorId($donorId)
-    {
-        $this->donorId = $donorId;
-
-        return $this;
-    }
-
-    /**
-     * Gets the }).
-     *
-     * @return mixed
-     */
-    public function getDonor()
-    {
-        return $this->donor;
-    }
-
-    /**
-     * Sets the }).
-     *
-     * @param mixed $donor the donor
-     *
-     * @return self
-     */
-    public function setDonor($donor)
-    {
-        $this->donor = $donor;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of targetId.
-     *
-     * @return integer
-     */
-    public function getTargetId()
-    {
-        return $this->targetId;
-    }
-
-    /**
-     * Sets the value of targetId.
-     *
-     * @param integer $targetId the target id
-     *
-     * @return self
-     */
-    public function setTargetId($targetId)
-    {
-        $this->targetId = $targetId;
-
-        return $this;
-    }
 
     /**
      * Gets the value of catalogId.
@@ -266,54 +106,6 @@ class BaseSequence extends BaseCryoblockEntity
     public function setCatalog($catalog)
     {
         $this->catalog = $catalog;
-
-        return $this;
-    }
-
-    /**
-     * Gets the }).
-     *
-     * @return mixed
-     */
-    public function getTarget()
-    {
-        return $this->target;
-    }
-
-    /**
-     * Sets the }).
-     *
-     * @param mixed $target the target
-     *
-     * @return self
-     */
-    public function setTarget($target)
-    {
-        $this->target = $target;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of sequenceTags.
-     *
-     * @return mixed
-     */
-    public function getSequenceTags()
-    {
-        return $this->sequenceTags;
-    }
-
-    /**
-     * Sets the value of sequenceTags.
-     *
-     * @param mixed $sequenceTags the sequence tags
-     *
-     * @return self
-     */
-    public function setSequenceTags($sequenceTags)
-    {
-        $this->sequenceTags = $sequenceTags;
 
         return $this;
     }
@@ -386,126 +178,6 @@ class BaseSequence extends BaseCryoblockEntity
     public function setDnaSequence($dnaSequence)
     {
         $this->dnaSequence = $dnaSequence;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of sequenceViewers.
-     *
-     * @return mixed
-     */
-    public function getSequenceViewers()
-    {
-        return $this->sequenceViewers;
-    }
-
-    /**
-     * Sets the value of sequenceViewers.
-     *
-     * @param mixed $sequenceViewers the sequence viewers
-     *
-     * @return self
-     */
-    public function setSequenceViewers($sequenceViewers)
-    {
-        $this->sequenceViewers = $sequenceViewers;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of sequenceGroupViewers.
-     *
-     * @return mixed
-     */
-    public function getSequenceGroupViewers()
-    {
-        return $this->sequenceGroupViewers;
-    }
-
-    /**
-     * Sets the value of sequenceGroupViewers.
-     *
-     * @param mixed $sequenceGroupViewers the sequence group viewers
-     *
-     * @return self
-     */
-    public function setSequenceGroupViewers($sequenceGroupViewers)
-    {
-        $this->sequenceGroupViewers = $sequenceGroupViewers;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of groupViewers.
-     *
-     * @return mixed
-     */
-    public function getGroupViewers()
-    {
-        return $this->groupViewers;
-    }
-
-    /**
-     * Sets the value of groupViewers.
-     *
-     * @param mixed $groupViewers the group viewers
-     *
-     * @return self
-     */
-    public function setGroupViewers($groupViewers)
-    {
-        $this->groupViewers = $groupViewers;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of viewers.
-     *
-     * @return mixed
-     */
-    public function getViewers()
-    {
-        return $this->viewers;
-    }
-
-    /**
-     * Sets the value of viewers.
-     *
-     * @param mixed $viewers the viewers
-     *
-     * @return self
-     */
-    public function setViewers($viewers)
-    {
-        $this->viewers = $viewers;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of tags.
-     *
-     * @return mixed
-     */
-    public function getTags()
-    {
-        return $this->tags;
-    }
-
-    /**
-     * Sets the value of tags.
-     *
-     * @param mixed $tags the tags
-     *
-     * @return self
-     */
-    public function setTags($tags)
-    {
-        $this->tags = $tags;
 
         return $this;
     }
