@@ -230,7 +230,8 @@ class ProductionController extends CarbonApiController
             'Available',
             'Depleted',
             'Destroyed',
-            'Shipped'
+            'Shipped',
+            'Incoming',
         ));
 
         foreach ($prodRequestInputSamples as $prodRequestInputSample) {
@@ -418,7 +419,12 @@ class ProductionController extends CarbonApiController
         $data = json_decode($request->getContent(), true);
         $totalOutputSamples = $data['totalOutputSamples'];
         $outputSampleDefaults = $data['outputSampleDefaults'];
+
         $outputSampleDefaults['projectSamples'] = $outputSampleDefaults['projects']; //To ross: I added this line... You will probably want to find a cleaner way to handle this because it is kinda a mess. It should really be handled before we get to this point either on frontend or on one of the earlier requests to the backend.--Taylor
+
+        if ($outputSampleDefaults == null ) {
+            $outputSampleDefaults = [];
+        }
 
         if (array_key_exists('id', $data)) {
             $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
@@ -429,7 +435,13 @@ class ProductionController extends CarbonApiController
 
         $objPHPExcel = new \PHPExcel();
 
-        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->find(1);
+        if (array_key_exists('outputSampleType', $data)) {
+            $outputSampleTypeId = $data['outputSampleType']['id'];
+        } else {
+            $outputSampleTypeId = 1;
+        }
+
+        $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->find($outputSampleTypeId);
 
         $importer = $this->container->get('sample.importer');
         $sampleTypeMapping = $importer->getMapping($sampleType);
@@ -486,7 +498,8 @@ class ProductionController extends CarbonApiController
             'Available',
             'Depleted',
             'Destroyed',
-            'Shipped'
+            'Shipped',
+            'Incoming',
         ));
 
         $currentOutputSampleIndex = 0;
