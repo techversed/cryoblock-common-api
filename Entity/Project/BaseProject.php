@@ -61,40 +61,40 @@ class BaseProject extends BaseCryoblockEntity
 
     public $samples;
 
-    /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\Dna\RequestProject", mappedBy="project")
-     */
-    protected $projectDnaRequests;
+    // /**
+    //  * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\Dna\RequestProject", mappedBy="project")
+    //  */
+    // protected $projectDnaRequests;
 
-    public $dnaRequests;
+    // public $dnaRequests;
 
-    /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\HumanSpecimen\RequestProject", mappedBy="project")
-     */
-    protected $projectHumanSpecimenRequests;
+    // /**
+    //  * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\HumanSpecimen\RequestProject", mappedBy="project")
+    //  */
+    // protected $projectHumanSpecimenRequests;
 
-    public $humanSpecimenRequests;
+    // public $humanSpecimenRequests;
 
-    /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\Pbmc\RequestProject", mappedBy="project")
-     */
-    protected $projectPbmcRequests;
+    // /**
+    //  * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\Pbmc\RequestProject", mappedBy="project")
+    //  */
+    // protected $projectPbmcRequests;
 
-    public $pbmcRequests;
+    // public $pbmcRequests;
 
-    /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\ProteinExpression\RequestProject", mappedBy="project")
-     */
-    protected $projectProteinExpressionRequests;
+    // /**
+    //  * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\ProteinExpression\RequestProject", mappedBy="project")
+    //  */
+    // protected $projectProteinExpressionRequests;
 
-    public $proteinExpressionRequests;
+    // public $proteinExpressionRequests;
 
-    /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\ProteinPurification\RequestProject", mappedBy="project")
-     */
-    protected $projectProteinPurificationRequests;
+    // /**
+    //  * @ORM\OneToMany(targetEntity="AppBundle\Entity\Production\ProteinPurification\RequestProject", mappedBy="project")
+    //  */
+    // protected $projectProteinPurificationRequests;
 
-    public $proteinPurificationRequests;
+    // public $proteinPurificationRequests;
 
     /**
      * @JMS\VirtualProperty()
@@ -250,51 +250,51 @@ class BaseProject extends BaseCryoblockEntity
         return $this;
     }
 
-    /**
-     * Gets the value of projectRequests.
-     *
-     * @return mixed
-     */
-    public function getProjectRequests()
-    {
-        return $this->projectRequests;
-    }
+    // /**
+    //  * Gets the value of projectRequests.
+    //  *
+    //  * @return mixed
+    //  */
+    // public function getProjectRequests()
+    // {
+    //     return $this->projectRequests;
+    // }
 
-    /**
-     * Sets the value of projectRequests.
-     *
-     * @param mixed $projectRequests the project requests
-     *
-     * @return self
-     */
-    public function setProjectRequests($projectRequests)
-    {
-        $this->projectRequests = $projectRequests;
+    // /**
+    //  * Sets the value of projectRequests.
+    //  *
+    //  * @param mixed $projectRequests the project requests
+    //  *
+    //  * @return self
+    //  */
+    // public function setProjectRequests($projectRequests)
+    // {
+    //     $this->projectRequests = $projectRequests;
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
-    /**
-     * Gets the value of requests.
-     *
-     * @return mixed
-     */
-    public function getRequests()
-    {
-        return $this->requests;
-    }
+    // /**
+    //  * Gets the value of requests.
+    //  *
+    //  * @return mixed
+    //  */
+    // public function getRequests()
+    // {
+    //     return $this->requests;
+    // }
 
-    /**
-     * Sets the value of requests.
-     *
-     * @param mixed $requests the requests
-     *
-     * @return self
-     */
-    public function setRequests($requests)
-    {
-        $this->requests = $requests;
+    // /**
+    //  * Sets the value of requests.
+    //  *
+    //  * @param mixed $requests the requests
+    //  *
+    //  * @return self
+    //  */
+    // public function setRequests($requests)
+    // {
+    //     $this->requests = $requests;
 
-        return $this;
-    }
+    //     return $this;
+    // }
 }

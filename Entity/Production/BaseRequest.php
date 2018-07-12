@@ -149,6 +149,12 @@ abstract class BaseRequest Implements BaseRequestInterface
     protected $deletedAt;
 
     /**
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="request")
+    */
+    protected $projectRequests;
+
+
+    /**
      * Gets the value of alias.
      *
      * @return integer $alias
@@ -463,4 +469,40 @@ abstract class BaseRequest Implements BaseRequestInterface
 
         return $this;
    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getProjectString()
+    {
+        $projectNames = [];
+        if ($this->projectRequests && (is_array($this->projectRequests) || is_object($this->projectRequests))) {
+            foreach ($this->projectRequests as $requestProject) {
+                $projectNames[] = $requestProject->getProject()->getName();
+            }
+            return implode(", ", $projectNames);
+        }
+    }
+    /**
+     * Gets the value of projectRequests.
+     *
+     * @return mixed
+     */
+    public function getProjectRequests()
+    {
+        return $this->projectRequests;
+    }
+    /**
+     * Sets the value of projectRequests.
+     *
+     * @param mixed $projectRequests the project requests
+     *
+     * @return self
+     */
+    public function setProjectRequests($projectRequests)
+    {
+        $this->projectRequests = $projectRequests;
+        return $this;
+    }
 }
