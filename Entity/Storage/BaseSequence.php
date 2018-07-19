@@ -30,6 +30,18 @@ class BaseSequence extends BaseCryoblockEntity
      */
     protected $catalog;
 
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text")
+     * @Gedmo\Versioned
+     * @JMS\Groups({"default"})
+     * @Carbon\Searchable(name="description")
+     * @Assert\NotBlank()
+     */
+    protected $description;
+
     /**
      * @var integer
      *
@@ -202,6 +214,30 @@ class BaseSequence extends BaseCryoblockEntity
     public function setErrors($errors)
     {
         $this->errors = $errors;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of description.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Sets the value of description.
+     *
+     * @param string $description the description
+     *
+     * @return self
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
 
         return $this;
     }
