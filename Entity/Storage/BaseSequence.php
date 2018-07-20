@@ -60,10 +60,11 @@ class BaseSequence extends BaseCryoblockEntity
      */
     protected $parent; // the sequence that this was taken from
 
+//This will not be nullable in the final verison
     /**
      * @var string
      *
-     * @ORM\Column(name="dna_sequence", type="text")
+     * @ORM\Column(name="dna_sequence", type="text", nullable=true)
      * @JMS\Groups({"default"})
      * @Gedmo\Versioned
      */
