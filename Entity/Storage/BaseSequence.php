@@ -12,9 +12,6 @@ use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
 /** @ORM\MappedSuperclass */
 class BaseSequence extends BaseCryoblockEntity
 {
-
-
-
     /**
      * @var integer
      *
@@ -29,7 +26,6 @@ class BaseSequence extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      */
     protected $catalog;
-
 
     /**
      * @var string
@@ -60,7 +56,7 @@ class BaseSequence extends BaseCryoblockEntity
      */
     protected $parent; // the sequence that this was taken from
 
-//This will not be nullable in the final verison
+    //This will not be nullable in the final verison -- The whole point of this object is to store sequence information.
     /**
      * @var string
      *
