@@ -53,6 +53,7 @@ class BaseSample
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Catalog")
      * @ORM\JoinColumn(name="catalog_id", referencedColumnName="id")
      * @Gedmo\Versioned
+     * @Carbon\Searchable(name="catalog", join=true, joinProp="name", subAlias="ct")
      * @JMS\Groups({"default"})
      */
     protected $catalog;

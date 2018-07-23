@@ -60,7 +60,7 @@ class CarbonAnnotationReader
             $annotations = $reader->getPropertyAnnotations($property);
             foreach ($annotations as $annotation) {
                 if ($annotation instanceof Searchable) {
-                    $searchableColumns[] = $annotation->name;
+                    $searchableColumns[] = $annotation;
                 }
             }
         }
