@@ -230,7 +230,8 @@ class ProductionController extends CarbonApiController
             'Available',
             'Depleted',
             'Destroyed',
-            'Shipped'
+            'Shipped',
+            'Incoming',
         ));
 
         foreach ($prodRequestInputSamples as $prodRequestInputSample) {
@@ -504,7 +505,8 @@ class ProductionController extends CarbonApiController
             'Available',
             'Depleted',
             'Destroyed',
-            'Shipped'
+            'Shipped',
+            'Incoming',
         ));
 
         $currentOutputSampleIndex = 0;
