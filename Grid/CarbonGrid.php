@@ -3,6 +3,8 @@
 namespace Carbon\ApiBundle\Grid;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Query\Expr\Join;
 
 /**
  * The CarbonGrid is used to aid in building paginated
@@ -204,10 +206,46 @@ class CarbonGrid extends Grid
                 ));
             }
 
-            foreach ($searchableColumns as $columnName) {
-                $paramName = 'LIKE_'.$columnName;
-                $searchExpressions[] = sprintf('lower(%s.%s) LIKE lower(:%s)', $alias, $columnName, $paramName);
-                $qb->setParameter($paramName, $likeSearch);
+
+            foreach ($searchableColumns as $searchableAnnotation) {
+
+                $columnName = $searchableAnnotation->name;
+
+                if ($searchableAnnotation->join) {
+
+                    $subAlias = $searchableAnnotation->subAlias;
+                    $joinProp = $searchableAnnotation->joinProp;
+                    $meta = $this->em->getClassMetaData($className)->getAssociationMapping($columnName);
+                    $joinColumn = $meta['joinColumns'][0]['name'];
+                    $referencedColumnName = $meta['joinColumns'][0]['referencedColumnName'];
+                    $targetEntity = $meta['targetEntity'];
+                    $qb->innerJoin($targetEntity, $subAlias, Join::WITH, sprintf('%s.%s = %s.%s', $subAlias, $referencedColumnName, $alias, 'catalogId'));
+
+                    if ($searchableAnnotation->int) {
+                        $searchExpressions[] = sprintf('%s.%s = %s', $subAlias, $joinProp, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
+                    } else {
+                        $searchExpressions[] = sprintf('%s.%s LIKE \'%s\'', $subAlias, $joinProp, $likeSearch);
+                    }
+
+
+                } else {
+
+                    if ($searchableAnnotation->int) {
+
+                        if ((int) $this->getQueryParam(self::QUERY_LIKE_SEARCH) != 0 ) {
+                            $searchExpressions[] = sprintf('%s.%s = %s', $alias, $columnName, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
+                        }
+
+                    } else {
+
+                        $paramName = 'LIKE_'.$columnName;
+                        $searchExpressions[] = sprintf('lower(%s.%s) LIKE lower(:%s)', $alias, $columnName, $paramName);
+                        $qb->setParameter($paramName, $likeSearch);
+
+                    }
+
+                }
+
             }
 
             $qb->andWhere(implode(' OR ', $searchExpressions));
