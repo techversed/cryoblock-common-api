@@ -222,7 +222,9 @@ class CarbonGrid extends Grid
                     $qb->innerJoin($targetEntity, $subAlias, Join::WITH, sprintf('%s.%s = %s.%s', $subAlias, $referencedColumnName, $alias, 'catalogId'));
 
                     if ($searchableAnnotation->int) {
-                        $searchExpressions[] = sprintf('%s.%s = %s', $subAlias, $joinProp, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
+                        if (is_numeric($this->getQueryParam(self::QUERY_LIKE_SEARCH))) {
+                            $searchExpressions[] = sprintf('%s.%s = %s', $subAlias, $joinProp, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
+                        }
                     } else {
                         $searchExpressions[] = sprintf('%s.%s LIKE \'%s\'', $subAlias, $joinProp, $likeSearch);
                     }
@@ -232,7 +234,7 @@ class CarbonGrid extends Grid
 
                     if ($searchableAnnotation->int) {
 
-                        if ((int) $this->getQueryParam(self::QUERY_LIKE_SEARCH) != 0 ) {
+                        if (is_numeric($this->getQueryParam(self::QUERY_LIKE_SEARCH))) {
                             $searchExpressions[] = sprintf('%s.%s = %s', $alias, $columnName, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
                         }
 
