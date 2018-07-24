@@ -420,8 +420,6 @@ class ProductionController extends CarbonApiController
         $totalOutputSamples = $data['totalOutputSamples'];
         $outputSampleDefaults = $data['outputSampleDefaults'];
 
-        $outputSampleDefaults['projectSamples'] = $outputSampleDefaults['projects']; //To ross: I added this line... You will probably want to find a cleaner way to handle this because it is kinda a mess. It should really be handled before we get to this point either on frontend or on one of the earlier requests to the backend.--Taylor
-
         if ($outputSampleDefaults == null ) {
             $outputSampleDefaults = [];
         }
