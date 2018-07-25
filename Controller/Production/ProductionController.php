@@ -479,7 +479,22 @@ class ProductionController extends CarbonApiController
         foreach ($storageContainers as $storageContainer) {
             $storageContainerNames[] = $storageContainer->getName();
         }
+
+        $sampleTypesArr = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->findAll();
+
+        $sampleTypes = array();
+        foreach ($sampleTypesArr as $sampleType) {
+            $sampleTypes[] = $sampleType->getName();
+        }
+
+        //The issue seems to be parenthesis
+//"Primary Cells (PBMC), Hybridoma Cells, Primary Tissue (Bone Marrow), Primary Tissue (Lung), Primary Tissue (Lymph Node), Primary Tissue (Small Intestine), Primary Tissue (Spleen), Primary Tissue (Stomach), Primary Tissue (Thymus), Primary Tissue (Tonsil), Primary Cells/Tissue (Other), Cell Line, Virus/VLP, Plasma, E. coli Stock, Yeast cell line, Yeast clone, Bacteria, Serum, Phage display library, Neutrophil pellet, Microbiome, Purified Plasmid DNA, Blood, Protein, Cell Supernatant, Non-Plasmid DNA, RNA, Unknown, Chemical/Drug, Bacterial Culture / Cell Pellet"
+//       $sampleTypes = array("Hybridoma Cells", "Primary Tissue (Tonsil", "Cell Line", "Virus/VLP", "Plasma", "E. coli Stock", "Yeast cell line", "Yeast clone", "Bacteria", "Serum", "Phage display library", "Neutrophil pellet", "Microbiome", "Purified Plasmid DNA", "Blood", "Protein", "Cell Supernatant", "Non-Plasmid DNA", "RNA", "Unknown");
+
+        $sampleTypeNames = implode(', ', $sampleTypes);
+
         $storageContainerNames = implode(', ', $storageContainerNames);
+
         $concentrationUnits = implode(', ', array(
             'mg/mL',
             'ng/uL',
@@ -538,6 +553,23 @@ class ProductionController extends CarbonApiController
 
                 }
 
+                if ($label == 'Sample Type') {
+
+                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
+                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
+                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
+                    $objValidation->setAllowBlank(false);
+                    $objValidation->setShowInputMessage(true);
+                    $objValidation->setShowErrorMessage(true);
+                    $objValidation->setShowDropDown(true);
+                    $objValidation->setErrorTitle('Input error');
+                    $objValidation->setError('Value is not in list.');
+                    $objValidation->setPromptTitle('Pick from list');
+                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
+                    $objValidation->setFormula1('"'.$sampleTypeNames.'"');
+
+                }
+
                 if ($label == 'Storage Container') {
 
                     $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
@@ -554,6 +586,7 @@ class ProductionController extends CarbonApiController
                     $objValidation->setFormula1('"'.$storageContainerNames.'"');
 
                 }
+
 
                 if ($label == 'Concentration Units') {
 
