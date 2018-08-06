@@ -276,7 +276,7 @@ class BaseSample
 
     /**
     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
-    * @JMS\Groups({"default"})
+    * @JMS\Groups({"template"})
     */
     protected $projectSamples;
 
