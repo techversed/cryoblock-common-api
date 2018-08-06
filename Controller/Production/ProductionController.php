@@ -142,7 +142,7 @@ class ProductionController extends CarbonApiController
 
         foreach ($prodRequestInputSamples as $prodRequestInputSample) {
 
-            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample()), true);
+            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample(), array('template')), true);
 
             $data = new Dot($serializedInputSample);
 
@@ -238,7 +238,7 @@ class ProductionController extends CarbonApiController
 
             $current = 0;
 
-            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample()), true);
+            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample(), array('template')), true);
 
             $data = new Dot($serializedInputSample);
 
