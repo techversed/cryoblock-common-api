@@ -227,7 +227,7 @@ class CarbonGrid extends Grid
                             $searchExpressions[] = sprintf('%s.%s = %s', $subAlias, $searchProp, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
                         }
                     } else {
-                        $searchExpressions[] = sprintf('%s.%s LIKE \'%s\'', $subAlias, $searchProp, $likeSearch);
+                        $searchExpressions[] = sprintf('lower(%s.%s) LIKE lower(\'%s\')', $subAlias, $searchProp, $likeSearch);
                     }
 
 
