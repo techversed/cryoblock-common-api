@@ -220,7 +220,7 @@ class CarbonGrid extends Grid
                     $joinColumn = $meta['joinColumns'][0]['name'];
                     $referencedColumnName = $meta['joinColumns'][0]['referencedColumnName'];
                     $targetEntity = $meta['targetEntity'];
-                    $qb->innerJoin($targetEntity, $subAlias, Join::WITH, sprintf('%s.%s = %s.%s', $subAlias, $referencedColumnName, $alias, $joinProp));
+                    $qb->leftJoin($targetEntity, $subAlias, Join::WITH, sprintf('%s.%s = %s.%s', $subAlias, $referencedColumnName, $alias, $joinProp));
 
                     if ($searchableAnnotation->int) {
                         if (is_numeric($this->getQueryParam(self::QUERY_LIKE_SEARCH))) {
