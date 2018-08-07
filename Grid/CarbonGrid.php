@@ -214,19 +214,20 @@ class CarbonGrid extends Grid
                 if ($searchableAnnotation->join) {
 
                     $subAlias = $searchableAnnotation->subAlias;
+                    $searchProp = $searchableAnnotation->searchProp;
                     $joinProp = $searchableAnnotation->joinProp;
                     $meta = $this->em->getClassMetaData($className)->getAssociationMapping($columnName);
                     $joinColumn = $meta['joinColumns'][0]['name'];
                     $referencedColumnName = $meta['joinColumns'][0]['referencedColumnName'];
                     $targetEntity = $meta['targetEntity'];
-                    $qb->innerJoin($targetEntity, $subAlias, Join::WITH, sprintf('%s.%s = %s.%s', $subAlias, $referencedColumnName, $alias, 'catalogId'));
+                    $qb->leftJoin($targetEntity, $subAlias, Join::WITH, sprintf('%s.%s = %s.%s', $subAlias, $referencedColumnName, $alias, $joinProp));
 
                     if ($searchableAnnotation->int) {
                         if (is_numeric($this->getQueryParam(self::QUERY_LIKE_SEARCH))) {
-                            $searchExpressions[] = sprintf('%s.%s = %s', $subAlias, $joinProp, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
+                            $searchExpressions[] = sprintf('%s.%s = %s', $subAlias, $searchProp, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
                         }
                     } else {
-                        $searchExpressions[] = sprintf('%s.%s LIKE \'%s\'', $subAlias, $joinProp, $likeSearch);
+                        $searchExpressions[] = sprintf('lower(%s.%s) LIKE lower(\'%s\')', $subAlias, $searchProp, $likeSearch);
                     }
 
 
