@@ -25,13 +25,14 @@ class CryoblockMtmItemConverter implements ItemConverterInterface
      */
     protected $mtmClass;
 
-    public function __construct(EntityManager $em, $inputClass, $accessor, $childAccessor, $formProperty)
+    public function __construct(EntityManager $em, $childClass, $accessor, $childAccessor, $formProperty, $inputClass)
     {
         $this->em = $em;
         $this->inputClass = $inputClass; // AppBundle\\Entity\\Storage\\Sample;
         $this->accessor = $accessor; // sampleTags;
         $this->childAccessor = $childAccessor; // tag;
         $this->formProperty = $formProperty; // tags;
+        $this->childClass = $childClass;
     }
 
     /**
