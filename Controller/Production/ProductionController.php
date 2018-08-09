@@ -419,11 +419,11 @@ class ProductionController extends CarbonApiController
     {
         foreach ($arr as $a)
         {
-            if (is_array($a)){
-                return true;
+            if (!is_array($a)){
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     private function getOutputExcelTemplateResponse()
@@ -434,7 +434,7 @@ class ProductionController extends CarbonApiController
         $outputSampleDefaults = $data['outputSampleDefaults'];
 
         if ($outputSampleDefaults == null ) {
-            $outputSampleDefaults = [];
+            $outputSampleDefaults = array();
         }
 
         if (!$this->isMultiDimArray($outputSampleDefaults)) {
@@ -617,6 +617,7 @@ class ProductionController extends CarbonApiController
                     $objValidation->setFormula1('"' . $statuses . '"');
 
                 }
+
                 if (array_key_exists($column['prop'], $outputSampleDefaults[$currentOutputSampleIndex])) {
                     if (is_array($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']])) {
                         $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
@@ -645,7 +646,6 @@ class ProductionController extends CarbonApiController
 
             $currentSample++;
             $currentOutputSampleIndex++;
-
         }
         if (array_key_exists('id', $data)) {
             $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
