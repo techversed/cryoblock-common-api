@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\MappedSuperclass
  */
-class BaseProjectSample extends BaseCryoblockEntity
+class BaseProjectSequence extends BaseCryoblockEntity
 {
     /**
     * @var integer
@@ -23,11 +23,11 @@ class BaseProjectSample extends BaseCryoblockEntity
 
     /**
     * @var integer
-    * @ORM\Column(name="sample_id", type="integer")
+    * @ORM\Column(name="sequence_id", type="integer")
     * @JMS\Groups({"default"})
     *
     */
-    protected $sampleId;
+    protected $sequenceId;
 
     /**
      * @var Project $project
@@ -38,14 +38,12 @@ class BaseProjectSample extends BaseCryoblockEntity
     protected $project;
 
     /**
-     * @var Sample $sample
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Sample")
-     * @ORM\JoinColumn(name="sample_id", referencedColumnName="id")
+     * @var Sequence $sequence
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Sequence")
+     * @ORM\JoinColumn(name="sequence_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
      */
-    protected $sample;
-
-
+    protected $sequence;
 
     /**
      * Gets the value of projectId.
@@ -72,25 +70,25 @@ class BaseProjectSample extends BaseCryoblockEntity
     }
 
     /**
-     * Gets the value of sampleId.
+     * Gets the value of sequenceId.
      *
      * @return integer
      */
-    public function getSampleId()
+    public function getSequenceId()
     {
-        return $this->sampleId;
+        return $this->sequenceId;
     }
 
     /**
-     * Sets the value of sampleId.
+     * Sets the value of sequenceId.
      *
-     * @param integer $sampleId the sample id
+     * @param integer $sequenceId the sequence id
      *
      * @return self
      */
-    public function setSampleId($sampleId)
+    public function setSequenceId($sequenceId)
     {
-        $this->sampleId = $sampleId;
+        $this->sequenceId = $sequenceId;
 
         return $this;
     }
@@ -120,25 +118,25 @@ class BaseProjectSample extends BaseCryoblockEntity
     }
 
     /**
-     * Gets the value of sample.
+     * Gets the value of sequence.
      *
-     * @return Sample $sample
+     * @return Sequence $sequence
      */
-    public function getSample()
+    public function getSequence()
     {
-        return $this->sample;
+        return $this->sequence;
     }
 
     /**
-     * Sets the value of sample.
+     * Sets the value of sequence.
      *
-     * @param Sample $sample $sample the sample
+     * @param Sequence $sequence $sequence the sequence
      *
      * @return self
      */
-    public function setSample($sample)
+    public function setSequence($sequence)
     {
-        $this->sample = $sample;
+        $this->sequence = $sequence;
 
         return $this;
     }
