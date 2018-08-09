@@ -31,5 +31,10 @@ final class Searchable
     /**
      * @var string
      */
+    public $searchProp;
+
+    /**
+     * @var string
+     */
     public $subAlias;
 }

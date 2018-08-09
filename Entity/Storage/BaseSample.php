@@ -53,7 +53,7 @@ class BaseSample
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Catalog")
      * @ORM\JoinColumn(name="catalog_id", referencedColumnName="id")
      * @Gedmo\Versioned
-     * @Carbon\Searchable(name="catalog", join=true, joinProp="name", subAlias="ct")
+     * @Carbon\Searchable(name="catalog", join=true, searchProp="name", joinProp="catalogId", subAlias="ct")
      * @JMS\Groups({"default"})
      */
     protected $catalog;
@@ -275,6 +275,12 @@ class BaseSample
     protected $mass;
 
     /**
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
+    * @JMS\Groups({"template"})
+    */
+    protected $projectSamples;
+
+    /**
      * @var integer $lot
      *
      * @ORM\Column(name="lot", type="string", length=300, nullable=true)
@@ -294,6 +300,11 @@ class BaseSample
      * @JMS\Groups({"default"})
      */
     public $tags;
+
+   /**
+     * @JMS\Groups({"default"})
+     */
+    public $projects;
 
     /**
      * @JMS\Groups({"default"})
@@ -1071,6 +1082,27 @@ class BaseSample
         }
     }
 
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getProjectString()
+    {
+        $projectNames = [];
+
+        if ($this->projectSamples && (is_array($this->projectSamples) || is_object($this->projectSamples))) {
+
+            foreach ($this->projectSamples as $sampleProject) {
+
+                $projectNames[] = $sampleProject->getProject()->getName();
+
+            }
+
+            return implode(", ", $projectNames);
+        }
+    }
+
     /**
      * Gets the value of sampleTags.
      *
@@ -1115,6 +1147,78 @@ class BaseSample
     public function setTags($tags)
     {
         $this->tags = $tags;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of projectSamples.
+     *
+     * @return mixed
+     */
+    public function getProjectSamples()
+    {
+        return $this->projectSamples;
+    }
+
+    /**
+     * Sets the value of projectSamples.
+     *
+     * @param mixed $projectSamples the project samples
+     *
+     * @return self
+     */
+    public function setProjectSamples($projectSamples)
+    {
+        $this->projectSamples = $projectSamples;
+
+        return $this;
+    }
+
+    /**
+     * Gets the Valid volume units.
+     *
+     * @return array
+     */
+    public function getValidVolumeUnits()
+    {
+        return $this->validVolumeUnits;
+    }
+
+    /**
+     * Sets the Valid volume units.
+     *
+     * @param array $validVolumeUnits the valid volume units
+     *
+     * @return self
+     */
+    public function setValidVolumeUnits(array $validVolumeUnits)
+    {
+        $this->validVolumeUnits = $validVolumeUnits;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of projects.
+     *
+     * @return mixed
+     */
+    public function getProjects()
+    {
+        return $this->projects;
+    }
+
+    /**
+     * Sets the value of projects.
+     *
+     * @param mixed $projects the projects
+     *
+     * @return self
+     */
+    public function setProjects($projects)
+    {
+        $this->projects = $projects;
 
         return $this;
     }
