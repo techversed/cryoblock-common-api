@@ -20,7 +20,7 @@ class BaseProjectSequenceController extends CarbonApiController
             'joinColumn' => 'sequenceId',
             'whereColumn' => 'projectId',
         ),
-        'sample' => array(
+        'sequence' => array(
             'returnedEntity' => 'AppBundle\Entity\Project\Project',
             'joinColumn' => 'projectId',
             'whereColumn' => 'sequenceId',
