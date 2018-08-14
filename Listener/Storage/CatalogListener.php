@@ -28,7 +28,16 @@ class CatalogListener
 
                 foreach ($catalogs as $catalog) {
 
+                    $minId = $minId ? ($minId < $catalog->getId() ? $minId : $catalog->getId()) : $catalog->getId();
+
                     $catIdList[] = $catalog->getId();
+
+                }
+
+                foreach ($catIdList as $catId) {
+
+                    $query = $em->createQuery('update storage.sample set catalogId = ' + $minId + ' where catalogId in ' + $catIdList);
+                    $numUpdated = $query->execute();
 
                 }
 
