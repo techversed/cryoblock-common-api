@@ -23,45 +23,23 @@ class CatalogListener
 
                 $catalogs = $catalogRepo->findBy(array('name' => $entity->getName()));
 
-                $minId = null;
+                $minId = 53337;
                 $catIdList = array();
 
                 foreach ($catalogs as $catalog) {
 
-                    $minId = $minId ? ($minId < $catalog->getId() ? $minId : $catalog->getId()) : $catalog->getId();
+                    // $minId = $minId ? ($minId < $catalog->getId() ? $minId : $catalog->getId()) : $catalog->getId();
 
                     $catIdList[] = $catalog->getId();
 
                 }
 
-                foreach ($catIdList as $catId) {
-
-                    $query = $em->createQuery('update storage.sample set catalogId = ' + $minId + ' where catalogId in ' + $catIdList);
-                    $numUpdated = $query->execute();
-
-                }
+                $query = $em->createQuery('update storage.sample set catalogId = ' . (string) $minId .  ' where catalogId in ' . '(' .  implode(', ', $catIdList) . ')');
+                $numUpdated = $query->execute();
 
                 $em->flush();
 
-                // echo count($catalogRepo);
-
-
-                // $query = $em->createQuery('select * from storage.sample ')
-
-                // $sampleName = $entity->getName();
-                // $catalog = $catalogRepo->findOneByName($sampleName);
-
-                // if (!$catalog) {
-                //     $catalog = new Catalog();
-                //     $catalog->setName($sampleName);
-                //     $catalog->setStatus('Available');
-                //     $uow->persist($catalog);
-                //     $metaCatalog = $em->getClassMetadata(get_class($catalog));
-                //     $uow->computeChangeSet($metaCatalog, $catalog);
-                // }
-
             }
-
         }
     }
 }
