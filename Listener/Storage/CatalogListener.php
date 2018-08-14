@@ -15,22 +15,41 @@ class CatalogListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
         $catalogRepo = $em->getRepository('AppBundle\Entity\Storage\Catalog');
+        $sampleRepo = $em->getRepository('AppBundle\Entity\Storage\Sample');
 
         foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
-            if ($entity instanceof Sample) {
+            if ($entity instanceof Catalog) {
 
-                $sampleName = $entity->getName();
-                $catalog = $catalogRepo->findOneByName($sampleName);
+                $catalogs = $catalogRepo->findBy(array('name' => $entity->getName()));
 
-                if (!$catalog) {
-                    $catalog = new Catalog();
-                    $catalog->setName($sampleName);
-                    $catalog->setStatus('Available');
-                    $uow->persist($catalog);
-                    $metaCatalog = $em->getClassMetadata(get_class($catalog));
-                    $uow->computeChangeSet($metaCatalog, $catalog);
+                $minId = null;
+                $catIdList = array();
+
+                foreach ($catalogs as $catalog) {
+
+                    $catIdList[] = $catalog->getId();
+
                 }
+
+                $em->flush();
+
+                // echo count($catalogRepo);
+
+
+                // $query = $em->createQuery('select * from storage.sample ')
+
+                // $sampleName = $entity->getName();
+                // $catalog = $catalogRepo->findOneByName($sampleName);
+
+                // if (!$catalog) {
+                //     $catalog = new Catalog();
+                //     $catalog->setName($sampleName);
+                //     $catalog->setStatus('Available');
+                //     $uow->persist($catalog);
+                //     $metaCatalog = $em->getClassMetadata(get_class($catalog));
+                //     $uow->computeChangeSet($metaCatalog, $catalog);
+                // }
 
             }
 
