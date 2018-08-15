@@ -24,23 +24,20 @@ class CatalogListener
 
                 $catalogs = $catalogRepo->findBy( array('name' => $entity->getName()) );
 
-                // $minId = 53337;
+                $minId = $entity->getId();
                 $catIdList = array();
-                // $catIdList[] = 53334;
+                $catIdList[] = $entity->getId();
 
                 foreach ($catalogs as $catalog) {
 
-                    $minId = $minId ? ($minId < $catalog->getId() ? $minId : $catalog->getId()) : $catalog->getId();
+                    $minId = $minId == 0 ? ($minId < $catalog->getId() ? $minId : $catalog->getId()) : $catalog->getId();
 
                     $catIdList[] = $catalog->getId();
 
                 }
 
                 $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sample s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
-                // $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sample s SET s.catalogId = 53337 where s.catalogId in (53335)');
                 $numUpdated = $query->execute();
-
-                // $em->flush();
 
             }
         }
