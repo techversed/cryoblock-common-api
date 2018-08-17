@@ -12,4 +12,29 @@ final class Searchable
      * @var string
      */
     public $name;
+
+    /**
+     * @var boolean
+     */
+    public $int;
+
+    /**
+     * @var boolean
+     */
+    public $join;
+
+    /**
+     * @var string
+     */
+    public $joinProp;
+
+    /**
+     * @var string
+     */
+    public $searchProp;
+
+    /**
+     * @var string
+     */
+    public $subAlias;
 }

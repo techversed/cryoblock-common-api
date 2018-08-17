@@ -5,6 +5,7 @@ namespace Carbon\ApiBundle\DataImport\ItemConverter;
 use AppBundle\Entity\Storage\SampleTag;
 use Ddeboer\DataImport\ItemConverter\ItemConverterInterface;
 use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class CryoblockMtmItemConverter implements ItemConverterInterface
@@ -24,13 +25,14 @@ class CryoblockMtmItemConverter implements ItemConverterInterface
      */
     protected $mtmClass;
 
-    public function __construct(EntityManager $em, $inputClass, $accessor, $childAccessor, $formProperty)
+    public function __construct(EntityManager $em, $childClass, $accessor, $childAccessor, $formProperty, $inputClass)
     {
         $this->em = $em;
         $this->inputClass = $inputClass; // AppBundle\\Entity\\Storage\\Sample;
         $this->accessor = $accessor; // sampleTags;
         $this->childAccessor = $childAccessor; // tag;
         $this->formProperty = $formProperty; // tags;
+        $this->childClass = $childClass;
     }
 
     /**
@@ -90,12 +92,12 @@ class CryoblockMtmItemConverter implements ItemConverterInterface
             $input[$this->formProperty]['parentId'] = $input['id'];
         }
 
-        $input[$this->accessor] = array();
+        $input[$this->accessor] = new ArrayCollection();
         foreach ($finalItemIds as $finalItemId) {
             $className = $mtmEntity;
             $mtmObject = new $className();
             $propertyAccessor->setValue($mtmObject, $this->childAccessor, $this->em->getRepository($childEntity)->find($finalItemId));
-            $input[$this->accessor][] = $mtmObject;
+            $input[$this->accessor]->add($mtmObject);
         }
         return $input;
     }

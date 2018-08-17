@@ -142,7 +142,7 @@ class ProductionController extends CarbonApiController
 
         foreach ($prodRequestInputSamples as $prodRequestInputSample) {
 
-            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample()), true);
+            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample(), array('template')), true);
 
             $data = new Dot($serializedInputSample);
 
@@ -230,14 +230,15 @@ class ProductionController extends CarbonApiController
             'Available',
             'Depleted',
             'Destroyed',
-            'Shipped'
+            'Shipped',
+            'Incoming',
         ));
 
         foreach ($prodRequestInputSamples as $prodRequestInputSample) {
 
             $current = 0;
 
-            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample()), true);
+            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample(), array('template')), true);
 
             $data = new Dot($serializedInputSample);
 
@@ -419,6 +420,10 @@ class ProductionController extends CarbonApiController
         $totalOutputSamples = $data['totalOutputSamples'];
         $outputSampleDefaults = $data['outputSampleDefaults'];
 
+        if ($outputSampleDefaults == null ) {
+            $outputSampleDefaults = [];
+        }
+
         if (array_key_exists('id', $data)) {
             $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
         } else {
@@ -491,7 +496,8 @@ class ProductionController extends CarbonApiController
             'Available',
             'Depleted',
             'Destroyed',
-            'Shipped'
+            'Shipped',
+            'Incoming',
         ));
 
         $currentOutputSampleIndex = 0;

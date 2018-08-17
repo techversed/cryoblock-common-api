@@ -15,13 +15,14 @@ use Carbon\ApiBundle\Entity\UserObjectNotification;
 
 class ObjectNotificationListener
 {
-    public function __construct(CryoblockMailer $mailer, Logger $logger, $mailerUser, $tokenStorage, $frontendUrl)
+    public function __construct(CryoblockMailer $mailer, Logger $logger, $mailerUser, $tokenStorage, $frontendUrl, $appName)
     {
         $this->mailer = $mailer;
         $this->logger = $logger;
         $this->mailerUser = $mailerUser;
         $this->tokenStorage = $tokenStorage;
         $this->frontendUrl = $frontendUrl;
+        $this->appName = $appName;
     }
 
     //A list of entity classes for which updates will not be sent.
@@ -128,7 +129,7 @@ class ObjectNotificationListener
             $entity->getId()
         );
 
-        $from = array($this->mailerUser => 'Crowelab Utilities');
+        $from = array($this->mailerUser => $this->appName);
         $objectDescription = sprintf(
             '%s %s',
             $objectDescription,
@@ -266,7 +267,7 @@ class ObjectNotificationListener
             $entity->getId()
         );
 
-        $from = array($this->mailerUser => 'Crowelab Utilities');
+        $from = array($this->mailerUser => $this->appName);
         $objectDescription = sprintf(
             '%s %s',
             $objectDescription,
@@ -365,7 +366,7 @@ class ObjectNotificationListener
         $reflectionClass = new \ReflectionClass(get_class($entity));
         $classAnnotations = $annotationReader->getClassAnnotations($reflectionClass);
 
-        $from = array($this->mailerUser => 'Crowelab Utilities');
+        $from = array($this->mailerUser => $this->appName);
         $objectDescription = sprintf(
             '%s %s',
             $objectDescription,
