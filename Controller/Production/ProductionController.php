@@ -474,6 +474,16 @@ class ProductionController extends CarbonApiController
         //     'Division Column',
         // );
 
+        $sampleTypes = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->findAll();
+
+        $sampleTypeNames = array();
+
+        foreach ($sampleTypes as $sampleType) {
+            $sampleTypeNames[] = $sampleType->getName();
+        }
+        $sampleTypeNames = array_slice($sampleTypeNames, 0, 20); //getting very close to being able ot have all of the sample types in a single dropdown.
+        $sampleTypeNames = implode(',', $sampleTypeNames);
+
         $storageContainers = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\StorageContainer')->findAll();
 
         $storageContainerNames = array();
@@ -481,6 +491,7 @@ class ProductionController extends CarbonApiController
             $storageContainerNames[] = $storageContainer->getName();
         }
         $storageContainerNames = implode(', ', $storageContainerNames);
+
         $concentrationUnits = implode(', ', array(
             'mg/mL',
             'ng/uL',
@@ -536,6 +547,23 @@ class ProductionController extends CarbonApiController
                     ->setLocked(
                         \PHPExcel_Style_Protection::PROTECTION_UNPROTECTED
                     );
+
+                }
+
+                if ($label == 'Sample Type') {
+
+                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
+                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
+                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
+                    $objValidation->setAllowBlank(false);
+                    $objValidation->setShowInputMessage(true);
+                    $objValidation->setShowErrorMessage(true);
+                    $objValidation->setShowDropDown(true);
+                    $objValidation->setErrorTitle('Input error');
+                    $objValidation->setError('Value is not in list.');
+                    $objValidation->setPromptTitle('Pick from list');
+                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
+                    $objValidation->setFormula1('"'.$sampleTypeNames.'"');
 
                 }
 
