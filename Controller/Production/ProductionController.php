@@ -481,7 +481,7 @@ class ProductionController extends CarbonApiController
         foreach ($sampleTypes as $sampleType) {
             $sampleTypeNames[] = $sampleType->getName();
         }
-        $sampleTypeNames = array_slice($sampleTypeNames, 0, 20); //getting very close to being able ot have all of the sample types in a single dropdown.
+        // $sampleTypeNames = array_slice($sampleTypeNames, 0, 20); //getting very close to being able ot have all of the sample types in a single dropdown.
         $sampleTypeNames = implode(',', $sampleTypeNames);
 
         $storageContainers = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\StorageContainer')->findAll();
