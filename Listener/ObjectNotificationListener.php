@@ -48,6 +48,7 @@ class ObjectNotificationListener
 
         $creatingUser = $this->tokenStorage->getToken()->getUser();
 
+        //AUTOWATCHING IMPLEMENTED HERE...
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
@@ -70,7 +71,6 @@ class ObjectNotificationListener
             ))
         ;
 
-        //AUTOWATCHING IMPLEMENTED HERE...
         $creatingUserObjectNotification = new UserObjectNotification();
         $creatingUserObjectNotification->setEntityId($entity->getId());
         $creatingUserObjectNotification->setEntityDetail($entDet);
