@@ -48,14 +48,18 @@ class ObjectNotificationListener
 
         $creatingUser = $this->tokenStorage->getToken()->getUser();
 
+
         //AUTOWATCHING IMPLEMENTED HERE...
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
 
-        if ($entDet == null) { //We have chosen to populate the Entity Detail table from the front end. If the entry does not exist then we are just going to exit.
+        if ($entDet == null || $entDet->getAutoWatch() == false) { //We have chosen to populate the Entity Detail table from the front end. If the entry does not exist then we are just going to exit.
+
             return;
+
         }
+
         $entDetId = $entDet->getId();
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification') //Have not even changed this yet...
@@ -80,6 +84,7 @@ class ObjectNotificationListener
         $em->persist($creatingUserObjectNotification);
         $em->flush();
         //END OF CHANGES FOR AUTOWATCHING
+
 
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {

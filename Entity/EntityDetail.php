@@ -57,6 +57,13 @@ class EntityDetail extends BaseCryoblockEntity
     protected $objectUrl;
 
     /**
+    * @ORM\Column(name="auto_watch", type="boolean", nullable=true)
+    * @JMS\Groups({"default"})
+    *
+    */
+    protected $autoWatch;
+
+    /**
      * Gets the value of id.
      *
      * @return mixed
@@ -148,6 +155,30 @@ class EntityDetail extends BaseCryoblockEntity
     public function setObjectUrl($objectUrl)
     {
         $this->objectUrl = $objectUrl;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of autoWatch.
+     *
+     * @return mixed
+     */
+    public function getAutoWatch()
+    {
+        return $this->autoWatch;
+    }
+
+    /**
+     * Sets the value of autoWatch.
+     *
+     * @param mixed $autoWatch the auto watch
+     *
+     * @return self
+     */
+    public function setAutoWatch($autoWatch)
+    {
+        $this->autoWatch = $autoWatch;
 
         return $this;
     }
