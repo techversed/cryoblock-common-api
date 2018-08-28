@@ -353,7 +353,7 @@ class ObjectNotificationListener
         foreach ($watchingUserNotifications as $watchingUserNotification) {
             if ($watchingUserNotification->getOnDelete()) {
                 $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
-                $url = $watchingUserNotification->getEntityDetail()->getUrl();
+                $url = $watchingUserNotification->getEntityDetail()->getObjectUrl();
                 $objectDescription = $watchingUserNotification->getEntityDetail()->getObjectDescription();
             }
         }
