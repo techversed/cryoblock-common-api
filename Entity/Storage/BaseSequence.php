@@ -1,4 +1,10 @@
 <?php
+/*
+CHANGES THAT I THINK WE SHOULD MAKE
+
+
+
+*/
 
 namespace Carbon\ApiBundle\Entity\Storage;
 
@@ -30,13 +36,14 @@ class BaseSequence extends BaseCryoblockEntity
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text")
+     * @ORM\Column(name="description", type="text", nullable=true)
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      * @Carbon\Searchable(name="description")
-     * @Assert\NotBlank()
      */
     protected $description;
+
+//....Assert\NotBlank() // stripped from the previous group of entity attributes to get this working
 
     /**
      * @var integer
@@ -56,15 +63,36 @@ class BaseSequence extends BaseCryoblockEntity
      */
     protected $parent; // the sequence that this was taken from
 
-    //This will not be nullable in the final verison -- The whole point of this object is to store sequence information.
+
+    // Boolean to indicate if the nucleotide or the amino acid sequence was specified by the user at time of upload. In the end we might even make it so that we generate the most likely nucleotide sequence when an amino acid sequence is given.
+    /**
+    * @ORM\Column(name="nucleotide", nullable=false, type="boolean")
+    * @JMS\Groups({"default"})
+    * @Gedmo\Versioned
+    */
+    protected $nucleotide;
+
+    // This will not be nullable in the final verison -- The whole point of this object is to store sequence information.
+
     /**
      * @var string
      *
-     * @ORM\Column(name="dna_sequence", type="text", nullable=true)
+     * @ORM\Column(name="nucleotide_sequence", type="text", nullable=true)
      * @JMS\Groups({"default"})
      * @Gedmo\Versioned
+     * @Carbon\Searchable(name='nucleotide_sequence')
      */
-    protected $dnaSequence; //Since we changed this to being base sequence we should probably chagne this away from dna sequence because we would also like to support having other forms of sequences for other labs -- amino acid sequences and rna sequences would be two other types that would be common throughout other labs.
+    protected $nucleotideSequence;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="amino_acid_sequence", type="text", nullable=true)
+     * @JMS\Groups({"default"})
+     * @Carbon\Searchable(name='amino_acid_sequence')
+     * @Gedmo\Versioned
+     */
+    protected $aminoAcidSequence;
 
     /**
      * @JMS\Groups({"default"})
