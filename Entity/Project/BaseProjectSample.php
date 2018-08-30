@@ -45,8 +45,6 @@ class BaseProjectSample extends BaseCryoblockEntity
      */
     protected $sample;
 
-
-
     /**
      * Gets the value of projectId.
      *

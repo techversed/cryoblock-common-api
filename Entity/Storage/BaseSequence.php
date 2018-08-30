@@ -1,6 +1,9 @@
 <?php
 /*
 CHANGES THAT I THINK WE SHOULD MAKE
+    Need to add projects to the form type
+    Need to add projects to the sequence importer
+    Need to add support for generating the amino sequence if the nucleotide sequence is given
 
 
 
@@ -93,6 +96,17 @@ class BaseSequence extends BaseCryoblockEntity
      * @Gedmo\Versioned
      */
     protected $aminoAcidSequence;
+
+    /**
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
+    * @JMS\Groups({"template"})
+    */
+    protected $projectSamples;
+
+   /**
+     * @JMS\Groups({"default"})
+     */
+    public $projects;
 
     /**
      * @JMS\Groups({"default"})
@@ -338,4 +352,50 @@ class BaseSequence extends BaseCryoblockEntity
 
         return $this;
     }
+
+    //Need to finish writing this...
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getTagString()
+    {
+        $tagNames = [];
+
+        if ($this->sequenceTags && (is_array($this->sequenceTags) || is_object($this->sequenceTags))) {
+
+            foreach ($this->sequenceTags as $sequenceTag) {
+
+                $tagNames[] = $sequenceTag->getTag()->getName();
+
+            }
+
+            return implode(", ", $tagNames);
+        }
+    }
+
+
+    //comment all this out while we get the tags working...
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getProjectString()
+    {
+        $projectNames = [];
+
+        if ($this->projectSequence && (is_array($this->projectSequence) || is_object($this->projectSequence))) {
+
+            foreach ($this->projectSequences as $sequenceProject) {
+
+                $projectNames[] = $sequenceProject->getProject()->getName();
+
+            }
+
+            return implode(", ", $projectNames);
+        }
+    }
+
+
+
 }
