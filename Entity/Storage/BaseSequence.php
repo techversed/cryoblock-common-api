@@ -98,10 +98,15 @@ class BaseSequence extends BaseCryoblockEntity
     protected $aminoAcidSequence;
 
     /**
-    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSequence", mappedBy="sequence")
     * @JMS\Groups({"template"})
     */
-    protected $projectSamples;
+    protected $projectSequences;
+
+
+    /*
+    transient variables
+    */
 
    /**
      * @JMS\Groups({"default"})
@@ -324,7 +329,7 @@ class BaseSequence extends BaseCryoblockEntity
      */
     public function setNucleotideSequence($nucleotideSequence)
     {
-        $this->nucleotideSequence = $nucleotideSequence;
+        $this->nucleotideSequence = strtoupper($nucleotideSequence);
 
         return $this;
     }
@@ -384,7 +389,7 @@ class BaseSequence extends BaseCryoblockEntity
     {
         $projectNames = [];
 
-        if ($this->projectSequence && (is_array($this->projectSequence) || is_object($this->projectSequence))) {
+        if ($this->projectSequences && (is_array($this->projectSequences) || is_object($this->projectSequences))) {
 
             foreach ($this->projectSequences as $sequenceProject) {
 
@@ -396,6 +401,51 @@ class BaseSequence extends BaseCryoblockEntity
         }
     }
 
+    /**
+     * Gets the value of projectSequence.
+     *
+     * @return mixed
+     */
+    public function getProjectSequence()
+    {
+        return $this->projectSequence;
+    }
 
+    /**
+     * Sets the value of projectSequence.
+     *
+     * @param mixed $projectSequence the project sequence
+     *
+     * @return self
+     */
+    public function setProjectSequence($projectSequence)
+    {
+        $this->projectSequence = $projectSequence;
 
+        return $this;
+    }
+
+    /**
+     * Gets the value of projects.
+     *
+     * @return mixed
+     */
+    public function getProjects()
+    {
+        return $this->projects;
+    }
+
+    /**
+     * Sets the value of projects.
+     *
+     * @param mixed $projects the projects
+     *
+     * @return self
+     */
+    public function setProjects($projects)
+    {
+        $this->projects = $projects;
+
+        return $this;
+    }
 }
