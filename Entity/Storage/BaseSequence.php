@@ -80,7 +80,7 @@ class BaseSequence extends BaseCryoblockEntity
      * @ORM\Column(name="nucleotide_sequence", type="text", nullable=true)
      * @JMS\Groups({"default"})
      * @Gedmo\Versioned
-     * @Carbon\Searchable(name='nucleotide_sequence')
+     * @Carbon\Searchable(name="nucleotide_sequence")
      */
     protected $nucleotideSequence;
 
@@ -89,7 +89,7 @@ class BaseSequence extends BaseCryoblockEntity
      *
      * @ORM\Column(name="amino_acid_sequence", type="text", nullable=true)
      * @JMS\Groups({"default"})
-     * @Carbon\Searchable(name='amino_acid_sequence')
+     * @Carbon\Searchable(name="amino_acid_sequence")
      * @Gedmo\Versioned
      */
     protected $aminoAcidSequence;
@@ -263,6 +263,78 @@ class BaseSequence extends BaseCryoblockEntity
     public function setDescription($description)
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of nucleotide.
+     *
+     * @return mixed
+     */
+    public function getNucleotide()
+    {
+        return $this->nucleotide;
+    }
+
+    /**
+     * Sets the value of nucleotide.
+     *
+     * @param mixed $nucleotide the nucleotide
+     *
+     * @return self
+     */
+    public function setNucleotide($nucleotide)
+    {
+        $this->nucleotide = strtoupper($nucleotide);
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of nucleotideSequence.
+     *
+     * @return string
+     */
+    public function getNucleotideSequence()
+    {
+        return $this->nucleotideSequence;
+    }
+
+    /**
+     * Sets the value of nucleotideSequence.
+     *
+     * @param string $nucleotideSequence the nucleotide sequence
+     *
+     * @return self
+     */
+    public function setNucleotideSequence($nucleotideSequence)
+    {
+        $this->nucleotideSequence = $nucleotideSequence;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of aminoAcidSequence.
+     *
+     * @return string
+     */
+    public function getAminoAcidSequence()
+    {
+        return $this->aminoAcidSequence;
+    }
+
+    /**
+     * Sets the value of aminoAcidSequence.
+     *
+     * @param string $aminoAcidSequence the amino acid sequence
+     *
+     * @return self
+     */
+    public function setAminoAcidSequence($aminoAcidSequence)
+    {
+        $this->aminoAcidSequence = $aminoAcidSequence;
 
         return $this;
     }
