@@ -109,3 +109,9 @@ services:
         class: Carbon\ApiBundle\Listener\Production\ProductionRequestListener
         tags:
             - { name: doctrine.event_listener, event: onFlush }
+
+    carbon_api.form.type.entity_detail:
+        class: Carbon\ApiBundle\Form\Type\EntityDetailFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
+        tags:
+            - { name: form.type, alias: entity_detail }
