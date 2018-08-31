@@ -49,7 +49,6 @@ class ObjectNotificationListener
         $creatingUser = $this->tokenStorage->getToken()->getUser();
 
 
-        //AUTOWATCHING IMPLEMENTED HERE...
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
@@ -83,8 +82,6 @@ class ObjectNotificationListener
         $creatingUserObjectNotification->setOnDelete(true);
         $em->persist($creatingUserObjectNotification);
         $em->flush();
-        //END OF CHANGES FOR AUTOWATCHING
-
 
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
