@@ -81,7 +81,6 @@ class ObjectNotificationListener
         $creatingUserObjectNotification->setOnUpdate(true);
         $creatingUserObjectNotification->setOnDelete(true);
         $em->persist($creatingUserObjectNotification);
-        $em->flush();
 
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
@@ -100,6 +99,7 @@ class ObjectNotificationListener
         }
 
         if (!count($to) && !count($groups)) {
+            $em->flush();
             return;
         }
 
@@ -137,6 +137,8 @@ class ObjectNotificationListener
             $objectDescription,
             ($entity instanceof BaseRequest) ? $entity->getAlias() : $entity->getId()
         );
+
+        $em->flush();
 
         $this->mailer->send(
             $objectDescription . ' Created',
