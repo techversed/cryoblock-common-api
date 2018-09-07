@@ -11,6 +11,8 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+use Carbon\ApiBundle\Entity\UserObjectNotification;
+
 class ObjectNotificationListener
 {
     public function __construct(CryoblockMailer $mailer, Logger $logger, $mailerUser, $tokenStorage, $frontendUrl, $appName)
@@ -23,11 +25,22 @@ class ObjectNotificationListener
         $this->appName = $appName;
     }
 
+    //A list of entity classes for which updates will not be sent.
+        //Example: You would not want to send notifications when notification settings were updated... //also prevents the autowatching that takes place when someone creates an object.
+    public $ignoreClasses = array(
+        'Carbon\ApiBundle\Entity\UserObjectNotification',
+        'Carbon\ApiBundle\Entity\EntityDetail'
+    );
+
     public function postPersist(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
+
+        if (in_array(get_class($entity), $this->ignoreClasses)) {
+            return;
+        }
 
         if (!$this->tokenStorage->getToken()) {
             return;
@@ -35,36 +48,58 @@ class ObjectNotificationListener
 
         $creatingUser = $this->tokenStorage->getToken()->getUser();
 
-        $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
+
+        $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
+            'objectClassName' => get_class($entity)
+        ));
+
+        if ($entDet == null || $entDet->getAutoWatch() == false) { //We have chosen to populate the Entity Detail table from the front end. If the entry does not exist then we are just going to exit.
+
+            return;
+
+        }
+
+        $entDetId = $entDet->getId();
+
+        $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification') //Have not even changed this yet...
             ->findOneBy(array(
-                'entity' => get_class($entity)
+                'entityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entity' => get_class($entity),
+                'entityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
 
+        $creatingUserObjectNotification = new UserObjectNotification();
+        $creatingUserObjectNotification->setEntityId($entity->getId());
+        $creatingUserObjectNotification->setEntityDetail($entDet);
+        $creatingUserObjectNotification->setUser($creatingUser);
+        $creatingUserObjectNotification->setOnUpdate(true);
+        $creatingUserObjectNotification->setOnDelete(true);
+        $em->persist($creatingUserObjectNotification);
+
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
             $groups[] = $onCreateGroup->getName();
-            $url = $groupObjectNotification->getUrl();
-            $objectDescription = $groupObjectNotification->getObjectDescription();
+            $url = $groupObjectNotification->getEntityDetail()->getObjectUrl();
+            $objectDescription = $groupObjectNotification->getEntityDetail()->getObjectDescription();
         }
 
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
-            if ($userObjectNotification->getOnCreate()) {
+            if ($userObjectNotification->getOnCreate() && $userObjectNotification->getUser() != $creatingUser) {
                 $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
-                $url = $userObjectNotification->getUrl();
-                $objectDescription = $userObjectNotification->getObjectDescription();
+                $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
+                $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
             }
         }
 
         if (!count($to) && !count($groups)) {
+            $em->flush();
             return;
         }
 
@@ -103,6 +138,8 @@ class ObjectNotificationListener
             ($entity instanceof BaseRequest) ? $entity->getAlias() : $entity->getId()
         );
 
+        $em->flush();
+
         $this->mailer->send(
             $objectDescription . ' Created',
             'CarbonApiBundle:objectNotification:create.html.twig',
@@ -124,28 +161,40 @@ class ObjectNotificationListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
+        if (in_array(get_class($entity), $this->ignoreClasses)) {
+            return;
+        }
+
         if (!$this->tokenStorage->getToken()) {
             return;
         }
 
         $updatingUser = $this->tokenStorage->getToken()->getUser();
 
+        $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
+            'objectClassName' => get_class($entity)
+        ));
+        if ($entDet == null) {
+            return;
+        }
+        $entDetId = $entDet->getId();
+
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
-                'entity' => get_class($entity)
+                'entityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entity' => get_class($entity),
+                'entityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
 
         $watchingUserNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entity' => get_class($entity),
+                'entityDetailId' => $entDetId,
                 'entityId' => $entity->getId(),
             ))
         ;
@@ -153,24 +202,24 @@ class ObjectNotificationListener
         $groups = array();
         if ($groupObjectNotification && $onUpdateGroup = $groupObjectNotification->getOnUpdateGroup()) {
             $groups[] = $onUpdateGroup->getName();
-            $url = $groupObjectNotification->getUrl();
-            $objectDescription = $groupObjectNotification->getObjectDescription();
+            $url = $groupObjectNotification->getEntityDetail()->getObjectUrl();
+            $objectDescription = $groupObjectNotification->getEntityDetail()->getObjectDescription();
         }
 
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnUpdate()) {
                 $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
-                $url = $userObjectNotification->getUrl();
-                $objectDescription = $userObjectNotification->getObjectDescription();
+                $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
+                $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
             }
         }
 
         foreach ($watchingUserNotifications as $watchingUserNotification) {
             if ($watchingUserNotification->getOnUpdate()) {
                 $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
-                $url = $watchingUserNotification->getUrl();
-                $objectDescription = $watchingUserNotification->getObjectDescription();
+                $url = $watchingUserNotification->getEntityDetail()->getObjectUrl();
+                $objectDescription = $watchingUserNotification->getEntityDetail()->getObjectDescription();
             }
         }
 
@@ -207,9 +256,7 @@ class ObjectNotificationListener
                         'oldValue' => is_object($field[0]) ? (get_class($field[0]) == 'DateTime' ? $field[0]->format('Y-m-d') : $field[0]->getStringLabel()) : $field[0],
                         'newValue' => is_object($field[1]) ? (get_class($field[1]) == 'DateTime' ? $field[1]->format('Y-m-d') : $field[1]->getStringLabel()) : $field[1],
                     );
-
                 }
-
             }
         }
 
@@ -240,8 +287,10 @@ class ObjectNotificationListener
                 'changeSets' => $changeSets,
                 'objectDescription' => $objectDescription,
             ),
-            $from,
+            $from
+            ,
             $groups
+
         );
     }
 
@@ -251,28 +300,40 @@ class ObjectNotificationListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
+        if (in_array(get_class($entity), $this->ignoreClasses)) {
+            return;
+        }
+
         if (!$this->tokenStorage->getToken()) {
             return;
         }
 
         $deletingUser = $this->tokenStorage->getToken()->getUser();
 
+        $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
+            'objectClassName' => get_class($entity)
+        ));
+        if ($entDet == null) {
+            return;
+        }
+        $entDetId = $entDet->getId();
+
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
-                'entity' => get_class($entity)
+                'entityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entity' => get_class($entity),
+                'entityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
 
         $watchingUserNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entity' => get_class($entity),
+                'entityDetailId' => $entDetId,
                 'entityId' => $entity->getId(),
             ))
         ;
@@ -280,24 +341,24 @@ class ObjectNotificationListener
         $groups = array();
         if ($groupObjectNotification && $onDeleteGroup = $groupObjectNotification->getOnDeleteGroup()) {
             $groups[] = $onDeleteGroup->getName();
-            $url = $groupObjectNotification->getUrl();
-            $objectDescription = $groupObjectNotification->getObjectDescription();
+            $url = $groupObjectNotification->getEntityDetail()->getObjectUrl();
+            $objectDescription = $groupObjectNotification->getEntityDetail()->getObjectDescription();
         }
 
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnDelete()) {
                 $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
-                $url = $userObjectNotification->getUrl();
-                $objectDescription = $userObjectNotification->getObjectDescription();
+                $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
+                $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
             }
         }
 
         foreach ($watchingUserNotifications as $watchingUserNotification) {
             if ($watchingUserNotification->getOnDelete()) {
                 $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
-                $url = $watchingUserNotification->getUrl();
-                $objectDescription = $watchingUserNotification->getObjectDescription();
+                $url = $watchingUserNotification->getEntityDetail()->getObjectUrl();
+                $objectDescription = $watchingUserNotification->getEntityDetail()->getObjectDescription();
             }
         }
 

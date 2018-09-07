@@ -23,13 +23,17 @@ class GroupObjectNotification extends BaseCryoblockEntity
     protected $id;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="entity", type="string", length=300)
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
+     * @ORM\JoinColumn(name="entity_detail_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
-     * @Assert\NotBlank()
      */
-    protected $entity;
+    protected $entityDetail;
+
+    /**
+     * @ORM\Column(name="entity_detail_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
+     */
+    protected $entityDetailId;
 
     /**
      * @var Group $group
@@ -59,24 +63,6 @@ class GroupObjectNotification extends BaseCryoblockEntity
     protected $onDeleteGroup;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="url", type="string", length=300)
-     * @JMS\Groups({"default"})
-     * @Assert\NotBlank()
-     */
-    protected $url;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="object_description", type="string")
-     * @JMS\Groups({"default"})
-     * @Assert\NotBlank()
-     */
-    protected $objectDescription;
-
-    /**
      * Gets the value of id.
      *
      * @return mixed
@@ -101,25 +87,49 @@ class GroupObjectNotification extends BaseCryoblockEntity
     }
 
     /**
-     * Gets the value of entity.
+     * Gets the value of entityDetail.
      *
-     * @return string
+     * @return mixed
      */
-    public function getEntity()
+    public function getEntityDetail()
     {
-        return $this->entity;
+        return $this->entityDetail;
     }
 
     /**
-     * Sets the value of entity.
+     * Sets the value of entityDetail.
      *
-     * @param string $entity the entity
+     * @param mixed $entityDetail the entity detail
      *
      * @return self
      */
-    public function setEntity($entity)
+    public function setEntityDetail($entityDetail)
     {
-        $this->entity = $entity;
+        $this->entityDetail = $entityDetail;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of entityDetailId.
+     *
+     * @return mixed
+     */
+    public function getEntityDetailId()
+    {
+        return $this->entityDetailId;
+    }
+
+    /**
+     * Sets the value of entityDetailId.
+     *
+     * @param mixed $entityDetailId the entity detail id
+     *
+     * @return self
+     */
+    public function setEntityDetailId($entityDetailId)
+    {
+        $this->entityDetailId = $entityDetailId;
 
         return $this;
     }
@@ -192,54 +202,6 @@ class GroupObjectNotification extends BaseCryoblockEntity
     public function setOnDeleteGroup($onDeleteGroup)
     {
         $this->onDeleteGroup = $onDeleteGroup;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of url.
-     *
-     * @return string
-     */
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
-    /**
-     * Sets the value of url.
-     *
-     * @param string $url the url
-     *
-     * @return self
-     */
-    public function setUrl($url)
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of objectDescription.
-     *
-     * @return string
-     */
-    public function getObjectDescription()
-    {
-        return $this->objectDescription;
-    }
-
-    /**
-     * Sets the value of objectDescription.
-     *
-     * @param string $objectDescription the object description
-     *
-     * @return self
-     */
-    public function setObjectDescription($objectDescription)
-    {
-        $this->objectDescription = $objectDescription;
 
         return $this;
     }
