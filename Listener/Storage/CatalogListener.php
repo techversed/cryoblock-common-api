@@ -14,6 +14,8 @@ class CatalogListener
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
+        $conn = $em->getConnection();
+
         $uow = $em->getUnitOfWork();
         $catalogRepo = $em->getRepository('AppBundle\Entity\Storage\Catalog');
         $sampleRepo = $em->getRepository('AppBundle\Entity\Storage\Sample');
@@ -38,6 +40,20 @@ class CatalogListener
 
                 $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sample s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
                 $numUpdated = $query->execute();
+
+                $catIdString = array();
+                foreach($catIdList as $catId){
+                    $catIdString[] = "'" . (string) $catId ."'";
+                }
+
+                $query = $em->createQuery('UPDATE Carbon\ApiBundle\Entity\Attachment a SET a.objectId = \'' . (string) $minId . '\' where a.objectId in (' . implode(', ', $catIdString) . ') and a.objectClass = \'AppBundle\Entity\Storage\Catalog\'');
+                $numUpdated = $query->execute();
+
+                $query = $em->createQuery('DELETE FROM AppBunddle\Entity\Storage\Catalog a WHERE ');
+                $numUpdated = $query->execute();
+
+
+
 
             }
         }
