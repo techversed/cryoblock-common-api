@@ -39,6 +39,10 @@ class CommentListener
 
         $mentionedUserEmails = $this->getMentionedUserEmails($em, $matches[1]);
 
+        if (count($mentionedUserEmails) == 0 ) {
+            return;
+        }
+
         $params = array(
             'comment' => $comment,
             'fromUser' => $createdBy,

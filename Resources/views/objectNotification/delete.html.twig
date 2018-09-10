@@ -27,7 +27,7 @@
                           <table border="0" cellpadding="20" cellspacing="0" width="100%" id="emailBody" style="background-color:#fff">
                               <tr>
                                 <td align="center" valign="top" style="border:0;font-size:normal;font-style:normal;font-variant:normal;font-weight:normal;line-height:normal;margin:0;padding:0;text-align:center;vertical-align:middle">
-                                    <h1 style="border:0;color:#676a6c;font:300 28px/125% 'MuseoSans','Lato','Helvetica Neue','Helvetica','Arial',sans-serif;margin:0;padding:30px 15%;text-align:center;vertical-align:baseline">{{objectDescription}} Updated</h1>
+                                    <h1 style="border:0;color:#676a6c;font:300 28px/125% 'MuseoSans','Lato','Helvetica Neue','Helvetica','Arial',sans-serif;margin:0;padding:30px 15%;text-align:center;vertical-align:baseline">{{objectDescription}} Deleted</h1>
                                 </td>
                               </tr>
                               <tr>
@@ -48,18 +48,7 @@
                                 <td align="center" valign="top" style="border:0;font-size:normal;font-style:normal;font-variant:normal;font-weight:normal;line-height:normal;margin:0;padding:0px 10% 40px;text-align:left;vertical-align:middle">
                                     <p style="border:0;color:#686868;font-size:normal;font-style:normal;font-variant:normal;font-weight:300;line-height:150%;margin:0;padding:12px 0;">
                                         Hi, <br><br>
-                                        {{objectDescription}} was just updated by <strong>{{updatingUser}}</strong>. You have opted to receive update notifications for this object. Please email tech@vvcenter.org if you feel this notification is in error.
-                                    </p>
-                                    <p style="border:0;color:#686868;font-size:normal;font-style:normal;font-variant:normal;font-weight:600;line-height:150%;margin-bottom:10px;padding:5px 0;text-align:center;border-bottom: 1px solid #cccccc;">
-                                      Changes Made
-                                    </p>
-                                    {% for key, changeSet in changeSets %}
-                                        <p style="border:0;color:#686868;font-size:normal;font-style:normal;font-variant:normal;font-weight:300;margin:0;padding:5px 0;">
-                                            <strong>{{key}}</strong>: <a style="color:#d9534f">{{changeSet.oldValue}}</a> &#x2192; <a style="color:#1ab394">{{changeSet.newValue}}</a>
-                                        </p>
-                                    {% endfor %}
-                                    <p style="border:0;color:#1ab394;font-size:normal;font-style:normal;font-variant:normal;font-weight:300;line-height:150%;margin:0;padding:30px 0;text-align:center;">
-                                      <a href="{{ linkUrl }}" style="background:#1ab394;border-color:#1ab394;border-radius:4px;border-style:solid;border-width:20px 30px;color:#ffffff;display:block;font-size:18px;font-style:normal;font-variant:normal;font-weight:300;line-height:normal;margin:0 auto;min-width:55%;padding:0;text-align:center;text-decoration:none;">View {{objectDescription}}</a>
+                                        {{objectDescription}} was just deleted by <strong>{{deletingUser}}</strong>. You have opted to receive deletion notifications for this object. If this object was deleted by mistake you can still restore it. Please email tech@vvcenter.org if you feel this notification is in error.
                                     </p>
                                 </td>
                               </tr>
@@ -70,6 +59,7 @@
           </td>
       </tr>
     </table>
+    <!-- footer -->
 </body>
 
 </html>

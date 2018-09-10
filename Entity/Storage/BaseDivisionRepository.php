@@ -70,7 +70,7 @@ class BaseDivisionRepository extends NestedTreeRepository
 
         $qb->andWhere('d.percentFull < 100');
 
-        if (!$user->hasRole('ROLE_ADMIN') && !$user->hasRole('ROLE_INVENTORY_ADMIN')) {
+        if (!$user->hasRole('ROLE_INVENTORY_ADMIN')) {
 
             $sub = $this->getEntityManager()->createQueryBuilder();
 
@@ -143,7 +143,7 @@ class BaseDivisionRepository extends NestedTreeRepository
             return true;
         }
 
-        if ($user->hasRole('ROLE_ADMIN')) {
+        if ($user->hasRole('ROLE_INVENTORY_ADMIN')) {
             return true;
         }
 
@@ -187,7 +187,7 @@ class BaseDivisionRepository extends NestedTreeRepository
             return true;
         }
 
-        if ($user->hasRole('ROLE_ADMIN')) {
+        if ($user->hasRole('ROLE_INVENTORY_ADMIN')) {
             return true;
         }
 

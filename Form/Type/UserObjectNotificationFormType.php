@@ -8,7 +8,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class ObjectNotificationFormType extends CryoblockAbstractType
+class UserObjectNotificationFormType extends CryoblockAbstractType
 {
     private $class;
 
@@ -20,39 +20,31 @@ class ObjectNotificationFormType extends CryoblockAbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('objectType', 'text')
-            ->add('onCreateGroup', 'entity', array(
-                'class' => 'Carbon\\ApiBundle\\Entity\\Group',
-                'property' => 'on_create_group_id',
+            ->add('entityId', 'integer')
+            ->add('entityDetail', 'entity', array(
+                'class' => 'Carbon\\ApiBundle\\Entity\\EntityDetail',
+                'property' => 'entity_detail_id',
                 'multiple' => false
             ))
-            ->add('onUpdateGroup', 'entity', array(
-                'class' => 'Carbon\\ApiBundle\\Entity\\Group',
-                'property' => 'on_update_group_id',
+            ->add('user', 'entity', array(
+                'class' => 'Carbon\\ApiBundle\\Entity\\User',
+                'property' => 'user_id',
                 'multiple' => false
             ))
-            ->add('onDeleteGroup', 'entity', array(
-                'class' => 'Carbon\\ApiBundle\\Entity\\Group',
-                'property' => 'on_delete_group_id',
-                'multiple' => false
+            ->add('onCreate', 'checkbox')
+            ->add('onUpdate', 'checkbox')
+            ->add('onDelete', 'checkbox')
+        ;
+
+        $builder->get('user')
+            ->addViewTransformer(new CryoblockOTOTransformer(
+                $this->em, 'CarbonApiBundle:User'
             ))
         ;
 
-        $builder->get('onCreateGroup')
+        $builder->get('entityDetail')
             ->addViewTransformer(new CryoblockOTOTransformer(
-                $this->em, 'Carbon\\ApiBundle\\Entity\\Group'
-            ))
-        ;
-
-        $builder->get('onUpdateGroup')
-            ->addViewTransformer(new CryoblockOTOTransformer(
-                $this->em, 'Carbon\\ApiBundle\\Entity\\Group'
-            ))
-        ;
-
-        $builder->get('onDeleteGroup')
-            ->addViewTransformer(new CryoblockOTOTransformer(
-                $this->em, 'Carbon\\ApiBundle\\Entity\\Group'
+                $this->em, 'CarbonApiBundle:EntityDetail'
             ))
         ;
 
@@ -62,6 +54,7 @@ class ObjectNotificationFormType extends CryoblockAbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
+            'data_class' => 'Carbon\ApiBundle\Entity\UserObjectNotification',
             'csrf_protection' => false,
         ));
     }
@@ -73,6 +66,6 @@ class ObjectNotificationFormType extends CryoblockAbstractType
 
     public function getName()
     {
-        return 'object_notification';
+        return 'user_object_notification';
     }
 }

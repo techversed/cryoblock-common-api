@@ -10,38 +10,32 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NotFoundHttpException;
 
-class ObjectNotificationController extends CarbonApiController
+class EntityDetailController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity
      */
-    const RESOURCE_ENTITY = "Carbon\ApiBundle\Entity\ObjectNotification";
+    const RESOURCE_ENTITY = "Carbon\ApiBundle\Entity\EntityDetail";
 
     /**
      * @var string The form type for this resource
      */
-    const FORM_TYPE = "object_notification";
+    const FORM_TYPE = "entity_detail";
 
     /**
-     * Handles the HTTP GET request for the object notification entity
-     *
-     * @Route("/object-notification", name="object_notification_get")
+     * @Route("/cryoblock/entity-detail", name="entity_detail_get")
      * @Method("GET")
-     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
-    public function handleGet()
+    public function getAction()
     {
         return parent::handleGet();
     }
 
     /**
-     * Handles the HTTP POST request for the object notification entity
-     *
-     * @Route("/object-notification", name="object_notification_post")
+     * @Route("/cryoblock/entity-detail", name="entity_detail_post")
      * @Method("POST")
-     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
@@ -51,16 +45,24 @@ class ObjectNotificationController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP PUT request for the object notification entity
-     *
-     * @Route("/object-notification", name="object_notification_put")
+     * @Route("/cryoblock/entity-detail", name="entity_detail_put")
      * @Method("PUT")
-     * @Security("has_role('ROLE_ADMIN')")
      *
      * @return Response
      */
     public function handlePut()
     {
         return parent::handlePut();
+    }
+
+    /**
+     * @Route("/cryoblock/entity-detail", name="entity_detail_delete")
+     * @Method("DELETE")
+     *
+     * @return Response
+     */
+    public function handleDelete()
+    {
+        return parent::handleDelete();
     }
 }

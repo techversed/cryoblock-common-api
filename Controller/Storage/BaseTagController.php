@@ -2,23 +2,23 @@
 
 namespace Carbon\ApiBundle\Controller\Storage;
 
-use AppBundle\Entity\SampleType;
+use AppBundle\Entity\Tag;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Response;
 
-class BaseSampleTypeController extends CarbonApiController
+class BaseTagController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity
      */
-    const RESOURCE_ENTITY = "AppBundle\Entity\Storage\SampleType";
+    const RESOURCE_ENTITY = "AppBundle\Entity\Storage\Tag";
 
     /**
      * Handles the HTTP get request for the division entity
      *
-     * @Route("/storage/sample-type", name="sample_type_get")
+     * @Route("/storage/tag", name="tag_get")
      * @Method("GET")
      * @return Response
      */
@@ -30,7 +30,7 @@ class BaseSampleTypeController extends CarbonApiController
     /**
      * Handles the HTTP get request for the card entity
      *
-     * @Route("/storage/sample-type", name="sample_type_post")
+     * @Route("/storage/tag", name="tag_post")
      * @Method("POST")
      * @return Response
      */
@@ -43,7 +43,7 @@ class BaseSampleTypeController extends CarbonApiController
      * Handles the HTTP PUT request for the card entity
      *
      * @todo  figure out why PUT method has no request params
-     * @Route("/storage/sample-type", name="sample_type_put")
+     * @Route("/storage/tag", name="tag_put")
      * @Method("PUT")
      * @return Response
      */
@@ -55,7 +55,7 @@ class BaseSampleTypeController extends CarbonApiController
     /**
      * Handles the HTTP DELETE request for the card entity
      *
-     * @Route("/storage/sample-type", name="sample_type_delete")
+     * @Route("/storage/tag", name="tag_delete")
      * @Method("DELETE")
      * @return Response
      */
@@ -65,7 +65,7 @@ class BaseSampleTypeController extends CarbonApiController
     }
 
     /**
-     * @Route("/storage/sample-type", name="sample_type_patch")
+     * @Route("/storage/tag", name="tag_patch")
      * @Method("PATCH")
      *
      * @return Response
@@ -76,7 +76,7 @@ class BaseSampleTypeController extends CarbonApiController
     }
 
     /**
-     * @Route("/storage/sample-type", name="sample_type_purge")
+     * @Route("/storage/tag", name="tag_purge")
      * @Method("PURGE")
      *
      * @return Response

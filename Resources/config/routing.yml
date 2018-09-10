@@ -34,3 +34,7 @@ carbon_api_attachment_download:
 carbon_api_controllers:
     resource: "@CarbonApiBundle/Controller/"
     type:     annotation
+
+carbon_api_production_controllers:
+    resource: "@CarbonApiBundle/Controller/Production"
+    type:     annotation

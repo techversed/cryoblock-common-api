@@ -109,7 +109,8 @@ class BaseCatalog
     protected $status;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ParentCatalog", mappedBy="childCatalog")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ParentCatalog", mappedBy="parentCatalog")
+     * @JMS\Groups({"default"})
      */
     protected $parentCatalogs;
 
@@ -375,5 +376,14 @@ class BaseCatalog
         $this->parentCatalogs = $parentCatalogs;
 
         return $this;
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getStringLabel()
+    {
+        return $this->getName();
     }
 }

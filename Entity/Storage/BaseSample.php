@@ -26,6 +26,16 @@ class BaseSample
     );
 
     /**
+     * Valid volume units
+     *
+     * @var array
+     */
+    protected $validVolumeUnits = array(
+        'mL',
+        'uL',
+    );
+
+    /**
      * Valid sample statuses
      *
      * @var array
@@ -38,15 +48,22 @@ class BaseSample
     );
 
     /**
-     * @var string
+     * @var Catalog $catalog
      *
-     * @ORM\Column(name="name", type="string", length=300)
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Catalog")
+     * @ORM\JoinColumn(name="catalog_id", referencedColumnName="id")
      * @Gedmo\Versioned
+     * @Carbon\Searchable(name="catalog", join=true, searchProp="name", joinProp="catalogId", subAlias="ct")
      * @JMS\Groups({"default"})
-     * @Carbon\Searchable(name="name")
-     * @Assert\NotBlank()
      */
-    protected $name;
+    protected $catalog;
+
+    /**
+     * Catalog id
+     * @ORM\Column(name="catalog_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
+     */
+    protected $catalogId;
 
     /**
      * @var string
@@ -92,7 +109,6 @@ class BaseSample
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
      * @ORM\JoinColumn(name="updated_by_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
-     * @JMS\MaxDepth(1)
      */
     protected $updatedBy;
 
@@ -217,7 +233,6 @@ class BaseSample
      * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      * @JMS\Type("double")
-     * @Gedmo\Versioned
      */
     protected $concentration;
 
@@ -233,11 +248,21 @@ class BaseSample
     /**
      * @var float $volume
      *
-     * @ORM\Column(name="volume", type="decimal", precision=3, nullable=true)
+     * @ORM\Column(name="volume", type="decimal", precision=20, scale=3, nullable=true)
      * @Gedmo\Versioned
+     * @JMS\Type("double")
      * @JMS\Groups({"default"})
      */
     protected $volume;
+
+    /**
+     * @var string $volumeUnits
+     *
+     * @ORM\Column(name="volume_units", type="string", nullable=true, length=15)
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $volumeUnits;
 
     /**
      * @var float $mass
@@ -250,6 +275,12 @@ class BaseSample
     protected $mass;
 
     /**
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
+    * @JMS\Groups({"template"})
+    */
+    protected $projectSamples;
+
+    /**
      * @var integer $lot
      *
      * @ORM\Column(name="lot", type="string", length=300, nullable=true)
@@ -258,6 +289,22 @@ class BaseSample
      * @Carbon\Searchable(name="lot")
      */
     protected $lot;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SampleTag", mappedBy="sample")
+     * @JMS\Groups({"default"})
+     */
+    protected $sampleTags;
+
+    /**
+     * @JMS\Groups({"default"})
+     */
+    public $tags;
+
+   /**
+     * @JMS\Groups({"default"})
+     */
+    public $projects;
 
     /**
      * @JMS\Groups({"default"})
@@ -410,29 +457,6 @@ class BaseSample
     }
 
     /**
-     * Set name
-     *
-     * @param string $name
-     * @return Sample
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * Get created by id
      *
      * @return integer
@@ -553,7 +577,11 @@ class BaseSample
      */
     public function getStringLabel()
     {
-        return $this->getName();
+        if (!is_object($this->getCatalog())) {
+            return '';
+        }
+
+        return $this->getCatalog()->getName();
     }
 
     /**
@@ -829,7 +857,7 @@ class BaseSample
 
     public function setConcentration($concentration)
     {
-        $this->concentration = (string) $concentration;
+        $this->concentration = $concentration == $this->concentration ? $this->concentration : $concentration;
     }
 
     public function getConcentrationUnits()
@@ -897,7 +925,7 @@ class BaseSample
      */
     public function setVolume($volume)
     {
-        $this->volume = $volume;
+        $this->volume = $volume == $this->volume ? $this->volume : $volume;
 
         return $this;
     }
@@ -946,6 +974,251 @@ class BaseSample
     public function setLot($lot)
     {
         $this->lot = $lot;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of catalog.
+     *
+     * @return Catalog $catalog
+     */
+    public function getCatalog()
+    {
+        return $this->catalog;
+    }
+
+    /**
+     * Sets the value of catalog.
+     *
+     * @param Catalog $catalog $catalog the catalog
+     *
+     * @return self
+     */
+    public function setCatalog($catalog)
+    {
+        $this->catalog = $catalog;
+
+        return $this;
+    }
+
+    /**
+     * Gets the Catalog id.
+     *
+     * @return mixed
+     */
+    public function getCatalogId()
+    {
+        return $this->catalogId;
+    }
+
+    /**
+     * Sets the Catalog id.
+     *
+     * @param mixed $catalogId the catalog id
+     *
+     * @return self
+     */
+    public function setCatalogId($catalogId)
+    {
+        $this->catalogId = $catalogId;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of volumeUnits.
+     *
+     * @return string $volumeUnits
+     */
+    public function getVolumeUnits()
+    {
+        return $this->volumeUnits;
+    }
+
+    /**
+     * Sets the value of volumeUnits.
+     *
+     * @param string $volumeUnits $volumeUnits the volume units
+     *
+     * @return self
+     */
+    public function setVolumeUnits($volumeUnits)
+    {
+        $this->volumeUnits = $volumeUnits;
+
+        return $this;
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getVolumeString()
+    {
+        return $this->volume
+            ? $this->volume . ' ' . $this->volumeUnits
+            : ''
+        ;
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getTagString()
+    {
+        $tagNames = [];
+
+        if ($this->sampleTags && (is_array($this->sampleTags) || is_object($this->sampleTags))) {
+
+            foreach ($this->sampleTags as $sampleTag) {
+
+                $tagNames[] = $sampleTag->getTag()->getName();
+
+            }
+
+            return implode(", ", $tagNames);
+        }
+    }
+
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getProjectString()
+    {
+        $projectNames = [];
+
+        if ($this->projectSamples && (is_array($this->projectSamples) || is_object($this->projectSamples))) {
+
+            foreach ($this->projectSamples as $sampleProject) {
+
+                $projectNames[] = $sampleProject->getProject()->getName();
+
+            }
+
+            return implode(", ", $projectNames);
+        }
+    }
+
+    /**
+     * Gets the value of sampleTags.
+     *
+     * @return mixed
+     */
+    public function getSampleTags()
+    {
+        return $this->sampleTags;
+    }
+
+    /**
+     * Sets the value of sampleTags.
+     *
+     * @param mixed $sampleTags the sample tags
+     *
+     * @return self
+     */
+    public function setSampleTags($sampleTags)
+    {
+        $this->sampleTags = $sampleTags;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of tags.
+     *
+     * @return mixed
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * Sets the value of tags.
+     *
+     * @param mixed $tags the tags
+     *
+     * @return self
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of projectSamples.
+     *
+     * @return mixed
+     */
+    public function getProjectSamples()
+    {
+        return $this->projectSamples;
+    }
+
+    /**
+     * Sets the value of projectSamples.
+     *
+     * @param mixed $projectSamples the project samples
+     *
+     * @return self
+     */
+    public function setProjectSamples($projectSamples)
+    {
+        $this->projectSamples = $projectSamples;
+
+        return $this;
+    }
+
+    /**
+     * Gets the Valid volume units.
+     *
+     * @return array
+     */
+    public function getValidVolumeUnits()
+    {
+        return $this->validVolumeUnits;
+    }
+
+    /**
+     * Sets the Valid volume units.
+     *
+     * @param array $validVolumeUnits the valid volume units
+     *
+     * @return self
+     */
+    public function setValidVolumeUnits(array $validVolumeUnits)
+    {
+        $this->validVolumeUnits = $validVolumeUnits;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of projects.
+     *
+     * @return mixed
+     */
+    public function getProjects()
+    {
+        return $this->projects;
+    }
+
+    /**
+     * Sets the value of projects.
+     *
+     * @param mixed $projects the projects
+     *
+     * @return self
+     */
+    public function setProjects($projects)
+    {
+        $this->projects = $projects;
 
         return $this;
     }

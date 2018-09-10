@@ -62,11 +62,17 @@ services:
         tags:
             - { name: form.type, alias: group }
 
-    carbon_api.form.type.object_notification:
-        class: Carbon\ApiBundle\Form\Type\ObjectNotificationFormType
+    carbon_api.form.type.group_object_notification:
+        class: Carbon\ApiBundle\Form\Type\GroupObjectNotificationFormType
         arguments: ["@doctrine.orm.default_entity_manager"]
         tags:
-            - { name: form.type, alias: object_notification }
+            - { name: form.type, alias: group_object_notification }
+
+    carbon_api.form.type.user_object_notification:
+        class: Carbon\ApiBundle\Form\Type\UserObjectNotificationFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
+        tags:
+            - { name: form.type, alias: user_object_notification }
 
     carbon_api.comment_listener:
         class: Carbon\ApiBundle\Listener\CommentListener
@@ -80,11 +86,11 @@ services:
 
     carbon_api.object_notification_listener:
         class: Carbon\ApiBundle\Listener\ObjectNotificationListener
-        arguments: ["@carbon_api.mailer", "@logger", "%frontend.url%"]
+        arguments: ["@carbon_api.mailer", "@logger", "%mailer_user%", "@security.token_storage", "%frontend.url%", "%app.name%"]
         tags:
             - { name: doctrine.event_listener, event: postPersist }
             - { name: doctrine.event_listener, event: postUpdate }
-            - { name: doctrine.event_listener, event: postRemove }
+            - { name: doctrine.event_listener, event: postSoftDelete }
 
     carbon_api.cryoblock_voter:
         class: Carbon\ApiBundle\Voter\CommentVoter
@@ -93,18 +99,19 @@ services:
         # small performance boost
         public: false
 
-    carbon_api.validator.storage_location_validator:
-        class: Carbon\ApiBundle\Validator\Constraints\Storage\StorageLocationValidator
-        arguments: ["@doctrine.orm.default_entity_manager", "@security.token_storage"]
-        tags:
-            - { name: validator.constraint_validator, alias: storage_location_validator }
+    # carbon_api.validator.storage_location_validator:
+    #     class: Carbon\ApiBundle\Validator\Constraints\Storage\StorageLocationValidator
+    #     arguments: ["@doctrine.orm.default_entity_manager", "@security.token_storage"]
+    #     tags:
+    #         - { name: validator.constraint_validator, alias: storage_location_validator }
 
     carbon_api.production.request.listener:
         class: Carbon\ApiBundle\Listener\Production\ProductionRequestListener
         tags:
             - { name: doctrine.event_listener, event: onFlush }
 
-    carbon_api.storage.catalog.listener:
-        class: Carbon\ApiBundle\Listener\Storage\CatalogListener
+    carbon_api.form.type.entity_detail:
+        class: Carbon\ApiBundle\Form\Type\EntityDetailFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
         tags:
-            - { name: doctrine.event_listener, event: onFlush }
+            - { name: form.type, alias: entity_detail }

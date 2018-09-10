@@ -92,16 +92,20 @@ class ProductionRequestListener
 
         }
 
+        // reset
+        $this->insertedRequests = [];
+
     }
 
     private function updateAlias($em, $uow, $entity)
     {
-        if ($entity instanceof BaseRequest && $entity->getStatus() == BaseRequest::STATUS_PENDING) {
+        if ($entity instanceof BaseRequest && $entity->getStatus() != BaseRequest::STATUS_PENDING_PIPELINE) {
 
             $qb = $em->createQueryBuilder();
 
-            $startOfMonth = new \DateTime(date('Y-m-01'));
-            $endOfMonth = new \DateTime(date('Y-m-t'));
+            $startOfMonth = new \DateTime($entity->getCreatedAt()->format('Y-m-01'));
+            $endOfMonth = new \DateTime($entity->getCreatedAt()->format('Y-m-t'));
+            $endOfMonth->setTime(23, 59, 59);
 
             $total = $qb
                 ->select('count(d.id)')

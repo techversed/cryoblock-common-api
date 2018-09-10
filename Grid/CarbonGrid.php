@@ -3,6 +3,8 @@
 namespace Carbon\ApiBundle\Grid;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Query\Expr\Join;
 
 /**
  * The CarbonGrid is used to aid in building paginated
@@ -42,15 +44,6 @@ class CarbonGrid extends Grid
         $queryParams = $this->getQueryParams();
 
         foreach ($queryParams as $k => $v) {
-
-            if (array_key_exists('in', $v)) {
-
-                $qb->andWhere($qb->expr()->in(
-                    $alias . '.' . $k,
-                    $v['in']
-                ));
-
-            }
 
             if (array_key_exists('GTE', $v)) {
 
@@ -93,10 +86,22 @@ class CarbonGrid extends Grid
                     $v['IN'] = explode(',', $v['IN']);
                 }
 
-                $qb->andWhere($qb->expr()->in(
-                    $alias . '.' . $k,
-                    $v['IN']
-                ));
+                # is this mtm
+                if (strpos($k, '_')) {
+
+                    $mtmParams = explode("_", $k);
+                    $mtmAlias = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), -5);
+
+                    $qb->innerJoin($alias . '.' . $mtmParams[0], $mtmAlias, 'WITH', $mtmAlias . '.' . $mtmParams[1] . ' IN (' . implode(',', $v['IN']) . ')' );
+
+                } else {
+
+                    $qb->andWhere($qb->expr()->in(
+                        $alias . '.' . $k,
+                        $v['IN']
+                    ));
+
+                }
 
             }
 
@@ -201,10 +206,49 @@ class CarbonGrid extends Grid
                 ));
             }
 
-            foreach ($searchableColumns as $columnName) {
-                $paramName = 'LIKE_'.$columnName;
-                $searchExpressions[] = sprintf('lower(%s.%s) LIKE lower(:%s)', $alias, $columnName, $paramName);
-                $qb->setParameter($paramName, $likeSearch);
+
+            foreach ($searchableColumns as $searchableAnnotation) {
+
+                $columnName = $searchableAnnotation->name;
+
+                if ($searchableAnnotation->join) {
+
+                    $subAlias = $searchableAnnotation->subAlias;
+                    $searchProp = $searchableAnnotation->searchProp;
+                    $joinProp = $searchableAnnotation->joinProp;
+                    $meta = $this->em->getClassMetaData($className)->getAssociationMapping($columnName);
+                    $joinColumn = $meta['joinColumns'][0]['name'];
+                    $referencedColumnName = $meta['joinColumns'][0]['referencedColumnName'];
+                    $targetEntity = $meta['targetEntity'];
+                    $qb->leftJoin($targetEntity, $subAlias, Join::WITH, sprintf('%s.%s = %s.%s', $subAlias, $referencedColumnName, $alias, $joinProp));
+
+                    if ($searchableAnnotation->int) {
+                        if (is_numeric($this->getQueryParam(self::QUERY_LIKE_SEARCH))) {
+                            $searchExpressions[] = sprintf('%s.%s = %s', $subAlias, $searchProp, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
+                        }
+                    } else {
+                        $searchExpressions[] = sprintf('lower(%s.%s) LIKE lower(\'%s\')', $subAlias, $searchProp, $likeSearch);
+                    }
+
+
+                } else {
+
+                    if ($searchableAnnotation->int) {
+
+                        if (is_numeric($this->getQueryParam(self::QUERY_LIKE_SEARCH))) {
+                            $searchExpressions[] = sprintf('%s.%s = %s', $alias, $columnName, $this->getQueryParam(self::QUERY_LIKE_SEARCH));
+                        }
+
+                    } else {
+
+                        $paramName = 'LIKE_'.$columnName;
+                        $searchExpressions[] = sprintf('lower(%s.%s) LIKE lower(:%s)', $alias, $columnName, $paramName);
+                        $qb->setParameter($paramName, $likeSearch);
+
+                    }
+
+                }
+
             }
 
             $qb->andWhere(implode(' OR ', $searchExpressions));

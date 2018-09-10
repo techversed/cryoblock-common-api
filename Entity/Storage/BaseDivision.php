@@ -2,14 +2,15 @@
 
 namespace Carbon\ApiBundle\Entity\Storage;
 
-use JMS\Serializer\Annotation AS JMS;
 use Carbon\ApiBundle\Annotation AS Carbon;
+use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @ORM\MappedSuperclass */
-class BaseDivision
+class BaseDivision extends BaseCryoblockEntity
 {
     /**
      * @ORM\Column(name="has_dimension", type="boolean")
@@ -154,8 +155,8 @@ class BaseDivision
     protected $allowAllSampleTypes = true;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionSampleType", mappedBy="division")
-     * @JMS\Groups({"children"})
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionSampleType", mappedBy="division", cascade={"remove"})
+     * @JMS\Groups({"children", "sampleTypes"})
      */
     protected $divisionSampleTypes;
 
@@ -166,32 +167,32 @@ class BaseDivision
     protected $allowAllStorageContainers = true;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionStorageContainer", mappedBy="division")
-     * @JMS\Groups({"children"})
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionStorageContainer", mappedBy="division", cascade={"remove"})
+     * @JMS\Groups({"children", "containers"})
      */
     protected $divisionStorageContainers;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionGroupEditor", mappedBy="division")
-     * @JMS\Groups({"children"})
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionGroupEditor", mappedBy="division", cascade={"remove"})
+     * @JMS\Groups({"children", "groupEditors"})
      */
     protected $divisionGroupEditors;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionEditor", mappedBy="division")
-     * @JMS\Groups({"children"})
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionEditor", mappedBy="division", cascade={"remove"})
+     * @JMS\Groups({"children", "editors"})
      */
     protected $divisionEditors;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionViewer", mappedBy="division")
-     * @JMS\Groups({"children"})
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionViewer", mappedBy="division", cascade={"remove"})
+     * @JMS\Groups({"children", "viewers"})
      */
     protected $divisionViewers;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionGroupViewer", mappedBy="division")
-     * @JMS\Groups({"children"})
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\DivisionGroupViewer", mappedBy="division", cascade={"remove"})
+     * @JMS\Groups({"children", "groupViewers"})
      */
     protected $divisionGroupViewers;
 
@@ -1044,5 +1045,4 @@ class BaseDivision
     {
         return $this->getPath();
     }
-
 }
