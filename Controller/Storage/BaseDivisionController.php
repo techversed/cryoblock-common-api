@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class BaseDivisionController extends CarbonApiController
 {
@@ -306,16 +307,22 @@ class BaseDivisionController extends CarbonApiController
         //$request = $this->getRequest();
         //$data = json_decode($request->getContent(), true);
 
-        $fileName = 'Request ' . (string) $id . ' Input Samples Template.xls';
+        $fileName = 'Request ' . (string) $id . ' Input Samples Template.xlsx';
 
         $objPHPExcel = new \PHPExcel();
 
         $prodRequest = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')->find($id);
         $prodRequestInputSamples = $prodRequest->getSamples();
+
+        $iterator = $prodRequestInputSamples->getIterator();
+
+        $iterator->uasort(function($a,$b){
+            return ((ord($a->getDivisionRow()) * 50 + $a->getDivisionColumn() ) < (ord($b->getDivisionRow()) * 50 + $b->getDivisionColumn())) ? -1 : 1;
+        });
+        $prodRequestInputSamples = new ArrayCollection(iterator_to_array($iterator));
+
         $prodRequestInputSample = $prodRequestInputSamples[0];
-        // print_r($prodRequestInputSample);
-        // echo $prodRequestInputSample->getId();
-        // die();
+
         $importer = $this->container->get('sample.importer');
         $sampleTypeMapping = $importer->getMapping($prodRequestInputSample->getSampleType());
         $sampleTypeMapping = array_merge(array(
@@ -388,32 +395,32 @@ class BaseDivisionController extends CarbonApiController
 
                 $style = $objPHPExcel->getActiveSheet()->getStyle($cell);
 
-                if (in_array($label, $protectedLabels)) {
+                // if (in_array($label, $protectedLabels)) {
 
-                    $style->applyFromArray(array(
-                        'fill' => array(
-                            'type' => \PHPExcel_Style_Fill::FILL_SOLID,
-                            'color' => array('rgb' => 'fce7c2')
-                        )
-                    ));
+                //     $style->applyFromArray(array(
+                //         'fill' => array(
+                //             'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+                //             'color' => array('rgb' => 'fce7c2')
+                //         )
+                //     ));
 
-                    $style
-                        ->getProtection()
-                        ->setLocked(
-                            \PHPExcel_Style_Protection::PROTECTION_PROTECTED
-                        )
-                    ;
+                //     $style
+                //         ->getProtection()
+                //         ->setLocked(
+                //             \PHPExcel_Style_Protection::PROTECTION_PROTECTED
+                //         )
+                //     ;
 
-                } else {
+                // } else {
 
-                    $objPHPExcel->getActiveSheet()
-                    ->getStyle($cell)
-                    ->getProtection()
-                    ->setLocked(
-                        \PHPExcel_Style_Protection::PROTECTION_UNPROTECTED
-                    );
+                //     $objPHPExcel->getActiveSheet()
+                //     ->getStyle($cell)
+                //     ->getProtection()
+                //     ->setLocked(
+                //         \PHPExcel_Style_Protection::PROTECTION_UNPROTECTED
+                //     );
 
-                }
+                // }
 
                 if ($label == 'Storage Container') {
 
@@ -495,7 +502,7 @@ class BaseDivisionController extends CarbonApiController
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 
         $response = new Response();
-        $response->headers->set('Content-Type', 'application/vnd.ms-excel');
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $response->headers->set('Content-Disposition', 'attachment;filename=test.xlsx');
 
         ob_start();
