@@ -317,7 +317,7 @@ class BaseDivisionController extends CarbonApiController
         $iterator = $prodRequestInputSamples->getIterator();
 
         $iterator->uasort(function($a,$b){
-            return ((ord($a->getDivisionRow()) * 50 + $a->getDivisionColumn() ) < (ord($b->getDivisionRow()) * 50 + $b->getDivisionColumn())) ? -1 : 1;
+            return ((ord($a->getDivisionRow()) * 100 + $a->getDivisionColumn() ) < (ord($b->getDivisionRow()) * 100 + $b->getDivisionColumn())) ? -1 : 1;
         });
         $prodRequestInputSamples = new ArrayCollection(iterator_to_array($iterator));
 
@@ -325,13 +325,13 @@ class BaseDivisionController extends CarbonApiController
 
         $importer = $this->container->get('sample.importer');
         $sampleTypeMapping = $importer->getMapping($prodRequestInputSample->getSampleType());
-        $sampleTypeMapping = array_merge(array(
-            'Id' => array(
-                'prop' => 'id',
-                'bindTo' => 'id',
-                'errorProp' => array('id'),
-            )
-        ), $sampleTypeMapping);
+        // $sampleTypeMapping = array_merge(array(
+        //     'Id' => array(
+        //         'prop' => 'id',
+        //         'bindTo' => 'id',
+        //         'errorProp' => array('id'),
+        //     )
+        // ), $sampleTypeMapping);
 
         $currentSample = 0;
 
