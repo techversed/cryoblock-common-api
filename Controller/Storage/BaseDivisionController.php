@@ -325,13 +325,13 @@ class BaseDivisionController extends CarbonApiController
 
         $importer = $this->container->get('sample.importer');
         $sampleTypeMapping = $importer->getMapping($prodRequestInputSample->getSampleType());
-        // $sampleTypeMapping = array_merge(array(
-        //     'Id' => array(
-        //         'prop' => 'id',
-        //         'bindTo' => 'id',
-        //         'errorProp' => array('id'),
-        //     )
-        // ), $sampleTypeMapping);
+        $sampleTypeMapping = array_merge(array(
+            'Id' => array(
+                'prop' => 'id',
+                'bindTo' => 'id',
+                'errorProp' => array('id'),
+            )
+        ), $sampleTypeMapping);
 
         $currentSample = 0;
 
