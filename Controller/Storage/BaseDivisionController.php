@@ -314,6 +314,12 @@ class BaseDivisionController extends CarbonApiController
         $prodRequest = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')->find($id);
         $prodRequestInputSamples = $prodRequest->getSamples();
 
+        //If there are no samples in the division just return an empty response. Will prevent this endpoint from being hit in that event
+        if(count($prodRequestInputSamples)==0){
+            $test = new Response();
+            return $test;
+        }
+
         $iterator = $prodRequestInputSamples->getIterator();
 
         $iterator->uasort(function($a,$b){
@@ -362,9 +368,11 @@ class BaseDivisionController extends CarbonApiController
         $storageContainers = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\StorageContainer')->findAll();
 
         $storageContainerNames = array();
+
         foreach ($storageContainers as $storageContainer) {
             $storageContainerNames[] = $storageContainer->getName();
         }
+
         $storageContainerNames = implode(', ', $storageContainerNames);
         $concentrationUnits = implode(', ', array(
             'mg/mL',
