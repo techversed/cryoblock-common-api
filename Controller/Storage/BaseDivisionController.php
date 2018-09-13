@@ -421,12 +421,12 @@ class BaseDivisionController extends CarbonApiController
 
                 // } else {
 
-                //     $objPHPExcel->getActiveSheet()
-                //     ->getStyle($cell)
-                //     ->getProtection()
-                //     ->setLocked(
-                //         \PHPExcel_Style_Protection::PROTECTION_UNPROTECTED
-                //     );
+                    $objPHPExcel->getActiveSheet()
+                    ->getStyle($cell)
+                    ->getProtection()
+                    ->setLocked(
+                        \PHPExcel_Style_Protection::PROTECTION_UNPROTECTED
+                    );
 
                 // }
 
