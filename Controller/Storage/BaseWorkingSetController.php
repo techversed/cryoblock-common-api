@@ -42,7 +42,7 @@ class BaseWorkingSetController extends CarbonApiController
             'joinColumn' => 'workingSetId',
             'whereColumn' => 'sampleId',
         ),
-        'workingSet' => array(
+        'user' => array(
             'returnedEntity' => 'AppBundle\Entity\Storage\Sample',
             'joinColumn' => 'sampleId',
             'whereColumn' => 'createdById',
