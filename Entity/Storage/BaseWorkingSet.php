@@ -22,6 +22,13 @@ class BaseWorkingSet
     protected $createdAt;
 
     /**
+     * Created by id
+     * @ORM\Column(name="created_by_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
+     */
+    protected $createdById;
+
+    /**
      * @var User $createdBy
      *
      * @Gedmo\Blameable(on="create")
@@ -31,24 +38,41 @@ class BaseWorkingSet
      */
     protected $createdBy;
 
+
     /**
      * Created by id
-     * @ORM\Column(name="created_by_id", type="integer", nullable=false)
+     * @ORM\Column(name="user_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
-    protected $createdById;
+    protected $userId;
+
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\WorkingSetSamples", mappedBy="workingSet")
+     * @var User $createdBy
+     *
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
      */
-    protected $workingSetSamples;
+    protected $user;
+
 
     /**
+     * @var Sample $sample
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Sample")
+     * @ORM\JoinColumn(name="sample_id", referencedColumnName="id")
+     * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
-    public $samples;
-
+    protected $sample;
+                                                                        //Carbon\Searchable(name="catalog", join=true, searchProp="name", joinProp="catalogId", subAlias="ct")
+    /**
+     * Sample id
+     * @ORM\Column(name="sample_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
+     */
+    protected $sampleId;
 
     /**
      * Gets the value of createdAt.
@@ -70,6 +94,30 @@ class BaseWorkingSet
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * Gets the Created by id.
+     *
+     * @return mixed
+     */
+    public function getCreatedById()
+    {
+        return $this->createdById;
+    }
+
+    /**
+     * Sets the Created by id.
+     *
+     * @param mixed $createdById the created by id
+     *
+     * @return self
+     */
+    public function setCreatedById($createdById)
+    {
+        $this->createdById = $createdById;
 
         return $this;
     }
@@ -103,69 +151,93 @@ class BaseWorkingSet
      *
      * @return mixed
      */
-    public function getCreatedById()
+    public function getUserId()
     {
-        return $this->createdById;
+        return $this->userId;
     }
 
     /**
      * Sets the Created by id.
      *
-     * @param mixed $createdById the created by id
+     * @param mixed $userId the user id
      *
      * @return self
      */
-    public function setCreatedById($createdById)
+    public function setUserId($userId)
     {
-        $this->createdById = $createdById;
+        $this->userId = $userId;
 
         return $this;
     }
 
     /**
-     * Gets the value of workingSetSamples.
+     * Gets the value of user.
      *
-     * @return mixed
+     * @return User $createdBy
      */
-    public function getWorkingSetSamples()
+    public function getUser()
     {
-        return $this->workingSetSamples;
+        return $this->user;
     }
 
     /**
-     * Sets the value of workingSetSamples.
+     * Sets the value of user.
      *
-     * @param mixed $workingSetSamples the working set samples
+     * @param User $createdBy $user the user
      *
      * @return self
      */
-    public function setWorkingSetSamples($workingSetSamples)
+    public function setUser($user)
     {
-        $this->workingSetSamples = $workingSetSamples;
+        $this->user = $user;
 
         return $this;
     }
 
     /**
-     * Gets the value of samples.
+     * Gets the value of sample.
      *
-     * @return mixed
+     * @return Sample $sample
      */
-    public function getSamples()
+    public function getSample()
     {
-        return $this->samples;
+        return $this->sample;
     }
 
     /**
-     * Sets the value of samples.
+     * Sets the value of sample.
      *
-     * @param mixed $samples the samples
+     * @param Sample $sample $sample the sample
      *
      * @return self
      */
-    public function setSamples($samples)
+    public function setSample($sample)
     {
-        $this->samples = $samples;
+        $this->sample = $sample;
+
+        return $this;
+    }
+
+    /**
+     * Gets the Sample id.
+     *
+     * @return mixed
+     */
+    public function getSampleId()
+    {
+        return $this->sampleId;
+    }
+
+    /**
+     * Sets the Sample id.
+     *
+     * @param mixed $sampleId the sample id
+     *
+     * @return self
+     */
+    public function setSampleId($sampleId)
+    {
+        $this->sampleId = $sampleId;
 
         return $this;
     }

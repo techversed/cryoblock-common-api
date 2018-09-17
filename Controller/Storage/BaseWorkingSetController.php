@@ -2,11 +2,14 @@
 
 namespace Carbon\ApiBundle\Controller\Storage;
 
-use AppBundle\Entity\WorkingSet;
+use AppBundle\Entity\Storage\Sample;
+
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 class BaseWorkingSetController extends CarbonApiController
 {
@@ -16,73 +19,47 @@ class BaseWorkingSetController extends CarbonApiController
     const RESOURCE_ENTITY = "AppBundle\Entity\Storage\WorkingSet";
 
     /**
-     * Handles the HTTP get request for the division entity
-     *
-     * @Route("/storage/working-set", name="working_set_get")
+     * Security config
+     */
+    protected $security = array(
+        'GET' => array(
+            'roles' => array('ROLE_USER'),
+        ),
+        'POST' => array(
+            'roles' => array('ROLE_USER'),
+        ),
+        'PUT' => array(
+            'roles' => array('ROLE_USER'),
+        ),
+        'DELETE' => array(
+            'roles' => array('ROLE_USER'),
+        )
+    );
+
+    protected $resourceLinkMap = array(
+        'sample' => array(
+            'returnedEntity' => 'Carbon\ApiBundle\Entity\User',
+            'joinColumn' => 'workingSetId',
+            'whereColumn' => 'sampleId',
+        ),
+        'workingSet' => array(
+            'returnedEntity' => 'AppBundle\Entity\Storage\Sample',
+            'joinColumn' => 'sampleId',
+            'whereColumn' => 'createdById',
+        )
+    );
+
+    /**
+     * @Route("/storage/working-set-sample/{type}/{id}", name="working_set_sample_get")
      * @Method("GET")
-     * @return Response
-     */
-    public function handleGet()
-    {
-        return parent::handleGet();
-    }
-
-    /**
-     * Handles the HTTP get request for the card entity
-     *
-     * @Route("/storage/working-set", name="working_set_post")
-     * @Method("POST")
-     * @return Response
-     */
-    public function handlePost()
-    {
-        return parent::handlePost();
-    }
-
-    /**
-     * Handles the HTTP PUT request for the card entity
-     *
-     * @todo  figure out why PUT method has no request params
-     * @Route("/storage/working-set", name="working_set_put")
-     * @Method("PUT")
-     * @return Response
-     */
-    public function handlePut()
-    {
-        return parent::handlePut();
-    }
-
-    /**
-     * Handles the HTTP DELETE request for the card entity
-     *
-     * @Route("/storage/working-set", name="working_set_delete")
-     * @Method("DELETE")
-     * @return Response
-     */
-    public function handleDelete()
-    {
-        return parent::handleDelete();
-    }
-
-    /**
-     * @Route("/storage/working-set", name="working_set_patch")
-     * @Method("PATCH")
      *
      * @return Response
      */
-    public function handlePatch()
+    public function getAction($type, $id)
     {
-        return parent::handlePatch();
+        return parent::handleMTMGet($type, $id);
     }
 
-    /**
-     * @Route("/storage/working-set", name="working_set_purge")
-     * @Method("PURGE")
-     *
-     * @return Response
-     */
-    public function handlePurge()
-    {
-        return parent::handlePurge();
-    }
 }
+
+

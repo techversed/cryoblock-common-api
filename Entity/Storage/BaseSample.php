@@ -297,6 +297,16 @@ class BaseSample
     protected $sampleTags;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\WorkingSet", mappedBy="sample")
+     * @JMS\Groups({"default"})
+     */
+    protected $workingSets;
+
+
+    // Transient
+    public $sets;
+
+    /**
      * @JMS\Groups({"default"})
      */
     public $tags;
@@ -1219,6 +1229,54 @@ class BaseSample
     public function setProjects($projects)
     {
         $this->projects = $projects;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of workingSets.
+     *
+     * @return mixed
+     */
+    public function getWorkingSets()
+    {
+        return $this->workingSets;
+    }
+
+    /**
+     * Sets the value of workingSets.
+     *
+     * @param mixed $workingSets the working sets
+     *
+     * @return self
+     */
+    public function setWorkingSets($workingSets)
+    {
+        $this->workingSets = $workingSets;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of sets.
+     *
+     * @return mixed
+     */
+    public function getSets()
+    {
+        return $this->sets;
+    }
+
+    /**
+     * Sets the value of sets.
+     *
+     * @param mixed $sets the sets
+     *
+     * @return self
+     */
+    public function setSets($sets)
+    {
+        $this->sets = $sets;
 
         return $this;
     }
