@@ -11,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use AppBundle\Entity\Storage\WorkingSet;
 
 class BaseWorkingSetController extends CarbonApiController
 {
@@ -90,6 +91,68 @@ class BaseWorkingSetController extends CarbonApiController
         return parent::handlePost();
     }
 
+    /**
+    * Handles the HTTP POST request to add a sample to a workingset
+    *
+    * @Route("/storage/working-set-add-id/{uid}/{sid}", name="working_set_add_post_id")
+    * @Method("POST")
+    *
+    * @return Response
+    */
+    public function handlePostNoForm($uid, $sid)
+    {
+        $sampleRepo = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Sample');
+        $userRepo = $this->getEntityManager()->getRepository('Carbon\ApiBundle\Entity\User');
+
+        $em = $this->getEntityManager();
+
+        // Add this
+        // If find by discovers that the entry already exists a new one should not be created.
+
+        $wset = new WorkingSet();
+        $wset->setSample($sampleRepo->find($sid));
+        $wset->setUser($userRepo->find($uid));
+        $em->persist($wset);
+
+        $em->flush();
+
+        $res = new Response('success', 200);
+        return $res;
+
+    }
+
+    /**
+    * Handles the HTTP POST request to add a sample to a workingset
+    *
+    * @Route("/storage/working-set-remove-id/{uid}/{sid}", name="working_set_remove_post_id")
+    * @Method("DELETE")
+    *
+    * @return Response
+    */
+    public function handleDeleteNoForm($uid, $sid)
+    {
+
+        $em = $this->getEntityManager();
+
+        $workingSet = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\WorkingSet');
+        $wset = $workingSet->findBy(array('userId' => $uid, 'sampleId' => $sid));
+
+        if(count($wset) > 0 ){
+
+            foreach($wset as $workingEntity){
+                $em->remove($workingEntity);
+            }
+
+            $em->flush();
+            $res = new Response('worked', 200);
+            return $res;
+        }
+
+        $res = new Response('Path expects a workingset entry to exist with the given params.', 401);
+        return $res;
+
+    }
+
 
 // Generate a bulk update file
     //Still want to add support to order the working set stuff. I took that out of the box export thing
@@ -101,7 +164,8 @@ class BaseWorkingSetController extends CarbonApiController
      *
      * @return Response
      */
-    public function workingSetExcelDownload(){
+    public function workingSetExcelDownload()
+    {
 
         //$request = $this->getRequest();
         //$data = json_decode($request->getContent(), true);
