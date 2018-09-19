@@ -20,6 +20,11 @@ class BaseWorkingSetController extends CarbonApiController
     const RESOURCE_ENTITY = "AppBundle\Entity\Storage\WorkingSet";
 
     /**
+     * @var string The form type for this resource
+     */
+    const FORM_TYPE = "working_set";
+
+    /**
      * Security config
      */
     protected $security = array(
@@ -62,16 +67,32 @@ class BaseWorkingSetController extends CarbonApiController
     }
 
     // Add a post option here
+        //Should have a way of doing this without a put request to samples
 
 
     // Add a delete option here
+        //Want to have a way of removing samples from the working set without a put request to sample.
 
 
     // Also need to add a form type.
+        //Should have a form type which lets you post directly to this table as you would with equipment status detail.
+
+    /**
+     * Handles the HTTP POST request for the group entity
+     *
+     * @Route("/storage/working-set", name="working_set_post")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function handlePost()
+    {
+        return parent::handlePost();
+    }
 
 
-    // Generate a bulk update file
-
+// Generate a bulk update file
+    //Still want to add support to order the working set stuff. I took that out of the box export thing
     /**
      * Handles the HTTP GET request for creating a bulk update excel sheet for your working set.
      *
@@ -304,11 +325,6 @@ class BaseWorkingSetController extends CarbonApiController
         return $response;
 
     }
-
-
-
-
-
 }
 
 
