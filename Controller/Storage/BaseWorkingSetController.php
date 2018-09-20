@@ -153,6 +153,45 @@ class BaseWorkingSetController extends CarbonApiController
 
     }
 
+    /**
+    * Handles the HTTP POST request to add a sample to a workingset
+    *
+    * @Route("/storage/working-set-remove-all/{uid}", name="working_set_remove_all")
+    * @Method("DELETE")
+    *
+    * @return Response
+    */
+    public function handleDeleteAll($uid)
+    {
+
+        //check what user it is...
+
+        if($this->getUser()->getId() == $uid){
+            $em = $this->getEntityManager();
+
+            $workingSet = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\WorkingSet');
+            $wset = $workingSet->findBy(array('userId' => $uid));
+
+            if(count($wset) > 0 ){
+
+                foreach($wset as $workingEntity){
+                    $em->remove($workingEntity);
+                }
+
+                $em->flush();
+                $res = new Response('worked', 200);
+                return $res;
+            }
+
+            $res = new Response('Working set already empty -- could not find any entries which needed to be deleted.', 404);
+            return $res;
+        }
+
+        $res = new Response('Unauthorized: You do not have permissions to alter the Working Set of another user.', 403);
+        return $res;
+
+    }
+
 
 // Generate a bulk update file
     //Still want to add support to order the working set stuff. I took that out of the box export thing
