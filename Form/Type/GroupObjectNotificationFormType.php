@@ -20,9 +20,11 @@ class GroupObjectNotificationFormType extends CryoblockAbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('entity', 'text')
-            ->add('url', 'text')
-            ->add('objectDescription', 'text')
+            ->add('entityDetail', 'entity', array(
+                'class' => 'Carbon\\ApiBundle\\Entity\\EntityDetail',
+                'property' => 'entity_detail_id',
+                'multiple' => false
+            ))
             ->add('onCreateGroup', 'entity', array(
                 'class' => 'Carbon\\ApiBundle\\Entity\\Group',
                 'property' => 'on_create_group_id',
@@ -55,6 +57,12 @@ class GroupObjectNotificationFormType extends CryoblockAbstractType
         $builder->get('onDeleteGroup')
             ->addViewTransformer(new CryoblockOTOTransformer(
                 $this->em, 'Carbon\\ApiBundle\\Entity\\Group'
+            ))
+        ;
+
+        $builder->get('entityDetail')
+            ->addViewTransformer(new CryoblockOTOTransformer(
+                $this->em, 'CarbonApiBundle:EntityDetail'
             ))
         ;
 

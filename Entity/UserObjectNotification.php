@@ -23,19 +23,23 @@ class UserObjectNotification extends BaseCryoblockEntity
     protected $id;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="entity", type="string", length=300)
-     * @JMS\Groups({"default"})
-     * @Assert\NotBlank()
-     */
-    protected $entity;
-
-    /**
      * @ORM\Column(name="entity_id", type="integer", nullable=true)
      * @JMS\Groups({"default"})
      */
     protected $entityId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
+     * @ORM\JoinColumn(name="entity_detail_id", referencedColumnName="id")
+     * @JMS\Groups({"default"})
+     */
+    protected $entityDetail;
+
+    /**
+     * @ORM\Column(name="entity_detail_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
+     */
+    protected $entityDetailId;
 
     /**
      * @var User
@@ -51,24 +55,6 @@ class UserObjectNotification extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      */
     protected $userId;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="url", type="string", length=300)
-     * @JMS\Groups({"default"})
-     * @Assert\NotBlank()
-     */
-    protected $url;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="object_description", type="string")
-     * @JMS\Groups({"default"})
-     * @Assert\NotBlank()
-     */
-    protected $objectDescription;
 
     /**
      * @ORM\Column(nullable=true, type="boolean")
@@ -113,25 +99,73 @@ class UserObjectNotification extends BaseCryoblockEntity
     }
 
     /**
-     * Gets the value of entity.
+     * Gets the value of entityId.
      *
-     * @return string
+     * @return mixed
      */
-    public function getEntity()
+    public function getEntityId()
     {
-        return $this->entity;
+        return $this->entityId;
     }
 
     /**
-     * Sets the value of entity.
+     * Sets the value of entityId.
      *
-     * @param string $entity the entity
+     * @param mixed $entityId the entity id
      *
      * @return self
      */
-    public function setEntity($entity)
+    public function setEntityId($entityId)
     {
-        $this->entity = $entity;
+        $this->entityId = $entityId;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of entityDetail.
+     *
+     * @return mixed
+     */
+    public function getEntityDetail()
+    {
+        return $this->entityDetail;
+    }
+
+    /**
+     * Sets the value of entityDetail.
+     *
+     * @param mixed $entityDetail the entity detail
+     *
+     * @return self
+     */
+    public function setEntityDetail($entityDetail)
+    {
+        $this->entityDetail = $entityDetail;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of entityDetailId.
+     *
+     * @return mixed
+     */
+    public function getEntityDetailId()
+    {
+        return $this->entityDetailId;
+    }
+
+    /**
+     * Sets the value of entityDetailId.
+     *
+     * @param mixed $entityDetailId the entity detail id
+     *
+     * @return self
+     */
+    public function setEntityDetailId($entityDetailId)
+    {
+        $this->entityDetailId = $entityDetailId;
 
         return $this;
     }
@@ -156,6 +190,30 @@ class UserObjectNotification extends BaseCryoblockEntity
     public function setUser(User $user)
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of userId.
+     *
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * Sets the value of userId.
+     *
+     * @param mixed $userId the user id
+     *
+     * @return self
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
 
         return $this;
     }
@@ -228,102 +286,6 @@ class UserObjectNotification extends BaseCryoblockEntity
     public function setOnDelete($onDelete)
     {
         $this->onDelete = $onDelete;
-
-        return $this;
-    }
-
-    /**
-     * Gets the Created by id.
-     *
-     * @return mixed
-     */
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
-    /**
-     * Sets the Created by id.
-     *
-     * @param mixed $userId the user id
-     *
-     * @return self
-     */
-    public function setUserId($userId)
-    {
-        $this->userId = $userId;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of url.
-     *
-     * @return string
-     */
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
-    /**
-     * Sets the value of url.
-     *
-     * @param string $url the url
-     *
-     * @return self
-     */
-    public function setUrl($url)
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of objectDescription.
-     *
-     * @return string
-     */
-    public function getObjectDescription()
-    {
-        return $this->objectDescription;
-    }
-
-    /**
-     * Sets the value of objectDescription.
-     *
-     * @param string $objectDescription the object description
-     *
-     * @return self
-     */
-    public function setObjectDescription($objectDescription)
-    {
-        $this->objectDescription = $objectDescription;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of entityId.
-     *
-     * @return mixed
-     */
-    public function getEntityId()
-    {
-        return $this->entityId;
-    }
-
-    /**
-     * Sets the value of entityId.
-     *
-     * @param mixed $entityId the entity id
-     *
-     * @return self
-     */
-    public function setEntityId($entityId)
-    {
-        $this->entityId = $entityId;
 
         return $this;
     }
