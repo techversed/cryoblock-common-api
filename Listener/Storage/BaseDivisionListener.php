@@ -14,11 +14,65 @@ use AppBundle\Entity\Storage\DivisionGroupViewer;
 use AppBundle\Entity\Storage\DivisionStorageContainer;
 use AppBundle\Entity\Storage\DivisionSampleType;
 
+/*
+Base Division Listener
+Written by Andre Jon Branchizio
+Heavily Modified by Taylor Jones
+
+Originally we chose to make it so that the permissions of chidren divisions would be overwritten by changes to their immediate parent
+This has been modified so that the changes that take place with the parent will also be applied to the children
+
+Example:
+Setup:
+    Division 1 has 5 children say (2,3,4,5)
+    Division 1 permissions editable by andre, allows hybridoma, allows vials
+    Division 2 Editable by andre, allows cell supernatant, allows eppendorf tubes
+    Division 3 Editable by Dr crowe, allows protein, allows vials
+
+Action:
+    Add taylor to division
+
+
+Old system outcome:
+
+    Division 1 and all of its children are editable by andre + taylor, allow hybridoma, allows vials
+
+New system outcome:
+    Division 1 permissions editable by andre & taylor, allows hybridoma, allows vials
+    Division 2 Editable by andre & taylor, allows cell supernatant, allows eppendorf tubes
+    Division 3 Editable by Dr Crowe & taylor, allows protein, allows vials
+
+Later versions may make it possible to select the method fo cascading which is going to be used for this update operation -- I think that this will present problems because users will not take the time to get to understand the tools that we are creating
+
+*/
+
 class BaseDivisionListener
 {
     public function __construct(Logger $logger)
     {
         $this->logger = $logger;
+    }
+
+    public function addToChildren() // $em, $entity
+    {
+
+        // If work happened return true else return false
+        return true;
+
+    }
+
+    public function removeFromChildren() // $em, $entity
+    {
+
+        // If work happened return true;
+        return true;
+
+    }
+
+    public function updateDivisionBooleans()
+    {
+        // If work happened here return true
+        return true;
     }
 
     //Could I flush the entity manager if there are in fact updates that need to take place... Should be able to use a conditional in order to avoid an infinite loop.
@@ -29,10 +83,48 @@ class BaseDivisionListener
         //enitty->getDivision()->getChildren() -- insert a new entity which is just like the one that we are inserting but with more of t
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
+        $workHappened = false;
 
         // If we are dealing with a division then then you copy the booleans to the other division
 
+            // If the unit of work is an insertion
+        foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
+            if ($entity instanceof Division) {
+
+                continue;
+
+            }
+
+            if ($entity instanceof DivisionViewer) {
+
+                $workHappend = $this->addToChildren() ? true : $workHappened;
+                continue;
+
+            }
+
+            if ($entity instanceof DivisionEditor) {
+
+                $workHappend = $this->addToChildren() ? true : $workHappened;
+                continue;
+
+            }
+
+            if ($entity instanceof DivisionStorageContainer) {
+
+                $workHappend = $this->addToChildren() ? true : $workHappened;
+                continue;
+
+            }
+
+            if ($entity instanceof DivisionSampleType) {
+
+                $workHappend = $this->addToChildren() ? true : $workHappened;
+                continue;
+
+            }
+
+        }
         // If it is an insertion
             // If it is a Divison
                 // Return
@@ -48,6 +140,45 @@ class BaseDivisionListener
             // If it is a Division Sample Type
 
 
+        foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
+
+            // We should not ever be deleting divisions imo (if we do delete them we should handle that by hand cause we don't want to give that kind of power to the users... They'll fuck it up.)
+                // Certainly no cascade delete...
+            if ($entity instanceof Division){
+
+                continue;
+            }
+
+            if ($entity instanceof DivisionViewer) {
+
+                $workHappend = $this->removeFromChildren() ? true : $workHappened;
+                continue;
+
+            }
+
+            if ($entity instanceof DivisionEditor) {
+
+                $workHappend = $this->removeFromChildren() ? true : $workHappened;
+                continue;
+
+            }
+
+            if ($entity instanceof DivisionStorageContainer) {
+
+                $workHappend = $this->removeFromChildren() ? true : $workHappened;
+                continue;
+
+            }
+
+            if ($entity instanceof DivisionSampleType) {
+
+                $workHappend = $this->removeFromChildren() ? true : $workHappened;
+                continue;
+
+            }
+
+        }
+
         // If it is a deletion
             // If it is a Division editor
 
@@ -60,25 +191,23 @@ class BaseDivisionListener
             // If it is a Division Sample Type
 
 
-        //If it is an update
-            // If it is a division
+        foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
-            // Not concerned with any other case
+            if ($entity instanceof Division){
 
+                $workHappened = $this->updateDivisionBooleans() ? true : $workHappened;
 
+            }
 
+            //Don't think that we will ever need to update any other type of entity pertaning to storage
 
+        }
 
+        // If an update took place then we need to flush the entity manager;
 
-
-
-
-
-
-
-
-
-
+        if($workHappened){
+            $em->flush();
+        }
 
         // $em = $args->getEntityManager();
         // $uow = $em->getUnitOfWork();
