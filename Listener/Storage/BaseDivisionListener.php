@@ -55,53 +55,106 @@ class BaseDivisionListener
         $this->logger = $logger;
     }
 
+
     public function addToChildren($em, $repo, $entity, $className)
     {
 
+        // Repo find all that are children who have the same userid
+
+
+        $localWork = false;
+
         $childDivisions = $entity->getDivision()->getChildren();
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('de.divisionId')
+            ->from('AppBundle:Storage\DivisionEditor', 'de')
+            ->where('de.divisionId = ?1')
+            ->setParameter(1,100);
+
+        $resultingDivisions = $qb->getQuery()->getArrayResult();
+
+        print_r($resultingDivision  s);
+
+        // $value = $em->createQueryBuilder(
+        //     "SELECT userId from 'AppBundle\Entity\Storage\DivisionEditor' where divisionId = :divisionId"
+        // )->setParameters(array('divisionId' => 11))->setMaxResults(10)->getResultList();
+
+        // print_r($value);
+        die();
 
         foreach($childDivisons as $cd){
 
-            // test if the child division has the same repo available
-            $test = new $className();
-            //create a new entity
+            if ($test){
+
+                $localWork = true;
+
+                $test = new $className();
+
+                $em->persist($test);
+
+            }
 
         }
 
-
-        return true;
+        return $localWork;
 
     }
 
+
     public function removeFromChildren($em, $repo, $entity, $className)
     {
+
+        //Repo find all that are children who have userid
+
+        $localWork = false;
 
         $childDivisions = $entity->getDivision()->getChildren();
 
         foreach ($childDivisions as $cd) {
 
-            $test = new $className();
+            // if ()
+            if (true) {
+
+                $localWork = true;
+
+                $test = new $className();
+
+                $em->persist($test);
+            }
 
         }
 
-        return true;
+        return $localWork;
 
     }
+
 
     public function updateDivisionBooleans($em, $entity)
     {
 
-        // If work happened here return true
+        $localWork = false;
+
         $childDivisions = $entity->getDivision()->getChildren();
 
         foreach ($childDivisions as $cd){
 
-            //$em->persist();
+            if (true) {
+
+                $localWork = true;
+
+                // $test = new $className();
+
+                // $em->persist($test);
+
+            }
         }
 
-        return true;
+        return $localWork;
 
     }
+
 
     //Could I flush the entity manager if there are in fact updates that need to take place... Should be able to use a conditional in order to avoid an infinite loop.
     public function onFlush(OnFlushEventArgs $args)
@@ -153,20 +206,6 @@ class BaseDivisionListener
 
         }
 
-        // If it is an insertion
-            // If it is a Divison
-                // Return
-
-            // If it is a Division editor
-
-            // If it is a Division Viewer
-
-            // If it is a Division Group editor
-
-            // If it is a Division Storage Container
-
-            // If it is a Division Sample Type
-
 
         foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
 
@@ -206,17 +245,6 @@ class BaseDivisionListener
             }
 
         }
-
-        // If it is a deletion
-            // If it is a Division editor
-
-            // If it is a Division Viewer
-
-            // If it is a Division Group editor
-
-            // If it is a Division Storage Container
-
-            // If it is a Division Sample Type
 
 
         foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
