@@ -46,6 +46,8 @@ Later versions may make it possible to select the method fo cascading which is g
 
 */
 
+// The class name is the full path becasue because it was saying that I was trying to load from global namespace when I was first
+
 class BaseDivisionListener
 {
     public function __construct(Logger $logger)
@@ -53,15 +55,19 @@ class BaseDivisionListener
         $this->logger = $logger;
     }
 
-    public function addToChildren() // $em, $entity
+    public function addToChildren($em, $repo, $entity, $className)
     {
+        // echo gettype($entity);
 
-        // If work happened return true else return false
+        // If the entity exists for a child class
+        $test = new $className();
+
+
         return true;
 
     }
 
-    public function removeFromChildren() // $em, $entity
+    public function removeFromChildren($em, $repo, $entity, $className)
     {
 
         // If work happened return true;
@@ -98,28 +104,28 @@ class BaseDivisionListener
 
             if ($entity instanceof DivisionViewer) {
 
-                $workHappend = $this->addToChildren() ? true : $workHappened;
+                $workHappend = $this->addToChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionViewer') ? true : $workHappened;
                 continue;
 
             }
 
             if ($entity instanceof DivisionEditor) {
 
-                $workHappend = $this->addToChildren() ? true : $workHappened;
+                $workHappend = $this->addToChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionEditor') ? true : $workHappened;
                 continue;
 
             }
 
             if ($entity instanceof DivisionStorageContainer) {
 
-                $workHappend = $this->addToChildren() ? true : $workHappened;
+                $workHappend = $this->addToChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionStorageContainer') ? true : $workHappened;
                 continue;
 
             }
 
             if ($entity instanceof DivisionSampleType) {
 
-                $workHappend = $this->addToChildren() ? true : $workHappened;
+                $workHappend = $this->addToChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
                 continue;
 
             }
@@ -151,28 +157,28 @@ class BaseDivisionListener
 
             if ($entity instanceof DivisionViewer) {
 
-                $workHappend = $this->removeFromChildren() ? true : $workHappened;
+                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
                 continue;
 
             }
 
             if ($entity instanceof DivisionEditor) {
 
-                $workHappend = $this->removeFromChildren() ? true : $workHappened;
+                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionEditor') ? true : $workHappened;
                 continue;
 
             }
 
             if ($entity instanceof DivisionStorageContainer) {
 
-                $workHappend = $this->removeFromChildren() ? true : $workHappened;
+                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionStorageContainer') ? true : $workHappened;
                 continue;
 
             }
 
             if ($entity instanceof DivisionSampleType) {
 
-                $workHappend = $this->removeFromChildren() ? true : $workHappened;
+                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
                 continue;
 
             }
