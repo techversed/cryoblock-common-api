@@ -48,6 +48,7 @@ Later versions may make it possible to select the method fo cascading which is g
 */
 
 // The class name is the full path becasue because it was saying that I was trying to load from global namespace when I was first
+// Using the entity manager is simply too slow....
 
 class BaseDivisionListener
 {
@@ -56,6 +57,49 @@ class BaseDivisionListener
         $this->logger = $logger;
     }
 
+    public function propToChildren()
+    {
+
+    }
+
+    public function removeFromChildren($em, $table, $childList, $condition)
+    {
+        $childList = "(1,2,3)";
+        $condition = "user_id=194";
+        $query = "DELETE FROM ".$table." WHERE division_id IN ".$childList." AND ".$condition;
+        $conn = $em->getConnection();
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+    }
+
+
+    // Might be able to improve this by avoiding the join in php could just use mysql instead
+    public function buildChildList($em, $startDivisionId, $condition = 'id is not null')
+    {
+        $conn = $em->getConnection();
+        $parentArray = array($startDivisionId);
+        $prevCount = 0;
+        $currCount = 0;
+        $baseQuery = "select id from storage.division where parent_id in ";
+
+        $mapFunc =  function($temp){
+            return $temp['id'];
+        };
+
+        while ($currCount != count($parentArray)) {
+            $currCount = $prevCount;
+            $arrString = ' ('.implode(', ', $parentArray).') ';
+            $query = $baseQuery.$arrString.' AND id not in '.$arrString." AND ".$condition.";";
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+            $testSet = $stmt->fetchAll();
+
+            $parentArray = array_merge($parentArray, array_map($mapFunc, $testSet));
+            $prevCount = count($parentArray);
+        }
+
+        return $parenttArray;
+    }
 
     public function addToChildren($em, $entity, $className)
     {
@@ -64,13 +108,7 @@ class BaseDivisionListener
             'AppBundle\Entity\Storage\DivisionEditor' => "select id from storage.division where id not in (select id from storage.division where parent_id = :parentId and id not in (select division_id from storage.division_editor where user_id = :linkedId))",
             'AppBundle\Entity\Storage\DivisionStorageContainer' => "select id from storage.division where id not in (select id from storage.division where parent_id = :parentId and id not in (select division_id from storage.division_storage_container where storage_container_id = :linkedId))",
             'AppBundle\Entity\Storage\DivisionSampleType' => "select id from storage.division where id not in (select id from storage.division where parent_id = :parentId and id not in (select division_id from storage.division_sample_type where sample_type_id = :linkedId))",
-            'AppBundle\Entity\Storage\DivisionGroupEditor' => "select id from storage.division where id not in (select id from storage.division where parent_id = :parentId and id not in (select division_id from storage.division_group_editor where group_id = :linkedId))",
-            'AppBundle\Entity\Storage\DivisionGroupViewer' => "select id from storage.division where id not in (select id from storage.division where parent_id = :parentId and id not in (select division_id from storage.division_group_viewer where group_id = :linkedId))"
-        );
-        $targetClass = array(
-            'AppBundle\Entity\Storage\DivisionViewer' => "User",
-            'AppBundle\Entity\Storage\DivisionEditor' => "User",
-            'AppBundle\Entity\Storage\DivisionStorageContainer' => "StorageContainer",
+            'AppBundle\Entity\Storage\DivisionGroupEditor' => "select id from storage.division where id not in (select id from storage.division where parent_id = :parentId and id not in (select division_id from storage.division_group_editor where group_id = :linkedId))", 'AppBundle\Entity\Storage\DivisionGroupViewer' => "select id from storage.division where id not in (select id from storage.division where parent_id = :parentId and id not in (select division_id from storage.division_group_viewer where group_id = :linkedId))"); $targetClass = array('AppBundle\Entity\Storage\DivisionViewer' => "User", 'AppBundle\Entity\Storage\DivisionEditor' => "User", 'AppBundle\Entity\Storage\DivisionStorageContainer' => "StorageContainer",
             'AppBundle\Entity\Storage\DivisionSampleType' => "SampleType",
             'AppBundle\Entity\Storage\DivisionGroupEditor' => "Group",
             'AppBundle\Entity\Storage\DivisionGroupViewer' => "Group"
@@ -133,137 +171,92 @@ class BaseDivisionListener
     }
 
 
-    public function removeFromChildren($em, $repo, $entity, $className)
-    {
-
-        //Repo find all that are children who have userid
-
-        $localWork = false;
-
-        // $childDivisions = $entity->getDivision()->getChildren();
-
-        // foreach ($childDivisions as $cd) {
-
-        //     if (true) {
-        //         // change the value in this if statement
-
-        //         $localWork = true;
-
-        //         $test = new $className();
-
-        //         $em->persist($test);
-        //     }
-
-        // }
-
-        return $localWork;
-
-    }
-
-    public function updateDivisionBooleans($em, $entity)
-    {
-
-        $localWork = false;
-
-        $childDivisions = $entity->getDivision()->getChildren();
-
-        foreach ($childDivisions as $cd){
-
-            if (true) {
-                $localWork = true;
-
-                // $test = new $className();
-
-                // $em->persist($test);
-            }
-        }
-
-        return $localWork;
-
-    }
-
 
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
-        $workHappened = false;
 
-        foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
+        $this->buildChildList($em, 1);
+        die();
 
-            if ($entity instanceof Division) {
-                continue; // Division will be empty of other divisions when created so this option is not applicable
-            }
-            elseif ($entity instanceof DivisionViewer) {
-                $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionViewer') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionEditor) {
-                $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionEditor') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionStorageContainer) {
-                $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionStorageContainer') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionSampleType) {
-                $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionGroupViewer) {
-                $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionGroupViewer') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionGroupEditor) {
-                $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionGroupEditor') ? true : $workHappened;
-                continue;
-            }
-        }
+        // $workHappened = false;
+
+        // foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
+
+        //     if ($entity instanceof Division) {
+        //         continue; // Division will be empty of other divisions when created so this option is not applicable
+        //     }
+        //     elseif ($entity instanceof DivisionViewer) {
+        //         $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionViewer') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionEditor) {
+        //         $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionEditor') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionStorageContainer) {
+        //         $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionStorageContainer') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionSampleType) {
+        //         $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionGroupViewer) {
+        //         $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionGroupViewer') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionGroupEditor) {
+        //         $workHappend = $this->addToChildren($em, $entity, 'AppBundle\Entity\Storage\DivisionGroupEditor') ? true : $workHappened;
+        //         continue;
+        //     }
+        // }
 
 
-        foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
+        // foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
 
-            if ($entity instanceof Division) {
-                continue; // We are not going to allow users to delete divisions that have children -- this case should not take place
-            }
-            elseif ($entity instanceof DivisionViewer) {
-                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionEditor) {
-                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionEditor') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionStorageContainer) {
-                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionStorageContainer') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionSampleType) {
-                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionGroupEditor) {
-                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionGroupEditor') ? true : $workHappened;
-                continue;
-            }
-            elseif ($entity instanceof DivisionGroupViewer) {
-                $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionGroupViewer') ? true : $workHappened;
-                continue;
-            }
-        }
+        //     if ($entity instanceof Division) {
+        //         continue; // We are not going to allow users to delete divisions that have children -- this case should not take place
+        //     }
+        //     elseif ($entity instanceof DivisionViewer) {
+        //         $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionEditor) {
+        //         $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionEditor') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionStorageContainer) {
+        //         $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionStorageContainer') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionSampleType) {
+        //         $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionSampleType') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionGroupEditor) {
+        //         $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionGroupEditor') ? true : $workHappened;
+        //         continue;
+        //     }
+        //     elseif ($entity instanceof DivisionGroupViewer) {
+        //         $workHappend = $this->removeFromChildren($em, null, $entity, 'AppBundle\Entity\Storage\DivisionGroupViewer') ? true : $workHappened;
+        //         continue;
+        //     }
+        // }
 
-        foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
+        // foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
-            if ($entity instanceof Division) {
-                $workHappened = $this->updateDivisionBooleans($em, $entity) ? true : $workHappened;
-            }
+        //     if ($entity instanceof Division) {
+        //         $workHappened = $this->updateDivisionBooleans($em, $entity) ? true : $workHappened;
+        //     }
 
-        }
+        // }
 
-        // If a new entity was modified then we need to flush the entity manager
-        if($workHappened){
-            $em->flush();
-        }
+        // // If a new entity was modified then we need to flush the entity manager
+        // if($workHappened){
+        //     $em->flush();
+        // }
 
     }
 }
