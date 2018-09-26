@@ -102,6 +102,7 @@ class BaseDivisionListener
         return $parentArray;
     }
 
+//Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
@@ -114,49 +115,47 @@ class BaseDivisionListener
                 continue;
             }
             elseif ($entity instanceof DivisionViewer) {
-                $divisionId = $entity->getDivisionId();
-                $entityId = $entity->getUserId();
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getUser()->getId();
                 $condition = 'id NOT IN (SELECT id FROM storage.division_viewer WHERE division_id = '.$divisionId.' AND user_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-                // $this->propToChildren($conn, 'storage.division_viewer', '(user_id, division_id)', $entityId, $divisonList);
+                $this->propToChildren($conn, 'storage.division_viewer', '(user_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionEditor) {
-                $divisionId = $entity->getDivisionId();
-                $entityId = $entity->getUserId();
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getUser()->getId();
                 $condition = 'id NOT IN (SELECT id FROM storage.division_editor WHERE division_id = '.$divisionId.' AND user_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-                // $this->propToChildren($conn, 'storage.division_editor', '(user_id, division_id)', $entityId, $divisonList);
+                $this->propToChildren($conn, 'storage.division_editor', '(user_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionStorageContainer) {
-                $divisionId = $entity->getDivisionId();
-                $entityId = $entity->getStorageContainerId();
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getStorageContainer()->getId();
                 $condition = 'id NOT IN (SELECT id FROM storage.division_storage_container WHERE division_id = '.$divisionId.' AND storage_container_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-                // $this->propToChildren($conn, 'storage.division_storage_container', '(storage_container_id, division_id)', $entityId, $divisonList);
+                $this->propToChildren($conn, 'storage.division_storage_container', '(storage_container_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionSampleType) {
-               $divisionId = $entity->getDivisionId();
-                $entityId = $entity->getSampleTypeId();
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getSampleType()->getId();
                 $condition = 'id NOT IN (SELECT id FROM storage.division_sample_type WHERE division_id = '.$divisionId.' AND sample_type_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-                // $this->propToChildren($conn, 'storage.division_sample_type', '(sample_type_id, division_id)', $entityId, $divisonList);
+                $this->propToChildren($conn, 'storage.division_sample_type', '(sample_type_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionGroupViewer) {
-                $divisionId = $entity->getDivisionId();
-                $entityId = $entity->getGroupId();
-                echo $divisionId;
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getGroup()->getId();
+                // echo $divisionId;
                 $condition = 'id NOT IN (SELECT id FROM storage.division_group_viewer WHERE division_id = '.$divisionId.' AND group_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-                // $this->propToChildren($conn, 'storage.division_group_viewer', '(group_id, division_id)', $entityId, $divisonList);
+                $this->propToChildren($conn, 'storage.division_group_viewer', '(group_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionGroupEditor) {
-                $divisionId = $entity->getDivisionId();
-                echo $divisionId;
-                $entityId = $entity->getGroupId();
-                echo $entityId;
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getGroup()->getId();
                 $condition = 'id NOT IN (SELECT id FROM storage.division_group_editor WHERE division_id = '.$divisionId.' AND group_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-                // $this->propToChildren($conn, 'storage.division_group_editor', '(group_id, division_id)', $entityId, $divisonList);
+                $this->propToChildren($conn, 'storage.division_group_editor', '(group_id, division_id)', $entityId, $divisionList);
             }
         }
 
