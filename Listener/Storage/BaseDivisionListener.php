@@ -74,7 +74,7 @@ class BaseDivisionListener
             $itemArr[] = "(".$entityId.", ".$division.")";
         }
         $divString = implode(', ', $itemArr);
-        $query = "DELETE FROM ".$table." WHERE id IN ".$divString." AND ".$entTypeId."=".$entityId.";";
+        $query = "DELETE FROM ".$table." WHERE division_id IN ".$divString." AND ".$entTypeId."=".$entityId.";";
         $stmt = $conn->prepsare($query);
         $stmt->execute();
     }
@@ -117,43 +117,42 @@ class BaseDivisionListener
             elseif ($entity instanceof DivisionViewer) {
                 $divisionId = $entity->getDivision()->getId();
                 $entityId = $entity->getUser()->getId();
-                $condition = 'id NOT IN (SELECT id FROM storage.division_viewer WHERE division_id = '.$divisionId.' AND user_id = '.$entityId.')';
+                $condition = 'id NOT IN (SELECT division_id FROM storage.division_viewer WHERE division_id = '.$divisionId.' AND user_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
                 $this->propToChildren($conn, 'storage.division_viewer', '(user_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionEditor) {
                 $divisionId = $entity->getDivision()->getId();
                 $entityId = $entity->getUser()->getId();
-                $condition = 'id NOT IN (SELECT id FROM storage.division_editor WHERE division_id = '.$divisionId.' AND user_id = '.$entityId.')';
+                $condition = 'id NOT IN (SELECT division_id FROM storage.division_editor WHERE division_id = '.$divisionId.' AND user_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
                 $this->propToChildren($conn, 'storage.division_editor', '(user_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionStorageContainer) {
                 $divisionId = $entity->getDivision()->getId();
                 $entityId = $entity->getStorageContainer()->getId();
-                $condition = 'id NOT IN (SELECT id FROM storage.division_storage_container WHERE division_id = '.$divisionId.' AND storage_container_id = '.$entityId.')';
+                $condition = 'id NOT IN (SELECT division_id FROM storage.division_storage_container WHERE division_id = '.$divisionId.' AND storage_container_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
                 $this->propToChildren($conn, 'storage.division_storage_container', '(storage_container_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionSampleType) {
                 $divisionId = $entity->getDivision()->getId();
                 $entityId = $entity->getSampleType()->getId();
-                $condition = 'id NOT IN (SELECT id FROM storage.division_sample_type WHERE division_id = '.$divisionId.' AND sample_type_id = '.$entityId.')';
+                $condition = 'id NOT IN (SELECT division_id FROM storage.division_sample_type WHERE division_id = '.$divisionId.' AND sample_type_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
                 $this->propToChildren($conn, 'storage.division_sample_type', '(sample_type_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionGroupViewer) {
                 $divisionId = $entity->getDivision()->getId();
                 $entityId = $entity->getGroup()->getId();
-                // echo $divisionId;
-                $condition = 'id NOT IN (SELECT id FROM storage.division_group_viewer WHERE division_id = '.$divisionId.' AND group_id = '.$entityId.')';
+                $condition = 'id NOT IN (SELECT division_id FROM storage.division_group_viewer WHERE division_id = '.$divisionId.' AND group_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
                 $this->propToChildren($conn, 'storage.division_group_viewer', '(group_id, division_id)', $entityId, $divisionList);
             }
             elseif ($entity instanceof DivisionGroupEditor) {
                 $divisionId = $entity->getDivision()->getId();
                 $entityId = $entity->getGroup()->getId();
-                $condition = 'id NOT IN (SELECT id FROM storage.division_group_editor WHERE division_id = '.$divisionId.' AND group_id = '.$entityId.')';
+                $condition = 'id NOT IN (SELECT division_id FROM storage.division_group_editor WHERE division_id = '.$divisionId.' AND group_id = '.$entityId.')';
                 $divisionList = $this->buildChildList($conn, $divisionId, $condition);
                 $this->propToChildren($conn, 'storage.division_group_editor', '(group_id, division_id)', $entityId, $divisionList);
             }
@@ -161,51 +160,55 @@ class BaseDivisionListener
 
         foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
 
-            // if ($entity instanceof Division) {
-            //     continue; // We are not going to allow users to delete divisions that have children -- this case should not take place
-            // }
-            // elseif ($entity instanceof DivisionViewer) {
-            //     $condition = '';
-            //     $divisionId = $entity->getDivisionId();
-            //     $entityId = $entity->getUserId();
-            //     $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-            // }
-            // elseif ($entity instanceof DivisionEditor) {
-            //     $condition = '';
-            //     $divisionId = $entity->getDivisionId();
-            //     $entityId = $entity->getUserId();
-            //     $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-            // }
-            // elseif ($entity instanceof DivisionStorageContainer) {
-            //     $condition = '';
-            //     $divisionId = $entity->getDivisionId();
-            //     $entityId = $entity->getStorageContainerId();
-            //     $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-            // }
-            // elseif ($entity instanceof DivisionSampleType) {
-            //     $condition = '';
-            //     $divisionId = $entity->getDivisionId();
-            //     $entityId = $entity->getSampleTypeId();
-            //     $divisionList = $this->buildChildList($conn, $divisionId, $condition);
-            // }
-            // elseif ($entity instanceof DivisionGroupEditor) {
-            //     $divisionId = $entity->getDivisionId();
-            //     $condition = '';
-            //     $entityId = $entity->getGroupId();
-            //     $divisionList = $this->buildChildList($conn,$divisionId, $condition);
-            // }
-            // elseif ($entity instanceof DivisionGroupViewer) {
-            //     $condition = '';
-            //     $divisionId = $entity->getDivisionId();
-            //     $entityId = $entity->getGroupId();
-            //     $divisionList = $this->buildChildList($conn,$divisionId, $condition);
-            // }
+            if ($entity instanceof Division) {
+                continue; // We are not going to allow users to delete divisions that have children -- this case should not take place
+            }
+            elseif ($entity instanceof DivisionViewer) {
+                $condition = 'id IN (SELECT division_id FROM storage.division_viewer WHERE division_id = '.$divisionId.' AND user_id = '.$entityId.')';
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getUser()->getId();
+                $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                $this->removeFromChildren($conn, 'storage.division_group_viewer', 'user_id', $entityId, $divisionList);
+            }
+            elseif ($entity instanceof DivisionEditor) {
+                $condition = 'id IN (SELECT division_id FROM storage.division_editor WHERE division_id = '.$divisionId.' AND user_id = '.$entityId.')';
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getUser()->getId();
+                $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                $this->removeFromChildren($conn, 'storage.division_group_editor', 'user_id', $entityId, $divisionList);
+            }
+            elseif ($entity instanceof DivisionStorageContainer) {
+                $condition = 'id IN (SELECT division_id FROM storage.division_storage_container WHERE division_id = '.$divisionId.' AND storage_container_id = '.$entityId.')';
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getStorageContainer()->getId();
+                $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                $this->removeFromChildren($conn, 'storage.division_storage_container', 'storage_container_id', $entityId, $divisionList);
+            }
+            elseif ($entity instanceof DivisionSampleType) {
+                $condition = 'id IN (SELECT division_id FROM storage.division_sample_type WHERE division_id = '.$divisionId.' AND sample_type_id = '.$entityId.')';
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getSampleType()->getId();
+                $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                $this->removeFromChildren($conn, 'storage.division_sample_type', 'sample_type_id', $entityId, $divisionList);
+            }
+            elseif ($entity instanceof DivisionGroupEditor) {
+                $condition = 'id IN (SELECT division_id FROM storage.division_group_editor WHERE division_id = '.$divisionId.' AND group_id = '.$entityId.')';
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getGroup()->getId();
+                $divisionList = $this->buildChildList($conn,$divisionId, $condition);
+                $this->removeFromChildren($conn, 'storage.division_group_editor', 'group_id', $entityId, $divisionList);
+            }
+            elseif ($entity instanceof DivisionGroupViewer) {
+                $condition = 'id IN (SELECT division_id FROM storage.division_group_viewer WHERE division_id = '.$divisionId.' AND group_id = '.$entityId.')';
+                $divisionId = $entity->getDivision()->getId();
+                $entityId = $entity->getGroup()->getId();
+                $divisionList = $this->buildChildList($conn,$divisionId, $condition);
+                $this->removeFromChildren($conn, 'storage.division_group_viewer', 'group_id', $entityId, $divisionList);
+            }
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
-
             // if ($entity instanceof Division) {
-            //     // $workHappened = $this->updateDivisionBooleans($em, $entity) ? true : $workHappened;
             // }
         }
     }
