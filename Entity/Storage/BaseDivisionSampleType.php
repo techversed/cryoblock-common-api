@@ -42,14 +42,6 @@ class BaseDivisionSampleType
     protected $division;
 
     /**
-     * @var \DateTime $deletedAt
-     *
-     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
-     * @JMS\Groups({"default"})
-     */
-    protected $deletedAt;
-
-    /**
      * Gets the value of sampleTypeId.
      *
      * @return integer
@@ -141,30 +133,6 @@ class BaseDivisionSampleType
     public function setDivision($division)
     {
         $this->division = $division;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of deletedAt.
-     *
-     * @return \DateTime $deletedAt
-     */
-    public function getDeletedAt()
-    {
-        return $this->deletedAt;
-    }
-
-    /**
-     * Sets the value of deletedAt.
-     *
-     * @param \DateTime $deletedAt $deletedAt the deleted at
-     *
-     * @return self
-     */
-    public function setDeletedAt($deletedAt)
-    {
-        $this->deletedAt = $deletedAt;
 
         return $this;
     }

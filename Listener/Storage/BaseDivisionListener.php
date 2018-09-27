@@ -105,24 +105,35 @@ class BaseDivisionListener
         return $parentArray;
     }
 
-    public function bulkUpdateIsPublicEdit($value, $divisions)
+    public function bulkUpdateIsPublicEdit($conn, $value, $divisions)
     {
+
+        $query = "UPDATE storage.divsision SET is_public_edit=".$value." WHERE id in ".$divisions;
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+    }
+
+    public function bulkUpdateIsPublicView($conn, $value, $divisions)
+    {
+        $query = "UPDATE storage.divsision SET is_public_view=".$value." WHERE id in ".$divisions;
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
 
     }
 
-    public funciton bulkUpdateIsPublicView($value, $divisions)
+    public function bulkUpdateAllowAllSampleTypes($conn, $value, $divisions)
     {
+        $query = "UPDATE storage.divsision SET allow_all_sample_type=".$value." WHERE id in ".$divisions;
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
 
     }
 
-    public funciton bulkUpdateAllowAllSampleTypes($value, $divisions)
+    public function bulkUpdateAllowAllStorageContainers($conn, $value, $divsiions)
     {
-
-    }
-
-    public function bulkUpdateAllowAllStorageContainers($value, $divsiions)
-    {
-
+        $query = "UPDATE storage.divsision SET allow_all_storage_containers=".$value." WHERE id in ".$divisions;
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
     }
 
 //Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
@@ -236,10 +247,26 @@ class BaseDivisionListener
                 $old = $repo->findOneById($entity->getId());
 
                 $chList = $this->buildChildList($conn, $entity->getId());
+
                 // isPublicEdit
+                if ($old.getIsPublicEdit() != $entity->getIsPublicEdit()) {
+                    $this->bulkUpdateIsPublicEdit($conn, $value, $divisions);
+                }
+
                 // isPublicView
+                if ($old.getIsPublicView() != $entity->getIsPublicView()) {
+                    $this->bulkUpdateIsPublicView($conn, $value, $divisions);
+                }
+
                 // allowAllSampleTypes
+                if ($old.getIsPublicEdit() != $entity->getIsPublicSampleTypes()) {
+                    $this->bulkUpdateAllowAllSampleTypes($conn, $value, $divisions);
+                }
+
                 // allowAllStorageContainers
+                if ($old.getIsPublicEdit() != $entity->getIsPublicEdit()) {
+                    $this->bulkUpdateAllowAllStorageContainers($conn, $value, $divsiions);
+                }
             }
         }
     }
