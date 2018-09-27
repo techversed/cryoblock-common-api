@@ -47,10 +47,10 @@ class CatalogListener
                 }
 
                 $query = $em->createQuery('UPDATE Carbon\ApiBundle\Entity\Attachment a SET a.objectId = \'' . (string) $minId . '\' where a.objectId in (' . implode(', ', $catIdString) . ') and a.objectClass = \'AppBundle\Entity\Storage\Catalog\'');
-                $numUpdated = $query->execute();
+                $catUpdated = $query->execute();
 
-                $query = $em->createQuery('DELETE FROM AppBunddle\Entity\Storage\Catalog a WHERE ');
-                $numUpdated = $query->execute();
+                $query = $em->createQuery('DELETE FROM AppBundle\Entity\Storage\Catalog a WHERE a.id in (' .  implode(', ', $catIdString) . ') AND a.id != '.$minId);
+                $catDelete = $query->execute();
 
 
 
