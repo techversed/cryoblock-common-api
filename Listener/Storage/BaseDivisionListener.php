@@ -235,6 +235,7 @@ class BaseDivisionListener
                 $repo = $em->getRepository('AppBundle\Entity\Storage\Division');
                 $old = $repo->findOneById($entity->getId());
 
+                $chList = $this->buildChildList($conn, $entity->getId());
                 // isPublicEdit
                 // isPublicView
                 // allowAllSampleTypes
