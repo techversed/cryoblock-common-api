@@ -105,36 +105,72 @@ class BaseDivisionListener
         return $parentArray;
     }
 
-    public function bulkUpdateIsPublicEdit($conn, $value, $divisions)
-    {
+    /*
+        Updates the booleans associated with a list of divisiosn to reflect a set of arguments that is passed in.
+        Booleans should be an associative array mapping field name to a value that should go in that field.
+            Ex.
+                array(
+                    is_public_edit => true
+                    is_public_view => false
+                    )
+                If a key does not exist in the array then the value that the record currently holdes will not be altered.
 
-        $query = "UPDATE storage.division SET is_public_edit=".$value." WHERE id in ".$divisions;
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
+    */
+    public function bulkUpdateBooleans($conn, $booleans = array(), $divisions)
+    {
+        if (count($booleans > 0)){
+            $strarr = array();
+            foreach ($booleans as $key => $value)
+            {
+                $strarr[] = $key.' = '.$value;
+            }
+
+            $itemArr = array();
+            foreach ($divisions as $division) {
+                $itemArr[] = "(".$entityId.", ".$division.")";
+            }
+
+            $valString = implode(', ', $itemArr);
+
+
+            $strstr = implode(' and ', $strarr);
+
+            $query = "UPDATE storage.divisions set ".$strstr." where division_id in ".$valString;
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+        }
     }
 
-    public function bulkUpdateIsPublicView($conn, $value, $divisions)
-    {
-        $query = "UPDATE storage.division SET is_public_view=".$value." WHERE id in ".$divisions;
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
+    // public function bulkUpdateIsPublicEdit($conn, $value, $divisions)
+    // {
 
-    }
+    //     $query = "UPDATE storage.division SET is_public_edit=".$value." WHERE id in ".$divisions;
+    //     $stmt = $conn->prepare($query);
+    //     $stmt->execute();
+    // }
 
-    public function bulkUpdateAllowAllSampleTypes($conn, $value, $divisions)
-    {
-        $query = "UPDATE storage.division SET allow_all_sample_type=".$value." WHERE id in ".$divisions;
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
+    // public function bulkUpdateIsPublicView($conn, $value, $divisions)
+    // {
+    //     $query = "UPDATE storage.division SET is_public_view=".$value." WHERE id in ".$divisions;
+    //     $stmt = $conn->prepare($query);
+    //     $stmt->execute();
 
-    }
+    // }
 
-    public function bulkUpdateAllowAllStorageContainers($conn, $value, $divsiions)
-    {
-        $query = "UPDATE storage.division SET allow_all_storage_containers=".$value." WHERE id in ".$divisions;
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
-    }
+    // public function bulkUpdateAllowAllSampleTypes($conn, $value, $divisions)
+    // {
+    //     $query = "UPDATE storage.division SET allow_all_sample_type=".$value." WHERE id in ".$divisions;
+    //     $stmt = $conn->prepare($query);
+    //     $stmt->execute();
+
+    // }
+
+    // public function bulkUpdateAllowAllStorageContainers($conn, $value, $divsiions)
+    // {
+    //     $query = "UPDATE storage.division SET allow_all_storage_containers=".$value." WHERE id in ".$divisions;
+    //     $stmt = $conn->prepare($query);
+    //     $stmt->execute();
+    // }
 
     //Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
     public function onFlush(OnFlushEventArgs $args)
