@@ -108,14 +108,14 @@ class BaseDivisionListener
     public function bulkUpdateIsPublicEdit($conn, $value, $divisions)
     {
 
-        $query = "UPDATE storage.divsision SET is_public_edit=".$value." WHERE id in ".$divisions;
+        $query = "UPDATE storage.division SET is_public_edit=".$value." WHERE id in ".$divisions;
         $stmt = $conn->prepare($query);
         $stmt->execute();
     }
 
     public function bulkUpdateIsPublicView($conn, $value, $divisions)
     {
-        $query = "UPDATE storage.divsision SET is_public_view=".$value." WHERE id in ".$divisions;
+        $query = "UPDATE storage.division SET is_public_view=".$value." WHERE id in ".$divisions;
         $stmt = $conn->prepare($query);
         $stmt->execute();
 
@@ -123,7 +123,7 @@ class BaseDivisionListener
 
     public function bulkUpdateAllowAllSampleTypes($conn, $value, $divisions)
     {
-        $query = "UPDATE storage.divsision SET allow_all_sample_type=".$value." WHERE id in ".$divisions;
+        $query = "UPDATE storage.division SET allow_all_sample_type=".$value." WHERE id in ".$divisions;
         $stmt = $conn->prepare($query);
         $stmt->execute();
 
@@ -131,12 +131,12 @@ class BaseDivisionListener
 
     public function bulkUpdateAllowAllStorageContainers($conn, $value, $divsiions)
     {
-        $query = "UPDATE storage.divsision SET allow_all_storage_containers=".$value." WHERE id in ".$divisions;
+        $query = "UPDATE storage.division SET allow_all_storage_containers=".$value." WHERE id in ".$divisions;
         $stmt = $conn->prepare($query);
         $stmt->execute();
     }
 
-//Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
+    //Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
@@ -241,33 +241,34 @@ class BaseDivisionListener
             }
         }
 
-        foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
-            if ($entity instanceof Division) {
-                $repo = $em->getRepository('AppBundle\Entity\Storage\Division');
-                $old = $repo->findOneById($entity->getId());
+        // Strike this and make it so that it becomes all editable when the parent adds an editor -- can't check for a change without consuling the versioning.
+        // foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
+        //     if ($entity instanceof Division) {
 
-                $chList = $this->buildChildList($conn, $entity->getId());
+        //         $repo = $em->getRepository('AppBundle\Entity\Storage\Division');
+        //         $old = $repo->findOneById($entity->getId());
 
-                // isPublicEdit
-                if ($old.getIsPublicEdit() != $entity->getIsPublicEdit()) {
-                    $this->bulkUpdateIsPublicEdit($conn, $value, $divisions);
-                }
+        //         $originalEntity = $uow->getOriginalEntityData($entity);
 
-                // isPublicView
-                if ($old.getIsPublicView() != $entity->getIsPublicView()) {
-                    $this->bulkUpdateIsPublicView($conn, $value, $divisions);
-                }
+        //         $chList = $this->buildChildList($conn, $entity->getId());
 
-                // allowAllSampleTypes
-                if ($old.getIsPublicEdit() != $entity->getIsPublicSampleTypes()) {
-                    $this->bulkUpdateAllowAllSampleTypes($conn, $value, $divisions);
-                }
-
-                // allowAllStorageContainers
-                if ($old.getIsPublicEdit() != $entity->getIsPublicEdit()) {
-                    $this->bulkUpdateAllowAllStorageContainers($conn, $value, $divsiions);
-                }
-            }
-        }
+        //         if ($originalEntity['isPublicEdit'] != $entity->getIsPublicEdit()) {
+        //             echo "running is Public edit thing";
+        //             // $this->bulkUpdateIsPublicEdit($conn, $entity->getIsPublicEdit(), $chList);
+        //         }
+        //         if ($originalEntity['isPublicView'] != $entity->getIsPublicView()) {
+        //             echo "running is public view thing";
+        //             // $this->bulkUpdateIsPublicView($conn, $entity->getIsPublicView(), $chList);
+        //         }
+        //         if ($originalEntity['allowAllSampleTypes'] != $entity->getAllowAllSampleTypes()) {
+        //             echo "running allow all sample types";
+        //             // $this->bulkUpdateAllowAllSampleTypes($conn, $entity->getAllowAllSampleTypes(), $chList);
+        //         }
+        //         if ($originalEntity['allowAllStorageContainers'] != $entity->getAllowAllStorageContainers()) {
+        //             echo "running allow all storage containers";
+        //             // $this->bulkUpdateAllowAllStorageContainers($conn, $entity->getAllowAllStorageContainers(), $chList);
+        //         }
+        //     }
+        // }
     }
 }
