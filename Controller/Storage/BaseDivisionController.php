@@ -295,9 +295,9 @@ class BaseDivisionController extends CarbonApiController
     }
 
     /**
-     * Handles the HTTP POST request for moving a division
+     * Handles the HTTP GET request for exporting the samples in a division to an excel sheet.
      *
-     * @Route("/storage/division/{id}/excelDownload", name="excel_download")
+     * @Route("/storage/division/{id}/excel-download", name="excel_download")
      * @Method("GET")
      *
      * @return Response
