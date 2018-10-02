@@ -27,21 +27,8 @@ class ObjectNotificationListener
 
     //A list of entity classes for which updates will not be sent.
         //Example: You would not want to send notifications when notification settings were updated... //also prevents the autowatching that takes place when someone creates an object.
-    // public $ignoreClasses = array(
-    //     'Carbon\ApiBundle\Entity\UserObjectNotification',
-    //     'Carbon\ApiBundle\Entity\EntityDetail'
-    // );
-
     public $ignoreClasses = array(
         'Carbon\ApiBundle\Entity\UserObjectNotification',
-        'AppBundle\Entity\Production\Pbmc\RequestInputSample',
-        'AppBundle\Entity\Production\Pbmc\RequestTarget',
-        'AppBundle\Entity\Production\Pbmc\Request',
-        'AppBundle\Entity\Production\HumanSpecimen\RequestStatus',
-        'AppBundle\Entity\Production\HumanSpecimen\RequestOutputSample',
-        'AppBundle\Entity\Production\HumanSpecimen\RequestStatus',
-        'AppBundle\Entity\Storage\Sample',
-        'Gedmo\Loggable\Entity\LogEntry',
         'Carbon\ApiBundle\Entity\EntityDetail'
     );
 
