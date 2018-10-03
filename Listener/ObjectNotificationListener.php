@@ -53,7 +53,7 @@ class ObjectNotificationListener
             'objectClassName' => get_class($entity)
         ));
 
-        if ($entDet == null || $entDet->getAutoWatch() == false) { //We have chosen to populate the Entity Detail table from the front end. If the entry does not exist then we are just going to exit.
+        if (!$entDet instanceof EntityDetail || $entDet->getAutoWatch() == false) { //We have chosen to populate the Entity Detail table from the front end. If the entry does not exist then we are just going to exit.
 
             return;
 
@@ -174,9 +174,11 @@ class ObjectNotificationListener
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
-        if ($entDet == null) {
+
+        if (!$entDet instanceOf EntityDetail) {
             return;
         }
+
         $entDetId = $entDet->getId();
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
@@ -313,7 +315,7 @@ class ObjectNotificationListener
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
-        if ($entDet == null) {
+        if (!$entDet instanceof EntityDetail) {
             return;
         }
         $entDetId = $entDet->getId();
