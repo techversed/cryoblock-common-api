@@ -294,6 +294,7 @@ class BaseDivisionController extends CarbonApiController
         return $this->getJsonResponse($serialized);
     }
 
+    // This is the same function that creates input excels in production controller but with a single line changed to grab samples associated with a storage division instead of a request.
     /**
      * Handles the HTTP GET request for exporting the samples in a division to an excel sheet.
      *
@@ -499,7 +500,7 @@ class BaseDivisionController extends CarbonApiController
 
         }
 
-        $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
+        // $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
         $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
         $objPHPExcel->getActiveSheet()->getProtection()->setInsertRows(true);
         $objPHPExcel->getActiveSheet()->getProtection()->setFormatCells(true);
