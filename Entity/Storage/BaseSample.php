@@ -331,6 +331,11 @@ class BaseSample
      */
     public $errors;
 
+    public function __clone() {
+
+        $this->id = null;
+    }
+
     /**
      * Get id
      *

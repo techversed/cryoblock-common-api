@@ -167,4 +167,36 @@ class BaseSampleController extends CarbonApiController
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
+
+    /**
+     * Handles the HTTP POST request for cloning a sample
+     *
+     * @Route("/storage/sample/{parentSampleId}/clone", name="sample_storage_clone")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function storageClone($parentSampleId)
+    {
+        $sampleCloneMap = (json_decode($this->getRequest()->getContent(), true));
+        $repo = $this->getEntityRepository();
+        $parentSample = $repo->find($parentSampleId);
+        $em = $this->getEntityManager();
+
+        foreach ($sampleCloneMap as $map) {
+
+            $newSample = clone $parentSample;
+
+            $em->detach($newSample);
+            $em->persist($newSample);
+
+            $newSample->setDivisionColumn($map['divisionColumn']);
+            $newSample->setDivisionRow($map['divisionRow']);
+
+        }
+
+        $em->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
+    }
 }
