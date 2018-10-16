@@ -192,6 +192,10 @@ class BaseSampleController extends CarbonApiController
 
             $newSample->setDivisionColumn($map['divisionColumn']);
             $newSample->setDivisionRow($map['divisionRow']);
+            $newSample->setCreatedBy($this->getUser());
+            $newSample->setCreatedAt(new \DateTime());
+            $newSample->setUpdatedBy($this->getUser());
+            $newSample->setUpdatedAt(new \DateTime());
 
         }
 
