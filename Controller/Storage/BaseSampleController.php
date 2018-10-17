@@ -190,6 +190,14 @@ class BaseSampleController extends CarbonApiController
             $em->detach($newSample);
             $em->persist($newSample);
 
+            foreach ($newSample->getSampleTags() as $sampleTag) {
+                $em->persist($sampleTag);
+            }
+
+            foreach ($newSample->getProjectSamples() as $projectSample) {
+                $em->persist($projectSample);
+            }
+
             $newSample->setDivisionColumn($map['divisionColumn']);
             $newSample->setDivisionRow($map['divisionRow']);
             $newSample->setCreatedBy($this->getUser());
