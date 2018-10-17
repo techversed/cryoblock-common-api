@@ -183,27 +183,57 @@ class BaseSampleController extends CarbonApiController
         $parentSample = $repo->find($parentSampleId);
         $em = $this->getEntityManager();
 
-        foreach ($sampleCloneMap as $map) {
+        if (array_key_exists('count', $sampleCloneMap)) {
 
-            $newSample = clone $parentSample;
+            for ($i = 1; $i <= $sampleCloneMap['count']; $i++) {
 
-            $em->detach($newSample);
-            $em->persist($newSample);
+                $newSample = clone $parentSample;
 
-            foreach ($newSample->getSampleTags() as $sampleTag) {
-                $em->persist($sampleTag);
+                $em->detach($newSample);
+                $em->persist($newSample);
+
+                foreach ($newSample->getSampleTags() as $sampleTag) {
+                    $em->persist($sampleTag);
+                }
+
+                foreach ($newSample->getProjectSamples() as $projectSample) {
+                    $em->persist($projectSample);
+                }
+
+                $newSample->setDivisionColumn(null);
+                $newSample->setDivisionRow(null);
+                $newSample->setCreatedBy($this->getUser());
+                $newSample->setCreatedAt(new \DateTime());
+                $newSample->setUpdatedBy($this->getUser());
+                $newSample->setUpdatedAt(new \DateTime());
+
             }
+        }
+        else {
 
-            foreach ($newSample->getProjectSamples() as $projectSample) {
-                $em->persist($projectSample);
+            foreach ($sampleCloneMap as $map) {
+
+                $newSample = clone $parentSample;
+
+                $em->detach($newSample);
+                $em->persist($newSample);
+
+                foreach ($newSample->getSampleTags() as $sampleTag) {
+                    $em->persist($sampleTag);
+                }
+
+                foreach ($newSample->getProjectSamples() as $projectSample) {
+                    $em->persist($projectSample);
+                }
+
+                $newSample->setDivisionColumn($map['divisionColumn']);
+                $newSample->setDivisionRow($map['divisionRow']);
+                $newSample->setCreatedBy($this->getUser());
+                $newSample->setCreatedAt(new \DateTime());
+                $newSample->setUpdatedBy($this->getUser());
+                $newSample->setUpdatedAt(new \DateTime());
+
             }
-
-            $newSample->setDivisionColumn($map['divisionColumn']);
-            $newSample->setDivisionRow($map['divisionRow']);
-            $newSample->setCreatedBy($this->getUser());
-            $newSample->setCreatedAt(new \DateTime());
-            $newSample->setUpdatedBy($this->getUser());
-            $newSample->setUpdatedAt(new \DateTime());
 
         }
 
