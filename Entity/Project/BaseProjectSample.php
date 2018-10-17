@@ -8,8 +8,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
-
-
 /**
  * @ORM\MappedSuperclass
  */
@@ -47,7 +45,10 @@ class BaseProjectSample extends BaseCryoblockEntity
      */
     protected $sample;
 
-
+    public function __clone()
+    {
+        $this->id = null;
+    }
 
     /**
      * Gets the value of projectId.
