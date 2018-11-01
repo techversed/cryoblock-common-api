@@ -5,6 +5,7 @@ namespace Carbon\ApiBundle\Listener\Storage;
 use AppBundle\Entity\Storage\Division;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
 use Symfony\Bridge\Monolog\Logger;
 use AppBundle\Entity\Storage\DivisionEditor;
 use AppBundle\Entity\Storage\DivisionViewer;
@@ -50,10 +51,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 */
 
-
 class BaseDivisionListener
 {
     private $logger;
+    private $runPostFlush = false;
     private $request_stack;
 
     public function __construct(Logger $logger, RequestStack $request_stack)
@@ -106,7 +107,7 @@ class BaseDivisionListener
                 'storage.division_group_viewer' => 'group_id',
                 'storage.division_storage_container' => 'storage_container_id',
                 'storage.division_sample_type' => 'sample_type_id'
-        )
+        );
 
         foreach ($tables as $table => $field) {
 
@@ -180,7 +181,6 @@ class BaseDivisionListener
 
             $valString = implode(', ', $itemArr);
 
-
             $strstr = implode(' and ', $strarr);
 
             $query = "UPDATE storage.divisions set ".$strstr." where division_id in ".$valString;
@@ -192,17 +192,22 @@ class BaseDivisionListener
     //Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
     public function onFlush(OnFlushEventArgs $args)
     {
+        // echo "doing the on flush";
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
         $conn = $em->getConnection();
         $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(),     true);
+
+        if (!array_key_exists('cascade', $request)) {
+            return;
+        }
         $cascade =  $request['cascade'];
 
         // If we are creating an entity it will not have an id or children and it will have no need for any sort of cascading
         if (!array_key_exists('id', $request)) {
             return;
         }
-
+        // echo "starting cascade if";
 
         if ($cascade == true) {
 
@@ -305,22 +310,46 @@ class BaseDivisionListener
             }
 
             // What should the behavior be when toggling the booleans of the children?
+        }
+        else { // If cascade  is false then we need to get ready to trample stuff in the postFlush
 
+            // foreach (array_merge(array_merge($uow->getScheduledEntityUpdates(),$uow->getScheduledEntityInsertions),$uow->getScheduledEntityUpdate) as $keyEntity => $entity){
+            foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
+                // echo "entity updates";
+                if ($entity instanceof Division || $entity instanceof DivisionViewer || $entity instanceof DivisionEditor || $entity instanceof DivisionGroupViewer || $entity instanceof DivisiionGroupEditor || $entity instanceof DivisionStorageContainer || $entity instanceof DivisionSampleType) {
+                    // echo "update thing done";
+                    $this->runPostFlush = true;
+                }
+            }
+        }
+    }
+
+    public function postFlush(PostFlushEventArgs $args)
+    {
+        // echo "did the thing";
+        if ($this->runPostFlush == false) {
+            // echo "runpostflush check failed";
+            return;
         }
 
-        // If cascading is not being used it will trample it
-        // This may need to go in postflush.
-        else {
+        $em = $args->getEntityManager();
+        $conn = $em->getConnection();
+        $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
 
-            $uow->commit();
+        if (!array_key_exists('cascade', $request)) {
+            // echo "cascade check failed";
+            return;
+        }
+
+        if ($request['cascade'] != true) {
             $divRepo = $em->getRepository('AppBundle\Entity\Storage\Division');
             $divOfInterest = $divRepo->findOneById($request['id']);
 
             $propertyList = array(
                 'is_public_view' => $divOfInterest->getIsPublicView(),
                 'is_public_edit' => $divOfInterest->getIsPublicEdit(),
-                'allow_all_sample_types' => $divOfInterest->allowAllSampleTypes(),
-                'allow_all_storage_containers' => $divOfInterest->allowAllStorageContainers()
+                'allow_all_sample_types' => $divOfInterest->getAllowAllSampleTypes(),
+                'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers()
             );
 
             $childList = $this->buildChildList($conn, $request['id']);
@@ -329,7 +358,8 @@ class BaseDivisionListener
 
             $this->removeAllChildLinks($conn, $childList);
             $this->copyAllLinks($conn, $parent, $childList);
-
         }
+
     }
+
 }
