@@ -102,7 +102,7 @@ class BaseDivisionListener
     {
         $tables = array(
                 'storage.division_editor' => 'user_id',
-                'storage.division_viewer' => 'viewer_id',
+                'storage.division_viewer' => 'user_id',
                 'storage.division_group_editor' => 'group_id',
                 'storage.division_group_viewer' => 'group_id',
                 'storage.division_storage_container' => 'storage_container_id',
@@ -111,12 +111,12 @@ class BaseDivisionListener
 
         foreach ($tables as $table => $field) {
 
-            $parentQuery = "SELECT " . $field . " From " . $table . " where id = " . $parent;
+            $parentQuery = "SELECT " . $field . " from " . $table . " where division_id = " . $parent;
             $stmt = $conn->prepare($parentQuery);
             $stmt->execute();
 
             foreach ($stmt->fetchAll() as $result) {
-                    $this->propToChildren($conn, $table, '('.$result[$field].', '.'division_id)', $result[$field], $childList);
+                $this->propToChildren($conn, $table, '('.$field.', '.'division_id)', $result[$field], $childList);
             }
         }
     }
@@ -160,8 +160,9 @@ class BaseDivisionListener
         Booleans should be an associative array mapping field name to a value that should go in that field.
             Ex.
                 array(
-                    is_public_edit => true
-                    is_public_view => false
+                    is_public_edit => "true"
+                    is_public_view => "false"
+                    ...
                     )
                 If a key does not exist in the array then the value that the record currently holdes will not be altered.
     */
@@ -174,16 +175,11 @@ class BaseDivisionListener
                 $strarr[] = $key.' = '.$value;
             }
 
-            $itemArr = array();
-            foreach ($divisions as $division) {
-                $itemArr[] = "(".$entityId.", ".$division.")";
-            }
-
-            $valString = implode(', ', $itemArr);
+            $valString = '('.implode(', ', $divisions).')';
 
             $strstr = implode(' and ', $strarr);
 
-            $query = "UPDATE storage.divisions set ".$strstr." where division_id in ".$valString;
+            $query = "UPDATE storage.division set ".$strstr." where id in ".$valString;
             $stmt = $conn->prepare($query);
             $stmt->execute();
         }
@@ -192,7 +188,6 @@ class BaseDivisionListener
     //Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
     public function onFlush(OnFlushEventArgs $args)
     {
-        // echo "doing the on flush";
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
         $conn = $em->getConnection();
@@ -207,7 +202,6 @@ class BaseDivisionListener
         if (!array_key_exists('id', $request)) {
             return;
         }
-        // echo "starting cascade if";
 
         if ($cascade == true) {
 
@@ -313,11 +307,8 @@ class BaseDivisionListener
         }
         else { // If cascade  is false then we need to get ready to trample stuff in the postFlush
 
-            // foreach (array_merge(array_merge($uow->getScheduledEntityUpdates(),$uow->getScheduledEntityInsertions),$uow->getScheduledEntityUpdate) as $keyEntity => $entity){
-            foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
-                // echo "entity updates";
+            foreach (array_merge(array_merge($uow->getScheduledEntityUpdates(),$uow->getScheduledEntityInsertions()),$uow->getScheduledEntityDeletions()) as $keyEntity => $entity){
                 if ($entity instanceof Division || $entity instanceof DivisionViewer || $entity instanceof DivisionEditor || $entity instanceof DivisionGroupViewer || $entity instanceof DivisiionGroupEditor || $entity instanceof DivisionStorageContainer || $entity instanceof DivisionSampleType) {
-                    // echo "update thing done";
                     $this->runPostFlush = true;
                 }
             }
@@ -326,9 +317,7 @@ class BaseDivisionListener
 
     public function postFlush(PostFlushEventArgs $args)
     {
-        // echo "did the thing";
         if ($this->runPostFlush == false) {
-            // echo "runpostflush check failed";
             return;
         }
 
@@ -337,7 +326,6 @@ class BaseDivisionListener
         $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
 
         if (!array_key_exists('cascade', $request)) {
-            // echo "cascade check failed";
             return;
         }
 
@@ -346,10 +334,10 @@ class BaseDivisionListener
             $divOfInterest = $divRepo->findOneById($request['id']);
 
             $propertyList = array(
-                'is_public_view' => $divOfInterest->getIsPublicView(),
-                'is_public_edit' => $divOfInterest->getIsPublicEdit(),
-                'allow_all_sample_types' => $divOfInterest->getAllowAllSampleTypes(),
-                'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers()
+                'is_public_view' => $divOfInterest->getIsPublicView() == true ? "true" : "false",
+                'is_public_edit' => $divOfInterest->getIsPublicEdit() == true ? "true" : "false",
+                'allow_all_sample_types' => $divOfInterest->getAllowAllSampleTypes() == true ? "true" : "false",
+                'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers() == true ? "true" : "false"
             );
 
             $childList = $this->buildChildList($conn, $request['id']);
@@ -357,7 +345,7 @@ class BaseDivisionListener
             $this->bulkUpdateBooleans($conn, $propertyList, $childList);
 
             $this->removeAllChildLinks($conn, $childList);
-            $this->copyAllLinks($conn, $parent, $childList);
+            $this->copyAllLinks($conn, $request['id'], $childList); // This is not working as intended.
         }
 
     }
