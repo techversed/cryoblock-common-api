@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Carbon\ApiBundle\Entity\EntityDetail;
 
 use Carbon\ApiBundle\Entity\UserObjectNotification;
 
@@ -29,14 +30,17 @@ class ObjectNotificationListener
         //Example: You would not want to send notifications when notification settings were updated... //also prevents the autowatching that takes place when someone creates an object.
     public $ignoreClasses = array(
         'Carbon\ApiBundle\Entity\UserObjectNotification',
-        'Carbon\ApiBundle\Entity\EntityDetail'
+        'Carbon\ApiBundle\Entity\EntityDetail',
+        'Gedmo\Loggable\Entity\LogEntry'
     );
 
     public function postPersist(LifecycleEventArgs $args)
     {
+
         $entity = $args->getEntity();
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
+
 
         if (in_array(get_class($entity), $this->ignoreClasses)) {
             return;
@@ -46,20 +50,32 @@ class ObjectNotificationListener
             return;
         }
 
-        $creatingUser = $this->tokenStorage->getToken()->getUser();
 
+        $creatingUser = $this->tokenStorage->getToken()->getUser();
 
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
 
-        if ($entDet == null || $entDet->getAutoWatch() == false) { //We have chosen to populate the Entity Detail table from the front end. If the entry does not exist then we are just going to exit.
-
+        if (!$entDet instanceof EntityDetail) {
             return;
-
         }
 
         $entDetId = $entDet->getId();
+
+
+        if($entDet->getAutoWatch() == true) {
+
+            $creatingUserObjectNotification = new UserObjectNotification();
+            $creatingUserObjectNotification->setEntityId($entity->getId());
+            $creatingUserObjectNotification->setEntityDetail($entDet);
+            $creatingUserObjectNotification->setUser($creatingUser);
+            $creatingUserObjectNotification->setOnUpdate(true);
+            $creatingUserObjectNotification->setOnDelete(true);
+            $em->persist($creatingUserObjectNotification);
+            $em->flush();
+
+        }
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification') //Have not even changed this yet...
             ->findOneBy(array(
@@ -73,15 +89,6 @@ class ObjectNotificationListener
                 'entityId' => null
             ))
         ;
-
-        $creatingUserObjectNotification = new UserObjectNotification();
-        $creatingUserObjectNotification->setEntityId($entity->getId());
-        $creatingUserObjectNotification->setEntityDetail($entDet);
-        $creatingUserObjectNotification->setUser($creatingUser);
-        $creatingUserObjectNotification->setOnUpdate(true);
-        $creatingUserObjectNotification->setOnDelete(true);
-        $em->persist($creatingUserObjectNotification);
-        $em->flush();
 
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
@@ -151,10 +158,12 @@ class ObjectNotificationListener
             $from,
             $groups
         );
+
     }
 
     public function postUpdate(LifecycleEventArgs $args)
     {
+
         $entity = $args->getEntity();
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
@@ -172,9 +181,11 @@ class ObjectNotificationListener
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
-        if ($entDet == null) {
+
+        if (!$entDet instanceOf EntityDetail) {
             return;
         }
+
         $entDetId = $entDet->getId();
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
@@ -311,7 +322,7 @@ class ObjectNotificationListener
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
-        if ($entDet == null) {
+        if (!$entDet instanceof EntityDetail) {
             return;
         }
         $entDetId = $entDet->getId();

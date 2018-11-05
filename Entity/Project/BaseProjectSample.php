@@ -45,6 +45,14 @@ class BaseProjectSample extends BaseCryoblockEntity
      */
     protected $sample;
 
+<<<<<<< HEAD
+=======
+    public function __clone()
+    {
+        $this->id = null;
+    }
+
+>>>>>>> 876d71e0e409ef89e664f08a99ea9c84b0404cb8
     /**
      * Gets the value of projectId.
      *
