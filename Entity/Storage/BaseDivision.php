@@ -21,14 +21,14 @@ class BaseDivision extends BaseCryoblockEntity
     /**
      * @ORM\Column(name="height", type="integer", length=2, nullable=true)
      * @JMS\Groups({"default"})
-     * @Assert\Range(min=1, max=20)
+     * @Assert\Range(min=1, max=30)
      */
     protected $height;
 
     /**
      * @ORM\Column(name="width", type="integer", length=2, nullable=true)
      * @JMS\Groups({"default"})
-     * @Assert\Range(min=1, max=20)
+     * @Assert\Range(min=1, max=30)
      */
     protected $width;
 
