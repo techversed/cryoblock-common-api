@@ -6,6 +6,7 @@ use AppBundle\Entity\Storage\SampleType;
 use AppBundle\Entity\Storage\StorageContainer;
 use Carbon\ApiBundle\Annotation AS Carbon;
 use Carbon\ApiBundle\Entity\Storage\BaseSample;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation AS JMS;
@@ -330,6 +331,45 @@ class BaseSample
      * @JMS\Groups({"default"})
      */
     public $errors;
+
+    public function __clone()
+    {
+        $this->id = null;
+
+        if ($this->sampleTags) {
+
+            $newSampleTags = new ArrayCollection();
+
+            foreach ($this->sampleTags as $sampleTag) {
+
+                $clonedSampleTag = clone $sampleTag;
+                $clonedSampleTag->setSample($this);
+                $newSampleTags->add($clonedSampleTag);
+
+            }
+
+            $this->sampleTags = $newSampleTags;
+
+        }
+
+
+        if ($this->projectSamples) {
+
+            $newProjectSamples = new ArrayCollection();
+
+            foreach ($this->projectSamples as $projectSample) {
+
+                $clonedProjectSample = clone $projectSample;
+                $clonedProjectSample->setSample($this);
+                $newProjectSamples->add($clonedProjectSample);
+
+            }
+
+            $this->projectSamples = $newProjectSamples;
+
+        }
+
+    }
 
     /**
      * Get id

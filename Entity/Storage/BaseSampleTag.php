@@ -41,6 +41,10 @@ class BaseSampleTag
      */
     private $sample;
 
+    public function __clone()
+    {
+        $this->id = null;
+    }
 
     /**
      * Gets the value of tagId.
