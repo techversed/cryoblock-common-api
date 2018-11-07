@@ -39,6 +39,32 @@ class BaseDivisionController extends CarbonApiController
     /**
      * Handles the HTTP get request for the division entity
      *
+     * @Route("/storage/division-search", name="division_get_search")
+     * @Method("GET")
+     *
+     * @return Response
+     */
+    public function handleGetSearch()
+    {
+        $this->checkPermission('GET');
+
+        $entityRepository = $this->getEntityRepository();
+
+        $request = $this->getRequest();
+
+        $isDataTableRequest = $this->isDataTableRequest($request);
+
+        $data = $this->getSerializationHelper()->serialize(
+            $this->getGrid($isDataTableRequest)->getResult($this->getEntityRepository()),
+            array("children")
+        );
+
+        return $this->getJsonResponse($data);
+    }
+
+    /**
+     * Handles the HTTP get request for the division entity
+     *
      * @Route("/storage/division-tree", name="division_tree_get")
      * @Method("GET")
      *
