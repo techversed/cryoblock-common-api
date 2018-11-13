@@ -220,6 +220,7 @@ class ProductionController extends CarbonApiController
         foreach ($storageContainers as $storageContainer) {
             $storageContainerNames[] = $storageContainer->getName();
         }
+
         $storageContainerNames = implode(', ', $storageContainerNames);
         $concentrationUnits = implode(', ', array(
             'mg/mL',
