@@ -46,8 +46,6 @@ class BaseSequence extends BaseCryoblockEntity
      */
     protected $description;
 
-//....Assert\NotBlank() // stripped from the previous group of entity attributes to get this working
-
     /**
      * @var integer
      *
@@ -74,8 +72,6 @@ class BaseSequence extends BaseCryoblockEntity
     * @Gedmo\Versioned
     */
     protected $nucleotide;
-
-    // This will not be nullable in the final verison -- The whole point of this object is to store sequence information.
 
     /**
      * @var string
