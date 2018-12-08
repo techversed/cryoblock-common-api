@@ -16,9 +16,9 @@ class BaseCryoblockEntity
      * @Gedmo\Blameable(on="create")
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
      * @ORM\JoinColumn(name="created_by_id", referencedColumnName="id")
+     * @JMS\Groups({"default"})
      */
     protected $createdBy;
-     // * @JMS\Groups({"default"})
 
     /**
      * Created by id
