@@ -16,16 +16,18 @@ class BaseCryoblockEntity
      * @Gedmo\Blameable(on="create")
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
      * @ORM\JoinColumn(name="created_by_id", referencedColumnName="id")
-     * @JMS\Groups({"default"})
      */
     protected $createdBy;
+     // * @JMS\Groups({"default"})
 
     /**
      * Created by id
      * @ORM\Column(name="created_by_id", type="integer", nullable=false)
-     * @JMS\Groups({"default"})
      */
     protected $createdById;
+
+     // If we are serializing the createdby then the id does not need to be serialized
+     // * @JMS\Groups({"default"})
 
     /**
      * @var User $updatedBy
@@ -40,9 +42,10 @@ class BaseCryoblockEntity
     /**
      * Created by id
      * @ORM\Column(name="updated_by_id", type="integer", nullable=false)
-     * @JMS\Groups({"default"})
      */
     protected $updatedById;
+    // Does not need to be serialized if we are also serializing updated by
+    // * @JMS\Groups({"default"})
 
     /**
      * @var \DateTime $created
