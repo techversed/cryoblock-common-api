@@ -16,7 +16,7 @@ class BaseHelpController extends CarbonApiController
     /**
      * @var string The namespace of the resource entity
      */
-    const RESOURCE_ENTITY = "AppBundle\Entity\Help";
+    const RESOURCE_ENTITY = "AppBundle\Entity\Help\Help";
 
     /**
      * @var string The form type for this resource
