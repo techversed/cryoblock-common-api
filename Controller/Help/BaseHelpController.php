@@ -112,17 +112,17 @@ class BaseHelpController extends CarbonApiController
 
         $help = $gridResult['data'][0];
 
-        $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Help')
-            ->canUserEdit($help, $this->getUser())
-        ;
+        // $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Help\Help')
+        //     ->canUserEdit($help, $this->getUser())
+        // ;
 
-        if (!$canEdit) {
-            return $this->getJsonResponse($this->getSerializationHelper()->serialize(
-                array('violations' => array(array(
-                    'Sorry, you do not have permission to edit help ' . $help->getId(),
-                )))
-            ), 400);
-        }
+        // if (!$canEdit) {
+        //     return $this->getJsonResponse($this->getSerializationHelper()->serialize(
+        //         array('violations' => array(array(
+        //             'Sorry, you do not have permission to edit help ' . $help->getId(),
+        //         )))
+        //     ), 400);
+        // }
 
         return parent::handlePut();
     }
