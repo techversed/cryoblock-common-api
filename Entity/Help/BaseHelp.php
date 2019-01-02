@@ -86,17 +86,32 @@ class BaseHelp extends BaseCryoblockEntity
     protected $children;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Help\HelpEditor", mappedBy="help", cascade={"remove"})
+     * @JMS\Groups({"children", "editors"})
+     */
+    public $helpEditors;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Help\HelpViewer", mappedBy="help", cascade={"remove"})
+     * @JMS\Groups({"children", "viewers"})
+     */
+    public $helpViewers;
+
+    /**
      * @ORM\Column(name="is_public_edit", type="boolean", nullable=false)
      * @JMS\Groups({"default"})
      */
-    protected $isPublicEdit = false;
+    public $isPublicEdit = false;
 
     /**
      * @ORM\Column(name="is_public_view", type="boolean", nullable=false)
      * @JMS\Groups({"default"})
      */
-    protected $isPublicView = true;
+    public $isPublicView = true;
 
+    public $viewers;
+
+    public $editors;
     /**
      * Gets the value of lft.
      *
@@ -338,7 +353,7 @@ class BaseHelp extends BaseCryoblockEntity
     }
 
     /**
-     * Check if the division has children
+     * Check if the help has children
      *
      * @JMS\VirtualProperty()
      * @JMS\Groups({"default"})
@@ -357,5 +372,149 @@ class BaseHelp extends BaseCryoblockEntity
     public function getStringLabel()
     {
         return $this->getPath();
+    }
+
+    /**
+     * Gets the value of helpEditors.
+     *
+     * @return mixed
+     */
+    public function getHelpEditors()
+    {
+        return $this->helpEditors;
+    }
+
+    /**
+     * Sets the value of helpEditors.
+     *
+     * @param mixed $helpEditors the help editors
+     *
+     * @return self
+     */
+    public function setHelpEditors($helpEditors)
+    {
+        $this->helpEditors = $helpEditors;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of helpViewers.
+     *
+     * @return mixed
+     */
+    public function getHelpViewers()
+    {
+        return $this->helpViewers;
+    }
+
+    /**
+     * Sets the value of helpViewers.
+     *
+     * @param mixed $helpViewers the help viewers
+     *
+     * @return self
+     */
+    public function setHelpViewers($helpViewers)
+    {
+        $this->helpViewers = $helpViewers;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of isPublicEdit.
+     *
+     * @return mixed
+     */
+    public function getIsPublicEdit()
+    {
+        return $this->isPublicEdit;
+    }
+
+    /**
+     * Sets the value of isPublicEdit.
+     *
+     * @param mixed $isPublicEdit the is public edit
+     *
+     * @return self
+     */
+    public function setIsPublicEdit($isPublicEdit)
+    {
+        $this->isPublicEdit = $isPublicEdit;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of isPublicView.
+     *
+     * @return mixed
+     */
+    public function getIsPublicView()
+    {
+        return $this->isPublicView;
+    }
+
+    /**
+     * Sets the value of isPublicView.
+     *
+     * @param mixed $isPublicView the is public view
+     *
+     * @return self
+     */
+    public function setIsPublicView($isPublicView)
+    {
+        $this->isPublicView = $isPublicView;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of viewers.
+     *
+     * @return mixed
+     */
+    public function getViewers()
+    {
+        return $this->viewers;
+    }
+
+    /**
+     * Sets the value of viewers.
+     *
+     * @param mixed $viewers the viewers
+     *
+     * @return self
+     */
+    public function setViewers($viewers)
+    {
+        $this->viewers = $viewers;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of editors.
+     *
+     * @return mixed
+     */
+    public function getEditors()
+    {
+        return $this->editors;
+    }
+
+    /**
+     * Sets the value of editors.
+     *
+     * @param mixed $editors the editors
+     *
+     * @return self
+     */
+    public function setEditors($editors)
+    {
+        $this->editors = $editors;
+
+        return $this;
     }
 }
