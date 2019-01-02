@@ -10,51 +10,36 @@ use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 
 class BaseHelpRepository extends NestedTreeRepository
 {
-    public function buildMatchQuery($sampleTypeId, $storageContainerId, User $user)
+    public function buildMatchQuery(User $user)
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         $qb->select(array('d'))
             ->from('AppBundle\Entity\Help\Help', 'd')
 
-            ->leftJoin('AppBundle\Entity\Help\HelpSampleType', 'dsd', Join::WITH, 'dsd.helpId = d.id')
-            ->leftJoin('AppBundle\Entity\Help\HelpHelpContainer', 'dsc', Join::WITH, 'dsc.helpId = d.id')
             ->leftJoin('AppBundle\Entity\Help\HelpEditor', 'de', Join::WITH, 'de.helpId = d.id')
         ;
-
-        $qb->andWhere($qb->expr()->orX(
-            $qb->expr()->eq('dsd.sampleTypeId ', $sampleTypeId),
-            $qb->expr()->eq('d.allowAllSampleTypes', 'true')
-        ));
-
-        $qb->andWhere($qb->expr()->orX(
-            $qb->expr()->eq('dsc.storageContainerId ', $storageContainerId),
-            $qb->expr()->eq('d.allowAllHelpContainers', 'true')
-        ));
-
-        $qb->andWhere('d.percentFull < 100');
 
         if (!$user->hasRole('ROLE_HELP_ADMIN')) {
 
             $sub = $this->getEntityManager()->createQueryBuilder();
 
-            $sub
-                ->select('dge2')
-                ->from('AppBundle\\Entity\\Help\\HelpGroupEditor', 'dge2')
-                ->innerJoin('Carbon\\ApiBundle\\Entity\\UserGroup', 'ug', Join::WITH, 'dge2.groupId = ug.groupId')
-                ->andWhere('dge2.helpId = d.id')
-                ->andWhere('ug.userId = ' . $user->getId())
-            ;
+            // $sub
+            //     ->select('dge2')
+            //     ->from('AppBundle\\Entity\\Help\\HelpGroupEditor', 'dge2')
+            //     ->innerJoin('Carbon\\ApiBundle\\Entity\\UserGroup', 'ug', Join::WITH, 'dge2.groupId = ug.groupId')
+            //     ->andWhere('dge2.helpId = d.id')
+            //     ->andWhere('ug.userId = ' . $user->getId())
+            // ;
 
             $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->exists($sub->getDQL()),
                 $qb->expr()->eq('de.userId', $user->getId()),
                 $qb->expr()->eq('d.isPublicEdit', 'true')
             ));
 
         }
 
-        $qb->orderBy('d.percentFull', 'DESC');
+        $qb->orderBy('d.id', 'DESC');
 
         return $qb;
     }
@@ -77,20 +62,20 @@ class BaseHelpRepository extends NestedTreeRepository
             return true;
         }
 
-        # check for view groups
-        $viewGroups = $this->getEntityManager()->createQueryBuilder()
-            ->select('dgv')
-            ->from('AppBundle\\Entity\\Help\\HelpGroupViewer', 'dgv')
-            ->innerJoin('Carbon\\ApiBundle\\Entity\\UserGroup', 'ug', Join::WITH, 'dgv.groupId = ug.groupId')
-            ->andWhere('dgv.helpId = ' . $help->getId())
-            ->andWhere('ug.userId = ' . $user->getId())
-            ->getQuery()
-            ->getResult()
-        ;
+        // # check for view groups
+        // $viewGroups = $this->getEntityManager()->createQueryBuilder()
+        //     ->select('dgv')
+        //     ->from('AppBundle\\Entity\\Help\\HelpGroupViewer', 'dgv')
+        //     ->innerJoin('Carbon\\ApiBundle\\Entity\\UserGroup', 'ug', Join::WITH, 'dgv.groupId = ug.groupId')
+        //     ->andWhere('dgv.helpId = ' . $help->getId())
+        //     ->andWhere('ug.userId = ' . $user->getId())
+        //     ->getQuery()
+        //     ->getResult()
+        // ;
 
-        if (count($viewGroups)) {
-            return true;
-        }
+        // if (count($viewGroups)) {
+        //     return true;
+        // }
 
         $qb = $this->getEntityManager()->createQueryBuilder();
 
@@ -121,20 +106,20 @@ class BaseHelpRepository extends NestedTreeRepository
             return true;
         }
 
-        # check for view groups
-        $editGroups = $this->getEntityManager()->createQueryBuilder()
-            ->select('dge')
-            ->from('AppBundle\\Entity\\Help\\HelpGroupEditor', 'dge')
-            ->innerJoin('Carbon\\ApiBundle\\Entity\\UserGroup', 'ug', Join::WITH, 'dge.groupId = ug.groupId')
-            ->andWhere('dge.helpId = ' . $help->getId())
-            ->andWhere('ug.userId = ' . $user->getId())
-            ->getQuery()
-            ->getResult()
-        ;
+        // # check for view groups
+        // $editGroups = $this->getEntityManager()->createQueryBuilder()
+        //     ->select('dge')
+        //     ->from('AppBundle\\Entity\\Help\\HelpGroupEditor', 'dge')
+        //     ->innerJoin('Carbon\\ApiBundle\\Entity\\UserGroup', 'ug', Join::WITH, 'dge.groupId = ug.groupId')
+        //     ->andWhere('dge.helpId = ' . $help->getId())
+        //     ->andWhere('ug.userId = ' . $user->getId())
+        //     ->getQuery()
+        //     ->getResult()
+        // ;
 
-        if (count($editGroups)) {
-            return true;
-        }
+        // if (count($editGroups)) {
+        //     return true;
+        // }
 
         $qb = $this->getEntityManager()->createQueryBuilder();
 
