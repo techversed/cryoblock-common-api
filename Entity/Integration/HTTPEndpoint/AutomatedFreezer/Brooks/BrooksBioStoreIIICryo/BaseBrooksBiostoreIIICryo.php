@@ -1,19 +1,15 @@
-/*
-
-
-
-*/
-
 <?php
 
 //This will need to be changed
 namespace AppBundle\Service\Integration\Device\Storage;
 
-
 use AppBundle\Service\Integration\Device\Storage;
 
-
-
+// Needs User mapping.
+// Needs IP address,
+// Needs IP Prefix,
+// Needs PORT for authentication,
+// Needs PORT for regular requests
 
 /* FILE DESCRIPTION AND BACKGROUND INFORMATION ON THIS FILE.
 
@@ -35,16 +31,18 @@ use AppBundle\Service\Integration\Device\Storage;
 
 //THis will need to be changed
 // This class should serve as a wrapper for all Biostore III and Biostore III Cryo devices that are purchased by the lab.
+
+// The class that it implements is going to need to change.
 class BrooksBiostoreIIIApi implements AutomatedFreezer
 {
 
-    //set up curl and hit
-
+    // Set up curl and hit
     public function fetchDivision($id = array(), $user)
     {
 
     }
 
+    // Set up
     public function storeDivision($id = array(), $user())
     {
 
@@ -550,6 +548,4 @@ class BrooksBiostoreIIIApi implements AutomatedFreezer
     //     $client_secret = "4E7EAEF9-7A2F-4E9C-A647-1196823E5EA6";
     // }
 
-
 }
-

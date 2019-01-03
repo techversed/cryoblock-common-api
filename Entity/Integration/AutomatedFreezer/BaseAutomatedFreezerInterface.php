@@ -1,9 +1,0 @@
-/*
-Extends BaseHTTPIntegration
-
-
-
-
-
-
-*/
