@@ -20,6 +20,16 @@ use Doctrine\ORM\Query\Expr\Join;
  *
  * @author Andre Jon Branchizio <andrejbranch@gmail.com>
  */
+
+/*
+    Upcoming changes to this file -- I would like to make it so that people can have search terms which span multiple fields -- we can do this by allowing them to use the & symbol in order to indicate that the search string should be split at that point and run against all of the searchable annotations.
+    Adding support for MTM search
+
+
+    Generate Excel sheet function
+
+*/
+
 class CarbonGrid extends Grid
 {
     /**
@@ -207,11 +217,39 @@ class CarbonGrid extends Grid
             }
 
 
+            /* Changes made here to support mtm linking ... */
             foreach ($searchableColumns as $searchableAnnotation) {
 
                 $columnName = $searchableAnnotation->name;
+                echo $className;
+                die();
+                // $meta = $this->em->getClassMetaData($className)->getAssociationMapping($columnName);
 
-                if ($searchableAnnotation->join) {
+                if ($searchableAnnotation->linkerSearch) {
+                    // If id is in the list of ids that are linked with an object that matches the query that we have given.
+                    // Append to search expressions.
+
+                    //This will be used in order to
+                    $meta = $this->em->getClassMetaData($className)->getAssociationMapping($columnName);
+
+                    //I think this is easiest if I just avoid spawning a second query builder and instead just
+                    $ids = array();
+                    // foreach
+
+                    $query = "";
+                    $conn = $this->em->getConnection();
+                    $stmt = $conn->prepare($query);
+                    $stmt->execute();
+
+                    foreach ($stmt->fetchAll() as $linkedEntities) {
+
+
+                    }
+
+
+
+
+                } elseif ($searchableAnnotation->join) {
 
                     $subAlias = $searchableAnnotation->subAlias;
                     $searchProp = $searchableAnnotation->searchProp;
@@ -282,6 +320,8 @@ class CarbonGrid extends Grid
         return $this->buildGridResponse($result);
 
     }
+
+    //Generate excel sheet function
 
     /**
      * Extract only model related parameters from the request
