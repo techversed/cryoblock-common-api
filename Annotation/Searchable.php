@@ -38,7 +38,6 @@ final class Searchable
      */
     public $subAlias;
 
-
     // Boolean that is used when the object that you are searching is linked in an intermediate table
     /**
      * @var boolean

@@ -275,9 +275,11 @@ class BaseSample
      */
     protected $mass;
 
+    // THIS SEARCHABLE ANNOATION WILL NEED TO BE UPDATED AS THE IMPLEMENTATION OF MTM SEARCH REALLY STARTS TO TAKE SHAPE
     /**
     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
     * @JMS\Groups({"template"})
+    * @Carbon\Searchable(name="projectSamples", linkerSearch=true, subAlias="projSam", linkedEntity="project")
     */
     protected $projectSamples;
 
@@ -291,9 +293,12 @@ class BaseSample
      */
     protected $lot;
 
+
+    // THIS SEARCHABLE ANNOTATION STILL NEEDS TO BE CHANGED AS THE FINAL IMPLEMENTATION OF MTM SEARCH STARTS TO TAKE SHAPE
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SampleTag", mappedBy="sample")
      * @JMS\Groups({"default"})
+     * @Carbon\Searchable(name="sampleTags", linkerSearch=true)
      */
     protected $sampleTags;
 
