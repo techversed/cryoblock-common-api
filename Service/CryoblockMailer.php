@@ -5,13 +5,14 @@ namespace Carbon\ApiBundle\Service;
 use Symfony\Component\DependencyInjection\Container;
 
 /*
+
     Cryoblock mailer serves as a wrapper for swiftmailer (vendor code) and allows for us to have custom code which pulls data from psql and sends emails to the users of our system.
 
 
 
     Outstanding issues and things to consider:
         I am not sure if we really want to be throwing an exception near line 75 -- this might stop subsequent listeners from running -- check the behavior of exceptions in Doctrine and Symfony to see if this will end up presenting issues.
-        If we start having groups which point to people outside of the vaccine center then we might want to move beyond having people
+        If we start having groups which point to people outside of the vaccine center then we might want to move beyond having people.
 
 */
 
