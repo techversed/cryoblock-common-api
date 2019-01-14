@@ -20,6 +20,8 @@ class UserFormType extends CryoblockAbstractType
             ->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
             ->add('plainPassword', 'password')
             ->add('enabled', 'checkbox')
+            ->add('title', 'text')
+            ->add('about', 'text')
             ->add('groups', 'cryoblock_mtm', array(
                 'parent_object' => $builder->getForm()->getData(),
                 'accessor' => 'userGroups',
