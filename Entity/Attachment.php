@@ -8,6 +8,14 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints AS Constraint;
 
+/*
+
+    Notes on future changes:
+        - Soft deleteable does not seem to be enabled but there is a deleted at column.
+        - "deletedAt" should be "deleted_at" in the orm column annotation - if we want to adhere to the convention that we established previously.
+
+*/
+
 /**
  * @ORM\Entity()
  * @ORM\Table(
@@ -88,6 +96,7 @@ class Attachment
      */
     private $updatedAt;
 
+    //The column namne should be deleted_at -- may want to fix this when we get a chance.
     /**
      * @JMS\Groups({"default"})
      * @ORM\Column(name="deletedAt", type="datetime", nullable=true)
