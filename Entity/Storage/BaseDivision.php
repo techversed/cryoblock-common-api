@@ -1045,4 +1045,31 @@ class BaseDivision extends BaseCryoblockEntity
     {
         return $this->getPath();
     }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getDimensionString()
+    {
+        if ($this->getHasDimension()) {
+            return $this->getWidth() . " x " . $this->getHeight();
+        }
+        else {
+            return "Lacks dimension";
+        }
+
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getPercentFullString()
+    {
+        if ($this->getHasDimension()) {
+            return strval($this->getPercentFull());
+        }
+        return "";
+    }
 }
