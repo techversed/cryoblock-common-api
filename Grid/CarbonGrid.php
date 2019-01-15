@@ -6,6 +6,12 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Query\Expr\Join;
 
+/*
+        Upcoming changes and outstanding issues.
+
+*/
+
+
 /**
  * The CarbonGrid is used to aid in building paginated
  * API responses when querying for a resource. The default
@@ -278,6 +284,8 @@ class CarbonGrid extends Grid
         ;
 
         $result = $qb->getQuery()->getResult();
+
+        // Result set is too small even here...
 
         return $this->buildGridResponse($result);
 
