@@ -8,6 +8,7 @@ use Doctrine\ORM\Query\Expr\Join;
 
 /*
         Upcoming changes and outstanding issues.
+            This file will still need to be changed in order to fix the issue where storage location suggestions do not have as many elements in them as the filter is supposed to allow through.
 
 */
 

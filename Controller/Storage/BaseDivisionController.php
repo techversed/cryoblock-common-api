@@ -87,8 +87,8 @@ class BaseDivisionController extends CarbonApiController
         $children = $this->getSerializationHelper()->serialize($childNodes);
 
         return $this->getJsonResponse($children);
-
     }
+
     /**
      * Handles the HTTP get request for the card entity
      *
@@ -208,7 +208,6 @@ class BaseDivisionController extends CarbonApiController
             $this->getEntityManager()->flush();
 
         }
-
 
         return $response;
     }
@@ -538,5 +537,4 @@ class BaseDivisionController extends CarbonApiController
         return $response;
 
     }
-
 }
