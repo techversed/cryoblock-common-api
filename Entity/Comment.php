@@ -12,7 +12,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass="Carbon\ApiBundle\Entity\CommentRepository")
  * @ORM\Table(name="cryoblock.comment", schema="cryoblock")
-
  * @Gedmo\Tree(type="materializedPath")
  * @Gedmo\Loggable
  */
@@ -66,6 +65,7 @@ class Comment
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=false)
+     * @Gedmo\Versioned
      * @JMS\Groups({"default"})
      */
     protected $content;
@@ -73,6 +73,7 @@ class Comment
     /**
      * @var string
      *
+     * @Gedmo\Versioned
      * @ORM\Column(name="html_content", type="text", nullable=true)
      */
     protected $htmlContent;

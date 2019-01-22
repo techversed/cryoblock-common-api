@@ -54,6 +54,7 @@ class ObjectNotificationListener
     public $ignoreClasses = array(
         'Carbon\ApiBundle\Entity\UserObjectNotification',
         'Carbon\ApiBundle\Entity\EntityDetail',
+        'Carbon\ApiBundle\Entity\Comment',
         'Gedmo\Loggable\Entity\LogEntry'
     );
 
