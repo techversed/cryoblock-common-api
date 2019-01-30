@@ -49,13 +49,6 @@ class BaseHelp extends BaseCryoblockEntity
     protected $title;
 
     /**
-     * @ORM\Column(name="description", type="string", length=300)
-     * @JMS\Groups({"default"})
-     * @Carbon\Searchable(name="description")
-     */
-    protected $description;
-
-    /**
      * @ORM\Column(name="parent_id", type="integer", nullable=true)
      * @JMS\Groups({"default"})
      */
@@ -228,30 +221,6 @@ class BaseHelp extends BaseCryoblockEntity
     public function setTitle($title)
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of description.
-     *
-     * @return mixed
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * Sets the value of description.
-     *
-     * @param mixed $description the description
-     *
-     * @return self
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
 
         return $this;
     }
