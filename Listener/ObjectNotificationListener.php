@@ -124,7 +124,7 @@ class ObjectNotificationListener
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnCreate() && $userObjectNotification->getUser() != $creatingUser) {
 
-                if ($userObjectNotification->getUser->isEnabled()) {
+                if ($userObjectNotification->getUser()->isEnabled()) {
                     $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
                 }
 
