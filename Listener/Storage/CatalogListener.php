@@ -32,7 +32,7 @@ class CatalogListener
 
                 foreach ($catalogs as $catalog) {
 
-                    $minId = $minId == 0 ? ($minId < $catalog->getId() ? $minId : $catalog->getId()) : $catalog->getId();
+                    $minId = ($minId == 0 ? ($minId < $catalog->getId() ? $minId : $catalog->getId()) : $catalog->getId());
 
                     $catIdList[] = $catalog->getId();
 
@@ -49,11 +49,17 @@ class CatalogListener
                 $query = $em->createQuery('UPDATE Carbon\ApiBundle\Entity\Attachment a SET a.objectId = \'' . (string) $minId . '\' where a.objectId in (' . implode(', ', $catIdString) . ') and a.objectClass = \'AppBundle\Entity\Storage\Catalog\'');
                 $catUpdated = $query->execute();
 
-                $query = $em->createQuery('DELETE FROM AppBundle\Entity\Storage\Catalog a WHERE a.id in (' .  implode(', ', $catIdString) . ') AND a.id != '.$minId);
-                $catDelete = $query->execute();
+                //$query = $em->createQuery('DELETE FROM AppBundle\Entity\Storage\Catalog a WHERE a.id in (' .  implode(', ', $catIdString) . ') AND a.id != '.$minId);
+                //$catDelete = $query->execute();
 
+                $now = new \DateTime('now');
 
+                foreach($catIdList as $idEntry){
+                    if($idEntry == $minId) continue;
+                    $catalogRepo->find($idEntry)->setDeletedAt($now);
+                }
 
+                // $em->flush();
 
             }
         }

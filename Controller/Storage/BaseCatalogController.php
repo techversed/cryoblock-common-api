@@ -36,6 +36,9 @@ class BaseCatalogController extends CarbonApiController
         ),
         'DELETE' => array(
             'roles' => array('ROLE_INVENTORY_ADMIN'),
+        ),
+        'PATCH' => array(
+            'roles' => array('ROLE_INVENTORY_ADMIN'),
         )
     );
 
@@ -86,5 +89,16 @@ class BaseCatalogController extends CarbonApiController
     public function handleDelete()
     {
         return parent::handleDelete();
+    }
+
+    /**
+     * @Route("/storage/catalog", name="catalog_patch")
+     * @Method("PATCH")
+     *
+     * @return Response
+     */
+    public function handlePatch()
+    {
+        return parent::handlePatch();
     }
 }
