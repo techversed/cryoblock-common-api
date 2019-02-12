@@ -42,8 +42,11 @@ class CatalogListener
                 $numUpdated = $query->execute();
 
                 $catIdString = array();
+
                 foreach($catIdList as $catId){
+
                     $catIdString[] = "'" . (string) $catId ."'";
+
                 }
 
                 $query = $em->createQuery('UPDATE Carbon\ApiBundle\Entity\Attachment a SET a.objectId = \'' . (string) $minId . '\' where a.objectId in (' . implode(', ', $catIdString) . ') and a.objectClass = \'AppBundle\Entity\Storage\Catalog\'');
