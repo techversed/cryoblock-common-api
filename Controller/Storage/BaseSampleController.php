@@ -167,4 +167,78 @@ class BaseSampleController extends CarbonApiController
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
+
+    /**
+     * Handles the HTTP POST request for cloning a sample
+     *
+     * @Route("/storage/sample/{parentSampleId}/clone", name="sample_storage_clone")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function storageClone($parentSampleId)
+    {
+        $sampleCloneMap = (json_decode($this->getRequest()->getContent(), true));
+        $repo = $this->getEntityRepository();
+        $parentSample = $repo->find($parentSampleId);
+        $em = $this->getEntityManager();
+
+        if (array_key_exists('count', $sampleCloneMap)) {
+
+            for ($i = 1; $i <= $sampleCloneMap['count']; $i++) {
+
+                $newSample = clone $parentSample;
+
+                $em->detach($newSample);
+                $em->persist($newSample);
+
+                foreach ($newSample->getSampleTags() as $sampleTag) {
+                    $em->persist($sampleTag);
+                }
+
+                foreach ($newSample->getProjectSamples() as $projectSample) {
+                    $em->persist($projectSample);
+                }
+
+                $newSample->setDivisionColumn(null);
+                $newSample->setDivisionRow(null);
+                $newSample->setCreatedBy($this->getUser());
+                $newSample->setCreatedAt(new \DateTime());
+                $newSample->setUpdatedBy($this->getUser());
+                $newSample->setUpdatedAt(new \DateTime());
+
+            }
+        }
+        else {
+
+            foreach ($sampleCloneMap as $map) {
+
+                $newSample = clone $parentSample;
+
+                $em->detach($newSample);
+                $em->persist($newSample);
+
+                foreach ($newSample->getSampleTags() as $sampleTag) {
+                    $em->persist($sampleTag);
+                }
+
+                foreach ($newSample->getProjectSamples() as $projectSample) {
+                    $em->persist($projectSample);
+                }
+
+                $newSample->setDivisionColumn($map['divisionColumn']);
+                $newSample->setDivisionRow($map['divisionRow']);
+                $newSample->setCreatedBy($this->getUser());
+                $newSample->setCreatedAt(new \DateTime());
+                $newSample->setUpdatedBy($this->getUser());
+                $newSample->setUpdatedAt(new \DateTime());
+
+            }
+
+        }
+
+        $em->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
+    }
 }
