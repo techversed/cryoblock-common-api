@@ -62,11 +62,9 @@ class BaseSample
     /**
      * Catalog id
      * @ORM\Column(name="catalog_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
      */
     protected $catalogId;
-
-     // If we are serializing the catalog then the catalog id is not needed.
-     // * @JMS\Groups({"default"})
 
     /**
      * @var string
@@ -101,10 +99,9 @@ class BaseSample
     /**
      * Created by id
      * @ORM\Column(name="created_by_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
      */
     protected $createdById;
-     // If created by sent created by id not needed.
-     // * @JMS\Groups({"default"})
 
     /**
      * @var User $updatedBy
@@ -119,19 +116,17 @@ class BaseSample
     /**
      * Created by id
      * @ORM\Column(name="updated_by_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
      */
     protected $updatedById;
-     // If updated by sent created by not needed.
-     // * @JMS\Groups({"default"})
 
     /**
      * @var integer
      *
      * @ORM\Column(name="division_id", type="integer", nullable=true)
+     * @JMS\Groups({"default"})
      */
     protected $divisionId;
-     // IF division sent division id not needed.
-     // * @JMS\Groups({"default"})
 
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Division", inversedBy="samples")
@@ -201,10 +196,9 @@ class BaseSample
     /**
      * Created by id
      * @ORM\Column(name="sample_type_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
      */
     protected $sampleTypeId;
-     // Sample type sent sampeltype id not needed.
-     // * @JMS\Groups({"default"})
 
     /**
      * @var StorageContainer $storageContainer
@@ -220,10 +214,9 @@ class BaseSample
     /**
      * Created by id
      * @ORM\Column(name="storage_container_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
      */
     protected $storageContainerId;
-     // storage container sent storage container id not needed.
-     // * @JMS\Groups({"default"})
 
     /**
      * @var string $status
@@ -303,7 +296,6 @@ class BaseSample
      * @JMS\Groups({"default"})
      */
     protected $sampleTags;
-    // Might be able to get around serializing this in most cases -- since we are serialzing that virtual property instead...
 
     /**
      * @JMS\Groups({"default"})
