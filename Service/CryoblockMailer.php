@@ -65,7 +65,7 @@ class CryoblockMailer
                     $user = $groupUser->getUser();
 
                     // If the user has been disabled the we do not want to send them emails -- similar filtering takes place in the Object Notification listener and it might be a good idea for us to move both things to the same location at some point.
-                    if ($user->getId()->isEnabled() == true) {
+                    if ($user->isEnabled() == true) {
                         $to[$user->getEmail()] = $user->getStringLabel();
                     }
                 }

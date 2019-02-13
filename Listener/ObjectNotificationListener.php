@@ -124,8 +124,10 @@ class ObjectNotificationListener
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnCreate() && $userObjectNotification->getUser() != $creatingUser) {
 
-                if ($userObjectNotification->getUser()->isEnabled()) {
-                    $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                if (is_object($userObjectNotification->getUser())) {
+                    if ($userObjectNotification->getUser()->isEnabled()) {
+                        $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                    }
                 }
 
                 $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
@@ -247,8 +249,10 @@ class ObjectNotificationListener
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnUpdate()) {
 
-                if ($userObjectNotification->getUser()->isEnabled() == true) {
-                    $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                if (is_object($userObjectNotification->getUser())) {
+                    if ($userObjectNotification->getUser()->isEnabled() == true){
+                        $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                    }
                 }
 
                 $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
@@ -260,8 +264,10 @@ class ObjectNotificationListener
         foreach ($watchingUserNotifications as $watchingUserNotification) {
             if ($watchingUserNotification->getOnUpdate()) {
 
-                if ($watchingUserNotification->getUser()->isEnabled() == true) {
-                    $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
+                if (is_object($watchingUserNotification->getUser())) {
+                    if ($watchingUserNotification->getUser()->isEnabled() == true) {
+                        $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
+                    }
                 }
 
                 $url = $watchingUserNotification->getEntityDetail()->getObjectUrl();
@@ -398,8 +404,10 @@ class ObjectNotificationListener
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnDelete()) {
 
-                if ($userObjectNotification->getUser()->isEnabled() == true) {
-                    $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                if (is_object($userObjectNotification->getUser())) {
+                    if ($userObjectNotification->getUser()->isEnabled() == true){
+                        $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                    }
                 }
 
                 // This does not need to be set with every iteration of the loop this is a waste
@@ -412,8 +420,10 @@ class ObjectNotificationListener
         foreach ($watchingUserNotifications as $watchingUserNotification) {
             if ($watchingUserNotification->getOnDelete()) {
 
-                if ($watchingUserNotification->getUser()->isEnabled() == true) {
-                    $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
+                if (is_object($watchingUserNotification->getUser())) {
+                    if($watchingUserNotification->getUser()->isEnabled() == true){
+                        $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
+                    }
                 }
 
                 // This does not need to be set with every iteration of the loop
