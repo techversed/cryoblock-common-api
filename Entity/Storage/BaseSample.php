@@ -5,7 +5,7 @@ namespace Carbon\ApiBundle\Entity\Storage;
 use AppBundle\Entity\Storage\SampleType;
 use AppBundle\Entity\Storage\StorageContainer;
 use Carbon\ApiBundle\Annotation AS Carbon;
-use Carbon\ApiBundle\Entity\Storage\BaseSample;
+use Carbon\ApiBundle\Entity\Storage\BaseSample; // This does not need to include itself --- This should be removed
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
