@@ -21,6 +21,8 @@ abstract class BaseRequest Implements BaseRequestInterface
 
     const STATUS_COMPLETED = 'Completed';
 
+    const STATUS_ACTION_REQUIRED = 'Action Required';
+
     /**
      * Valid statuses
      *
@@ -32,6 +34,7 @@ abstract class BaseRequest Implements BaseRequestInterface
         self::STATUS_PROCESSING,
         self::STATUS_ABORTED,
         self::STATUS_COMPLETED,
+        self::STATUS_ACTION_REQUIRED,
     );
 
     /**
