@@ -31,7 +31,7 @@ class BaseCatalogController extends CarbonApiController
             'roles' => array('ROLE_USER'),
         ),
         'PUT' => array(
-            'roles' => array('ROLE_INVENTORY_ADMIN'),
+            'roles' => array('ROLE_USER'),
             'allow_creator' => true
         ),
         'DELETE' => array(
