@@ -109,6 +109,20 @@ class BaseCatalog
     protected $status;
 
     /**
+     * Merged into id
+     * @ORM\Column(name="merged_into_id", type="integer", nullable=true)
+     * @JMS\Groups({"default"})
+    */
+    protected $mergedIntoId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Catalog")
+     * @ORM\JoinColumn(name="merged_into_id", referencedColumnName="id")
+     * @JMS\Groups({"default"})
+    */
+    protected $mergedInto;
+
+    /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\ParentCatalog", mappedBy="parentCatalog")
      * @JMS\Groups({"default"})
      */
@@ -385,5 +399,45 @@ class BaseCatalog
     public function getStringLabel()
     {
         return $this->getName();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMergedIntoId()
+    {
+        return $this->mergedIntoId;
+    }
+
+    /**
+     * @param mixed $mergedIntoId
+     *
+     * @return self
+     */
+    public function setMergedIntoId($mergedIntoId)
+    {
+        $this->mergedIntoId = $mergedIntoId;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMergedInto()
+    {
+        return $this->mergedInto;
+    }
+
+    /**
+     * @param mixed $mergedInto
+     *
+     * @return self
+     */
+    public function setMergedInto($mergedInto)
+    {
+        $this->mergedInto = $mergedInto;
+
+        return $this;
     }
 }

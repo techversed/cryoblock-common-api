@@ -106,13 +106,25 @@ class UserController extends CarbonApiController
      *
      * @Route("/user", name="user_put")
      * @Method("PUT")
-     * @Security("has_role('ROLE_ADMIN')")
+     * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
     public function handlePut()
     {
-        return parent::handlePut();
+        $userEditId = $this->getGrid()->getResult($this->getEntityRepository());
+        $userEditId = $userEditId['data'][0]->getId();
+
+        if ($this->getUser()->hasRole('ROLE_ADMIN') || $this->getUser()->getId() == $userEditId) {
+            return parent::handlePut();
+        }
+        else {
+            return $this->getJsonResponse($this->getSerializationHelper()->serialize(
+            array('violations' => array(array(
+                'Sorry, you do not have permission to edit this User.',
+            )))
+        ), 400);
+        }
     }
 
     /**

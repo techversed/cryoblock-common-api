@@ -50,6 +50,12 @@ services:
         tags:
             - { name: form.type, alias: user }
 
+    carbon_api.catalog.listener:
+        class: Carbon\ApiBundle\Listener\Storage\CatalogListener
+        arguments: ["@logger"]
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
     carbon_api.form.type.comment:
         class: Carbon\ApiBundle\Form\Type\CommentFormType
         arguments: ["@doctrine.orm.default_entity_manager"]

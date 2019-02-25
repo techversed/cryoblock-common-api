@@ -6,6 +6,13 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Query\Expr\Join;
 
+/*
+        Upcoming changes and outstanding issues.
+            This file will still need to be changed in order to fix the issue where storage location suggestions do not have as many elements in them as the filter is supposed to allow through.
+
+*/
+
+
 /**
  * The CarbonGrid is used to aid in building paginated
  * API responses when querying for a resource. The default
@@ -278,6 +285,8 @@ class CarbonGrid extends Grid
         ;
 
         $result = $qb->getQuery()->getResult();
+
+        // Result set is too small even here...
 
         return $this->buildGridResponse($result);
 
