@@ -9,8 +9,41 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @ORM\MappedSuperclass */
-abstract class BaseRequest Implements BaseRequestInterface
+abstract class BaseRequest extends  Implements BaseRequestInterface
 {
+
+    /*
+        Important note -- All requests must have an object called requestProjects which is a one to many using a linker table which is specific to that implmentation of this abstract class --
+
+
+         * JMS\VirtualProperty()
+         * JMS\Groups({"default"})
+        public function getProjectString()
+        {
+            $projectNames = [];
+            if ($this->projectRequests && (is_array($this->projectRequests) || is_object($this->projectRequests))) {
+                foreach ($this->projectRequests as $requestProject) {
+                    $projectNames[] = $requestProject->getProject()->getName();
+                }
+                return implode(", ", $projectNames);
+            }
+        }
+
+
+    */
+
+    /*
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="request")
+    */
+    abstract public function getRequestProjects();
+    abstract public function setProjectRequests($requestProjects);
+    abstract public function getProjectString();
+    abstract public function getInputSamples();
+    abstract public function setInputSamples($inputSamples);
+    abstract public funciton getOutputSamples();
+    abstract public function setOutputSamples();
+
+
     const STATUS_PENDING = 'Pending';
 
     const STATUS_PENDING_PIPELINE = 'Pending-Pipeline';
@@ -151,10 +184,6 @@ abstract class BaseRequest Implements BaseRequestInterface
      */
     protected $deletedAt;
 
-    /**
-    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="request")
-    */
-    protected $projectRequests;
 
 
     /**
@@ -472,40 +501,4 @@ abstract class BaseRequest Implements BaseRequestInterface
 
         return $this;
    }
-
-    /**
-     * @JMS\VirtualProperty()
-     * @JMS\Groups({"default"})
-     */
-    public function getProjectString()
-    {
-        $projectNames = [];
-        if ($this->projectRequests && (is_array($this->projectRequests) || is_object($this->projectRequests))) {
-            foreach ($this->projectRequests as $requestProject) {
-                $projectNames[] = $requestProject->getProject()->getName();
-            }
-            return implode(", ", $projectNames);
-        }
-    }
-    /**
-     * Gets the value of projectRequests.
-     *
-     * @return mixed
-     */
-    public function getProjectRequests()
-    {
-        return $this->projectRequests;
-    }
-    /**
-     * Sets the value of projectRequests.
-     *
-     * @param mixed $projectRequests the project requests
-     *
-     * @return self
-     */
-    public function setProjectRequests($projectRequests)
-    {
-        $this->projectRequests = $projectRequests;
-        return $this;
-    }
 }
