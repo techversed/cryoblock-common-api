@@ -24,6 +24,8 @@ class BaseSample
         'mg/mL',
         'ng/uL',
         'Molar',
+        'cells/mL',
+        'cells/uL'
     );
 
     /**

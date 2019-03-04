@@ -2,7 +2,6 @@
 
 namespace Carbon\ApiBundle\Listener;
 
-use Carbon\ApiBundle\Entity\Comment;
 use Carbon\ApiBundle\Entity\Production\BaseRequest;
 use Carbon\ApiBundle\Service\CryoblockMailer;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -10,8 +9,18 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+
+// Classes where we are not calling this listener
 use Carbon\ApiBundle\Entity\EntityDetail;
 use Carbon\ApiBundle\Entity\UserObjectNotification;
+use Carbon\ApiBundle\Entity\Production\BaseRequestProjectInterface;
+use Carbon\ApiBundle\Entity\Production\BaseRequestSampleInterface;
+use Carbon\ApiBundle\Entity\Project\BaseProjectSample;
+use Carbon\ApiBundle\Entity\Comment;
+use Gedmo\Loggable\Entity\LogEntry;
+use Carbon\ApiBundle\Entity\Storage\BaseDivision;
+use Carbon\ApiBundle\Entity\Storage\BaseAccessGovernor;
+
 
 /*
 
@@ -49,24 +58,37 @@ class ObjectNotificationListener
         $this->appName = $appName;
     }
 
-    //A list of entity classes for which updates will not be sent.
-        //Example: You would not want to send notifications when notification settings were updated... //also prevents the autowatching that takes place when someone creates an object.
-    public $ignoreClasses = array(
-        'Carbon\ApiBundle\Entity\UserObjectNotification',
-        'Carbon\ApiBundle\Entity\EntityDetail',
-        'Carbon\ApiBundle\Entity\Comment',
-        'Gedmo\Loggable\Entity\LogEntry'
-    );
+    // If the entity in question extends one of the following classes or implementes one of the following interfaces it should be ignored.
+    public function classOrInterfaceIgnored($entity){
+
+        if(
+            ($entity instanceof BaseRequestProjectInterface) ||
+            ($entity instanceof BaseRequestSampleInterface) ||
+            ($entity instanceof EntityDetail) ||
+            ($entity instanceof BaseProjectSample) ||
+            ($entity instanceof LogEntry) ||
+            ($entity instanceof Comment) ||
+            ($entity instanceof BaseDivision) ||
+            ($entity instanceof UserObjectNotification) ||
+            ($entity instanceof GroupObjectNotification) ||
+            ($entity instanceof BaseAccessGovernor)
+        ){
+            return true;
+        }
+
+        return false;
+    }
 
     // Todo
     public function postPersist(LifecycleEventArgs $args)
     {
 
-        $entity = $args->getEntity();
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
-        if (in_array(get_class($entity), $this->ignoreClasses)) {
+        $entity = $args->getEntity();
+
+        if (classOrInterfaceIgnored($entity)) {
             return;
         }
 
@@ -75,17 +97,13 @@ class ObjectNotificationListener
         }
 
         $creatingUser = $this->tokenStorage->getToken()->getUser();
-
-        $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
-            'objectClassName' => get_class($entity)
-        ));
+        $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array('objectClassName' => get_class($entity)));
 
         if (!$entDet instanceof EntityDetail) {
             return;
         }
 
         $entDetId = $entDet->getId();
-
 
         if($entDet->getAutoWatch() == true) {
 
@@ -198,7 +216,7 @@ class ObjectNotificationListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
-        if (in_array(get_class($entity), $this->ignoreClasses)) {
+        if (classOrInterfaceIgnored($entity)) {
             return;
         }
 
@@ -353,7 +371,7 @@ class ObjectNotificationListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
-        if (in_array(get_class($entity), $this->ignoreClasses)) {
+        if (classOrInterfaceIgnored($entity)) {
             return;
         }
 

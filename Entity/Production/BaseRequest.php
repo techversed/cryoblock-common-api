@@ -125,8 +125,6 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      */
     protected $pipelineStep;
 
-
-
     /**
      * Gets the value of alias.
      *

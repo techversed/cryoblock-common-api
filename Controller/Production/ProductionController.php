@@ -224,6 +224,8 @@ class ProductionController extends CarbonApiController
             'mg/mL',
             'ng/uL',
             'Molar',
+            'cells/mL',
+            'cells/uL'
         ));
 
         $statuses = implode(', ', array(
@@ -485,6 +487,8 @@ class ProductionController extends CarbonApiController
             'mg/mL',
             'ng/uL',
             'Molar',
+            'cells/mL',
+            'cells/uL',
         ));
 
         $volumeUnits = implode(', ', array(

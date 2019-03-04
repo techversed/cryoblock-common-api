@@ -31,7 +31,6 @@ class BaseDivisionListener
         $allowAllStorageContainers = null;
         $allowAllSampleTypes = null;
 
-
         $divisionEditors = array();
         $divisionGroupEditors = array();
         $divisionViewers = array();
