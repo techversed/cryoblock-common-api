@@ -188,28 +188,32 @@ class BaseDivisionListener
         }
     }
 
-
-    // This should really have a more strict set of conditions for when to get called -- not just if it has a property called cascade
     // Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
         $conn = $em->getConnection();
-        $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(),     true);
+        $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
 
-        if (!array_key_exists('cascade', $request)) {
+        if (!array_key_exists('propagationBehavior', $request)){
             return;
         }
 
-        $cascade =  $request['cascade'];
+        $propMethod = explode(" ",$request['propagationBehavior'])[0];
+
+        if($propMehod == "Default"){
+            return;
+        }
+
+        // $cascade =  $request['cascade'];
 
         // If we are creating an entity it will not have an id or children and it will have no need for any sort of cascading
         if (!array_key_exists('id', $request)) {
             return;
         }
 
-        if ($cascade == true) {
+        if ($propMethod == "Cascade") {
 
             foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
@@ -342,11 +346,13 @@ class BaseDivisionListener
                     $this->runPostFlush = true;
                 }
             }
+
         }
     }
 
     public function postFlush(PostFlushEventArgs $args)
     {
+
         if ($this->runPostFlush == false) {
             return;
         }
@@ -355,29 +361,31 @@ class BaseDivisionListener
         $conn = $em->getConnection();
         $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
 
-        if (!array_key_exists('cascade', $request)) {
-            return;
-        }
+        if ($propMethod == 'Trample') {
 
-        if ($request['cascade'] != true) {
-            $divRepo = $em->getRepository('AppBundle\Entity\Storage\Division');
-            $divOfInterest = $divRepo->findOneById($request['id']);
+            if (!array_key_exists('cascade', $request)) {
+                return;
+            }
 
-            $propertyList = array(
-                'is_public_view' => $divOfInterest->getIsPublicView() == true ? "true" : "false",
-                'is_public_edit' => $divOfInterest->getIsPublicEdit() == true ? "true" : "false",
-                'allow_all_sample_types' => $divOfInterest->getAllowAllSampleTypes() == true ? "true" : "false",
-                'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers() == true ? "true" : "false"
-            );
+            if ($request['cascade'] != true) {
+                $divRepo = $em->getRepository('AppBundle\Entity\Storage\Division');
+                $divOfInterest = $divRepo->findOneById($request['id']);
 
-            $childList = $this->buildChildList($conn, $request['id']);
+                $propertyList = array(
+                    'is_public_view' => $divOfInterest->getIsPublicView() == true ? "true" : "false",
+                    'is_public_edit' => $divOfInterest->getIsPublicEdit() == true ? "true" : "false",
+                    'allow_all_sample_types' => $divOfInterest->getAllowAllSampleTypes() == true ? "true" : "false",
+                    'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers() == true ? "true" : "false"
+                );
 
-            $this->bulkUpdateBooleans($conn, $propertyList, $childList);
+                $childList = $this->buildChildList($conn, $request['id']);
 
-            $this->removeAllChildLinks($conn, $childList);
-            $this->copyAllLinks($conn, $request['id'], $childList); // This is not working as intended.
+                $this->bulkUpdateBooleans($conn, $propertyList, $childList);
+
+                $this->removeAllChildLinks($conn, $childList);
+                $this->copyAllLinks($conn, $request['id'], $childList); // This is not working as intended.
+            }
         }
 
     }
-
 }
