@@ -5,404 +5,388 @@ namespace Carbon\ApiBundle\Listener\Storage;
 use AppBundle\Entity\Storage\Division;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
 use Symfony\Bridge\Monolog\Logger;
-
 use AppBundle\Entity\Storage\DivisionEditor;
 use AppBundle\Entity\Storage\DivisionViewer;
 use AppBundle\Entity\Storage\DivisionGroupEditor;
 use AppBundle\Entity\Storage\DivisionGroupViewer;
 use AppBundle\Entity\Storage\DivisionStorageContainer;
 use AppBundle\Entity\Storage\DivisionSampleType;
+use Symfony\Component\HttpFoundation\RequestStack;
+
+// Outstanding concerns:
+    // I don't know how we should handle toggling isPublicEdit/allowAllStorageContainer...etc booleans when cascading permissiosn.
+    // Trampling permissions should have toggling handled propertly.
+
+
+/*
+    Base Division Listener
+    Written by Andre Jon Branchizio
+    Modified by Taylor Jones
+
+
+    Originally we chose to make it so that the permissions of chidren divisions would be overwritten by changes to their immediate parent
+    This has been modified so that the changes that take place with the parent will also be applied to the children
+
+    Example :
+        Setup (before any action has been taken):
+            Division 1 has 2 children Division and Division 3
+
+            Division permissions are as follows:
+                Division 1 permissions editable by andre, allows hybridoma, allows vials
+                Division 2 Editable by andre, allows cell supernatant, allows eppendorf tubes
+                Division 3 Editable by Dr crowe, allows protein, allows vials
+
+        Action:
+            Add Taylor to editors for  Division 1
+
+        Old system outcome:
+            Division 1 and all of its children are editable by andre + taylor, allow hybridoma, allows vials -- children below that level would not be affected.
+
+        New system outcome:
+            Division 1 permissions editable by andre & taylor, allows hybridoma, allows vials
+            Division 2 Editable by andre & taylor, allows cell supernatant, allows eppendorf tubes
+            Division 3 Editable by Dr Crowe & taylor, allows protein, allows vials
+
+    Later versions may make it possible to select the method fo cascading which is going to be used for this update operation -- I think that this will present problems because users will not take the time to get to understand the tools that we are creating
+
+*/
 
 class BaseDivisionListener
 {
-    public function __construct(Logger $logger)
+    private $logger;
+    private $runPostFlush = false;
+    private $request_stack;
+
+    public function __construct(Logger $logger, RequestStack $request_stack)
     {
         $this->logger = $logger;
+        $this->request_stack = $request_stack;
     }
 
+    public function propToChildren($conn, $table, $prototype, $entityId, $divisions)
+    {
+        $itemArr = array();
+        foreach ($divisions as $division) {
+            $itemArr[] = "(".$entityId.", ".$division.")";
+        }
+
+        if (count($itemArr) > 0) {
+            $valString = implode(', ', $itemArr);
+            $query = "INSERT INTO ".$table." ".$prototype." VALUES ".$valString.";";
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+        }
+    }
+
+    // Specify divisions that should have all of their children removed.
+    public function removeAllChildLinks($conn, $list=array())
+    {
+        $listImplode = '('.implode(',',$list).')';
+
+        $queries = array(
+            "DELETE from storage.division_storage_container where division_id in ".$listImplode,
+            "DELETE from storage.division_sample_type where division_id in ".$listImplode,
+            "DELETE from storage.division_editor where division_id in ".$listImplode,
+            "DELETE from storage.division_viewer where division_id in ".$listImplode,
+            "DELETE from storage.division_group_editor where division_id in ".$listImplode,
+            "DELETE from storage.division_group_viewer where division_id in ".$listImplode,
+        );
+
+        foreach ($queries as $query) {
+            $conn->prepare($query)->execute();
+        }
+
+    }
+
+    public function copyAllLinks($conn, $parent, $childList)
+    {
+        $tables = array(
+                'storage.division_editor' => 'user_id',
+                'storage.division_viewer' => 'user_id',
+                'storage.division_group_editor' => 'group_id',
+                'storage.division_group_viewer' => 'group_id',
+                'storage.division_storage_container' => 'storage_container_id',
+                'storage.division_sample_type' => 'sample_type_id'
+        );
+
+        foreach ($tables as $table => $field) {
+
+            $parentQuery = "SELECT " . $field . " from " . $table . " where division_id = " . $parent;
+            $stmt = $conn->prepare($parentQuery);
+            $stmt->execute();
+
+            foreach ($stmt->fetchAll() as $result) {
+                $this->propToChildren($conn, $table, '('.$field.', '.'division_id)', $result[$field], $childList);
+            }
+        }
+    }
+
+    public function removeFromChildren($conn, $table, $entTypeId, $entityId, $divisions)
+    {
+        if (count($divisions) > 0) {
+            $divString = " ( ".implode(', ', $divisions)." ) ";
+
+            $query = "DELETE FROM ".$table." WHERE division_id IN ".$divString." AND ".$entTypeId."=".$entityId;
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+        }
+    }
+
+    public function buildChildList($conn, $startDivisionId, $condition = 'id IS NOT NULL')
+    {
+        $parentArray = array();
+        $currCount = 0;
+
+        $mapFunc =  function($temp){
+            return $temp['id'];
+        };
+
+        do {
+            $currCount = count($parentArray);
+            $arrString = $currCount > 0 ? ' OR parent_id IN  ('.implode(', ', $parentArray).') ' : '';
+            $query = "SELECT id FROM storage.division WHERE (parent_id = ".$startDivisionId.$arrString." ) AND ".$condition.";";
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+            $testSet = $stmt->fetchAll();
+
+            $parentArray = array_map($mapFunc, $testSet);
+        } while ($currCount != count($parentArray));
+
+        return $parentArray;
+    }
+
+    /*
+        Updates the booleans associated with a list of divisiosn to reflect a set of arguments that is passed in.
+        Booleans should be an associative array mapping field name to a value that should go in that field.
+            Ex.
+                array(
+                    is_public_edit => "true"
+                    is_public_view => "false"
+                    ...
+                    )
+                If a key does not exist in the array then the value that the record currently holdes will not be altered.
+    */
+    public function bulkUpdateBooleans($conn, $booleans = array(), $divisions)
+    {
+        if (count($booleans) > 0){
+
+            $strarr = array();
+
+            foreach ($booleans as $key => $value)
+            {
+
+                $strarr[] = $key.' = '.$value;
+            }
+
+            $valString = '('.implode(', ', $divisions).')';
+
+            $strstr = implode(', ', $strarr);
+
+            $query = "UPDATE storage.division set ".$strstr." where id in ".$valString;
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+        }
+    }
+
+    // Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
-        $parentDivision = null;
-        $isPublicEdit = null;
-        $isPublicView = null;
-        $allowAllStorageContainers = null;
-        $allowAllSampleTypes = null;
+        $conn = $em->getConnection();
+        $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
 
-        $divisionEditors = array();
-        $divisionGroupEditors = array();
-        $divisionViewers = array();
-        $divisionGroupViewers = array();
-        $divisionStorageContainers = array();
-        $divisionSampleTypes = array();
-
-        $removingDivisionEditors = array();
-        $removingDivisionGroupEditors = array();
-        $removingDivisionViewers = array();
-        $removingDivisionGroupViewers = array();
-        $removingDivisionStorageContainers = array();
-        $removingDivisionSampleTypes = array();
-
-        foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
-
-            if ($entity instanceof DivisionEditor) {
-                $division = $entity->getDivision();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $divisionEditors[] = $entity->getUser();
-                }
-            }
-
-            if ($entity instanceof DivisionViewer) {
-                $division = $entity->getDivision();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $divisionViewers[] = $entity->getUser();
-                }
-            }
-
-            if ($entity instanceof DivisionGroupEditor) {
-                $division = $entity->getDivision();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $divisionGroupEditors[] = $entity->getGroup();
-                }
-            }
-
-            if ($entity instanceof DivisionGroupViewer) {
-                $division = $entity->getDivision();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $divisionGroupViewers[] = $entity->getGroup();
-                }
-            }
-
-            if ($entity instanceof DivisionStorageContainer) {
-                $division = $entity->getDivision();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $divisionStorageContainers[] = $entity->getStorageContainer();
-                }
-            }
-
-            if ($entity instanceof DivisionSampleType) {
-                $division = $entity->getDivision();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $divisionSampleTypes[] = $entity->getSampleType();
-                }
-            }
-
-        }
-
-        // handle is is public edit or is public view and allowAllStorageContainers and allowAllSampleTypes
-        foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
-
-            if ($entity instanceof Division) {
-
-                foreach ($uow->getEntityChangeSet($entity) as $keyField => $field) {
-
-                    if ($keyField === 'isPublicEdit') {
-                        if (!$parentDivision) {
-                            $parentDivision = $entity;
-                        }
-                        $isPublicEdit = $field[1];
-                    }
-
-                    if ($keyField === 'isPublicView') {
-                        if (!$parentDivision) {
-                            $parentDivision = $entity;
-                        }
-                        $isPublicView = $field[1];
-                    }
-
-                    if ($keyField === 'allowAllStorageContainers') {
-                        if (!$parentDivision) {
-                            $parentDivision = $entity;
-                        }
-                        $allowAllStorageContainers = $field[1];
-                    }
-
-                    if ($keyField === 'allowAllSampleTypes') {
-                        if (!$parentDivision) {
-                            $parentDivision = $entity;
-                        }
-                        $allowAllSampleTypes = $field[1];
-                    }
-
-                }
-
-            }
-
-        }
-
-        foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
-
-            if ($entity instanceof DivisionEditor) {
-                $division = $entity->getDivision();
-                $user = $entity->getUser();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $removingDivisionEditors[$user->getId()] = $user;
-                }
-            }
-
-            if ($entity instanceof DivisionViewer) {
-                $division = $entity->getDivision();
-                $user = $entity->getUser();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $removingDivisionViewers[$user->getId()] = $user;
-                }
-            }
-
-            if ($entity instanceof DivisionGroupEditor) {
-                $division = $entity->getDivision();
-                $group = $entity->getGroup();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $removingDivisionGroupEditors[$group->getId()] = $group;
-                }
-            }
-
-            if ($entity instanceof DivisionGroupViewer) {
-                $division = $entity->getDivision();
-                $group = $entity->getGroup();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $removingDivisionGroupViewers[$group->getId()] = $group;
-                }
-            }
-
-            if ($entity instanceof DivisionStorageContainer) {
-                $division = $entity->getDivision();
-                $storageContainer = $entity->getStorageContainer();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $removingDivisionStorageContainers[$storageContainer->getId()] = $storageContainer;
-                }
-            }
-
-            if ($entity instanceof DivisionSampleType) {
-                $division = $entity->getDivision();
-                $sampleType = $entity->getSampleType();
-                if (!$parentDivision) {
-                    $parentDivision = $division;
-                    $removingDivisionSampleTypes[$sampleType->getId()] = $sampleType;
-                }
-            }
-
-        }
-
-        if (!$parentDivision) {
+        if (!array_key_exists('propagationBehavior', $request)){
             return;
         }
 
-        $currentDivisionEditors = $parentDivision->getDivisionEditors();
-        $currentDivisionGroupEditors = $parentDivision->getDivisionGroupEditors();
-        $currentDivisionViewers = $parentDivision->getDivisionViewers();
-        $currentDivisionGroupViewers = $parentDivision->getDivisionGroupViewers();
-        $currentDivisionStorageContainers = $parentDivision->getDivisionStorageContainers();
-        $currentDivisionSampleTypes = $parentDivision->getDivisionSampleTypes();
+        $propMethod = explode(" ",$request['propagationBehavior'])[0];
 
-        if ($isPublicView == null) {
-            $isPublicView = $parentDivision->getIsPublicView();
-        }
-
-        if ($isPublicEdit == null) {
-            $isPublicEdit = $parentDivision->getIsPublicEdit();
-        }
-        if ($allowAllStorageContainers == null) {
-            $allowAllStorageContainers = $parentDivision->getAllowAllStorageContainers();
-        }
-        if ($allowAllSampleTypes == null) {
-            $allowAllSampleTypes = $parentDivision->getAllowAllSampleTypes();
-        }
-
-        if ($currentDivisionEditors) {
-
-            foreach ($currentDivisionEditors as $currentDivisionEditor) {
-                if (!isset($removingDivisionEditors[$currentDivisionEditor->getUser()->getId()])) {
-                    $divisionEditors[] = $currentDivisionEditor->getUser();
-                }
-            }
-
-        }
-
-        if ($currentDivisionGroupEditors) {
-
-            foreach ($currentDivisionGroupEditors as $currentDivisionGroupEditor) {
-                if (!isset($removingDivisionGroupEditors[$currentDivisionGroupEditor->getGroup()->getId()])) {
-                    $divisionGroupEditors[] = $currentDivisionGroupEditor->getGroup();
-                }
-            }
-
-        }
-
-        if ($currentDivisionViewers) {
-
-            foreach ($currentDivisionViewers as $currentDivisionViewer) {
-                if (!isset($removingDivisionViewers[$currentDivisionViewer->getUser()->getId()])) {
-                    $divisionViewers[] = $currentDivisionViewer->getUser();
-                }
-            }
-
-        }
-
-        if ($currentDivisionGroupViewers) {
-
-            foreach ($currentDivisionGroupViewers as $currentDivisionGroupViewer) {
-                if (!isset($removingDivisionGroupViewers[$currentDivisionGroupViewer->getGroup()->getId()])) {
-                    $divisionGroupViewers[] = $currentDivisionGroupViewer->getGroup();
-                }
-            }
-
-        }
-
-        if (!$parentDivision->getChildren()) {
-
+        if($propMehod == "Default"){
             return;
-
         }
 
-        foreach ($currentDivisionStorageContainers as $currentDivisionStorageContainer) {
-            if (!isset($removingDivisionStorageContainers[$currentDivisionStorageContainer->getStorageContainer()->getId()])) {
-                $divisionStorageContainers[] = $currentDivisionStorageContainer->getStorageContainer();
-            }
+        // $cascade =  $request['cascade'];
+
+        // If we are creating an entity it will not have an id or children and it will have no need for any sort of cascading
+        if (!array_key_exists('id', $request)) {
+            return;
         }
 
-        foreach ($currentDivisionSampleTypes as $currentDivisionSampleType) {
-            if (!isset($removingDivisionSampleTypes[$currentDivisionSampleType->getSampleType()->getId()])){
-                $divisionSampleTypes[] = $currentDivisionSampleType->getSampleType();
+        if ($propMethod == "Cascade") {
+
+            foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
+
+                if ($entity instanceof Division) {
+                    continue;
+                }
+                elseif ($entity instanceof DivisionViewer) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getUser()->getId();
+                    $condition = 'id NOT IN (SELECT division_id FROM storage.division_viewer WHERE user_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->propToChildren($conn, 'storage.division_viewer', '(user_id, division_id)', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionEditor) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getUser()->getId();
+                    $condition = 'id NOT IN (SELECT division_id FROM storage.division_editor WHERE  user_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->propToChildren($conn, 'storage.division_editor', '(user_id, division_id)', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionStorageContainer) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getStorageContainer()->getId();
+                    $condition = 'id NOT IN (SELECT division_id FROM storage.division_storage_container WHERE  storage_container_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->propToChildren($conn, 'storage.division_storage_container', '(storage_container_id, division_id)', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionSampleType) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getSampleType()->getId();
+                    $condition = 'id NOT IN (SELECT division_id FROM storage.division_sample_type WHERE  sample_type_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->propToChildren($conn, 'storage.division_sample_type', '(sample_type_id, division_id)', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionGroupViewer) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getGroup()->getId();
+                    $condition = 'id NOT IN (SELECT division_id FROM storage.division_group_viewer WHERE group_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->propToChildren($conn, 'storage.division_group_viewer', '(group_id, division_id)', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionGroupEditor) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getGroup()->getId();
+                    $condition = 'id NOT IN (SELECT division_id FROM storage.division_group_editor WHERE group_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->propToChildren($conn, 'storage.division_group_editor', '(group_id, division_id)', $entityId, $divisionList);
+                }
             }
+
+            foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
+
+                if ($entity instanceof Division) {
+                    continue; // We are not going to allow users to delete divisions that have children -- this case should not take place
+                }
+                elseif ($entity instanceof DivisionViewer) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getUser()->getId();
+                    $condition = 'id IN (SELECT division_id FROM storage.division_viewer WHERE user_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->removeFromChildren($conn, 'storage.division_viewer', 'user_id', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionEditor) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getUser()->getId();
+                    $condition = 'id IN (SELECT division_id FROM storage.division_editor WHERE user_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->removeFromChildren($conn, 'storage.division_editor', 'user_id', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionStorageContainer) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getStorageContainer()->getId();
+                    $condition = 'id IN (SELECT division_id FROM storage.division_storage_container WHERE storage_container_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->removeFromChildren($conn, 'storage.division_storage_container', 'storage_container_id', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionSampleType) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getSampleType()->getId();
+                    $condition = 'id IN (SELECT division_id FROM storage.division_sample_type WHERE sample_type_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn, $divisionId, $condition);
+                    $this->removeFromChildren($conn, 'storage.division_sample_type', 'sample_type_id', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionGroupEditor) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getGroup()->getId();
+                    $condition = 'id IN (SELECT division_id FROM storage.division_group_editor WHERE group_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn,$divisionId, $condition);
+                    $this->removeFromChildren($conn, 'storage.division_group_editor', 'group_id', $entityId, $divisionList);
+                }
+                elseif ($entity instanceof DivisionGroupViewer) {
+                    $divisionId = $entity->getDivision()->getId();
+                    $entityId = $entity->getGroup()->getId();
+                    $condition = 'id IN (SELECT division_id FROM storage.division_group_viewer WHERE group_id = '.$entityId.')';
+                    $divisionList = $this->buildChildList($conn,$divisionId, $condition);
+                    $this->removeFromChildren($conn, 'storage.division_group_viewer', 'group_id', $entityId, $divisionList);
+                }
+            }
+
+            foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
+
+                if ($entity instanceof Division && $entity->getId() == $request['id']) { // Only want to call this portion for the update which was created by the request -- don't want to end up in an infinite loop...
+                    $divisionMetadata = $em->getClassMetaData(get_class($entity));
+
+                    $accessorBooleans = array();
+                    $id = $entity->getId();
+
+                    foreach ( $uow->getEntityChangeset($entity) as $keyField => $field){
+
+                        if ( in_array($keyField, array('isPublicEdit', 'isPublicView', 'allowAllStorageContainers', 'allowAllSampleTypes')) ) {
+
+                            $accessorBooleans[$divisionMetadata->getColumnName($keyField)] = $field[1] ? "true" : "false";
+                            // $accessorBooleans[] = array($keyField => $field[1]);
+
+                        }
+                    }
+
+                    $childList = $this->buildChildList($conn, $request['id']);
+                    $this->bulkUpdateBooleans($conn, $accessorBooleans, $childList);
+
+                }
+            }
+
+            // What should the behavior be when toggling the booleans of the children?
+        }
+        else { // If cascade  is false then we need to get ready to trample stuff in the postFlush
+
+            foreach (array_merge(array_merge($uow->getScheduledEntityUpdates(),$uow->getScheduledEntityInsertions()),$uow->getScheduledEntityDeletions()) as $keyEntity => $entity){
+                if ($entity instanceof Division || $entity instanceof DivisionViewer || $entity instanceof DivisionEditor || $entity instanceof DivisionGroupViewer || $entity instanceof DivisiionGroupEditor || $entity instanceof DivisionStorageContainer || $entity instanceof DivisionSampleType) {
+                    $this->runPostFlush = true;
+                }
+            }
+
+        }
+    }
+
+    public function postFlush(PostFlushEventArgs $args)
+    {
+
+        if ($this->runPostFlush == false) {
+            return;
         }
 
+        $em = $args->getEntityManager();
+        $conn = $em->getConnection();
+        $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
 
-        foreach ($parentDivision->getChildren() as $child) {
+        if ($propMethod == 'Trample') {
 
-            $newEditors = array();
-            $newGroupEditors = array();
-            $newViewers = array();
-            $newGroupViewers = array();
-            $newStorageContainers = array();
-            $newSampleTypes = array();
-
-            foreach ($child->getDivisionEditors() as $childEditor) {
-                $uow->remove($childEditor);
+            if (!array_key_exists('cascade', $request)) {
+                return;
             }
 
-            foreach ($child->getDivisionGroupEditors() as $childGroupEditor) {
-                $uow->remove($childGroupEditor);
+            if ($request['cascade'] != true) {
+                $divRepo = $em->getRepository('AppBundle\Entity\Storage\Division');
+                $divOfInterest = $divRepo->findOneById($request['id']);
+
+                $propertyList = array(
+                    'is_public_view' => $divOfInterest->getIsPublicView() == true ? "true" : "false",
+                    'is_public_edit' => $divOfInterest->getIsPublicEdit() == true ? "true" : "false",
+                    'allow_all_sample_types' => $divOfInterest->getAllowAllSampleTypes() == true ? "true" : "false",
+                    'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers() == true ? "true" : "false"
+                );
+
+                $childList = $this->buildChildList($conn, $request['id']);
+
+                $this->bulkUpdateBooleans($conn, $propertyList, $childList);
+
+                $this->removeAllChildLinks($conn, $childList);
+                $this->copyAllLinks($conn, $request['id'], $childList); // This is not working as intended.
             }
-
-            foreach ($child->getDivisionViewers() as $childViewer) {
-                $uow->remove($childViewer);
-            }
-
-            foreach ($child->getDivisionGroupViewers() as $childGroupViewer) {
-                $uow->remove($childGroupViewer);
-            }
-
-            foreach ($child->getDivisionStorageContainers() as $childStorageContainer){
-                $uow->remove($childStorageContainer);
-            }
-
-            foreach ($child->getDivisionSampleTypes() as $childSampleType){
-                $uow->remove($childSampleType);
-            }
-
-            foreach ($divisionEditors as $divisionEditor) {
-
-                $newEditor = new DivisionEditor();
-                $newEditor->setDivision($child);
-                $newEditor->setUser($divisionEditor);
-
-                $uow->persist($newEditor);
-                $metaEditor = $em->getClassMetadata(get_class($newEditor));
-                $uow->computeChangeSet($metaEditor, $newEditor);
-
-                $newEditors[] = $newEditor;
-            }
-
-            foreach ($divisionGroupEditors as $divisionGroupEditor) {
-
-                $newGroupEditor = new DivisionGroupEditor();
-                $newGroupEditor->setDivision($child);
-                $newGroupEditor->setGroup($divisionGroupEditor);
-
-                $uow->persist($newGroupEditor);
-                $metaGroupEditor = $em->getClassMetadata(get_class($newGroupEditor));
-                $uow->computeChangeSet($metaGroupEditor, $newGroupEditor);
-
-                $newGroupEditors[] = $newGroupEditor;
-            }
-
-            foreach ($divisionViewers as $divisionViewer) {
-
-                $newViewer = new DivisionViewer();
-                $newViewer->setDivision($child);
-                $newViewer->setUser($divisionViewer);
-
-                $uow->persist($newViewer);
-                $metaViewer = $em->getClassMetadata(get_class($newViewer));
-                $uow->computeChangeSet($metaViewer, $newViewer);
-
-                $newViewers[] = $newViewer;
-            }
-
-            foreach ($divisionGroupViewers as $divisionGroupViewer) {
-
-                $newGroupViewer = new DivisionGroupViewer();
-                $newGroupViewer->setDivision($child);
-                $newGroupViewer->setGroup($divisionGroupViewer);
-
-                $uow->persist($newGroupViewer);
-                $metaGroupViewer = $em->getClassMetadata(get_class($newGroupViewer));
-                $uow->computeChangeSet($metaGroupViewer, $newGroupViewer);
-
-                $newGroupViewers[] = $newGroupViewer;
-            }
-
-            foreach ($divisionStorageContainers as $divisionStorageContainer) {
-                $newStorageContainer = new DivisionStorageContainer();
-                $newStorageContainer->setDivision($child);
-                $newStorageContainer->setStorageContainer($divisionStorageContainer);
-
-                $uow->persist($newStorageContainer);
-                $metaStorageContainer = $em->getClassMetadata(get_class($newStorageContainer));
-                $uow->computeChangeSet($metaStorageContainer, $newStorageContainer);
-
-                $newStorageContainers[] = $newStorageContainer;
-            }
-
-            foreach ($divisionSampleTypes as $divisionSampleType) {
-                $newSampleType = new DivisionSampleType();
-                $newSampleType->setDivision($child);
-                $newSampleType->setSampleType($divisionSampleType);
-
-                $uow->persist($newSampleType);
-                $metaSampleType = $em->getClassMetadata(get_class($newSampleType));
-                $uow->computeChangeSet($metaSampleType, $newSampleType);
-
-                $newSampleTypes[] = $newSampleType;
-            }
-
-            $child->setIsPublicEdit($isPublicEdit);
-            $child->setIsPublicView($isPublicView);
-            $child->setAllowAllSampleTypes($allowAllSampleTypes);
-            $child->setAllowAllStorageContainers($allowAllStorageContainers);
-
-            $child->setDivisionEditors($newEditors);
-            $child->setDivisionGroupEditors($newGroupEditors);
-            $child->setDivisionViewers($newViewers);
-            $child->setDivisionGroupViewers($newGroupViewers);
-            $child->setDivisionStorageContainers($newStorageContainers);
-            $child->setDivisionSampleTypes($newSampleTypes);
-
-            $metaDivision = $em->getClassMetadata(get_class($child));
-            $uow->computeChangeSet($metaDivision, $child);
         }
 
     }

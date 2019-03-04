@@ -28,6 +28,7 @@ class BaseDivisionGroupEditor extends BaseDivisionAccessGovernor
     protected $group;
 
     /**
+
      * Gets the value of groupId.
      *
      * @return integer

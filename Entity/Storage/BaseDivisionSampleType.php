@@ -74,4 +74,5 @@ class BaseDivisionSampleType extends BaseDivisionAccessGovernor
 
         return $this;
     }
+
 }
