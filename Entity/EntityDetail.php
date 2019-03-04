@@ -64,6 +64,14 @@ class EntityDetail extends BaseCryoblockEntity
     protected $autoWatch;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="sref_name", type="string", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $srefName;
+
+    /**
      * Gets the value of id.
      *
      * @return mixed
@@ -179,6 +187,30 @@ class EntityDetail extends BaseCryoblockEntity
     public function setAutoWatch($autoWatch)
     {
         $this->autoWatch = $autoWatch;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of srefName.
+     *
+     * @return string
+     */
+    public function getSrefName()
+    {
+        return $this->srefName;
+    }
+
+    /**
+     * Sets the value of srefName.
+     *
+     * @param string $srefName the sref name
+     *
+     * @return self
+     */
+    public function setSrefName($srefName)
+    {
+        $this->srefName = $srefName;
 
         return $this;
     }

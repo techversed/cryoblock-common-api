@@ -6,6 +6,7 @@ use AppBundle\Entity\Storage\Sample;
 use AppBundle\Entity\Storage\Catalog;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\UnitOfWork;
 use Symfony\Bridge\Monolog\Logger;
 
 class CatalogListener
@@ -13,27 +14,54 @@ class CatalogListener
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
+        $conn = $em->getConnection();
+
         $uow = $em->getUnitOfWork();
         $catalogRepo = $em->getRepository('AppBundle\Entity\Storage\Catalog');
+        $sampleRepo = $em->getRepository('AppBundle\Entity\Storage\Sample');
 
-        foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
+        foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
-            if ($entity instanceof Sample) {
+            if ($entity instanceof Catalog) {
 
-                $sampleName = $entity->getName();
-                $catalog = $catalogRepo->findOneByName($sampleName);
+                $catalogs = $catalogRepo->findBy( array('name' => $entity->getName()) );
 
-                if (!$catalog) {
-                    $catalog = new Catalog();
-                    $catalog->setName($sampleName);
-                    $catalog->setStatus('Available');
-                    $uow->persist($catalog);
-                    $metaCatalog = $em->getClassMetadata(get_class($catalog));
-                    $uow->computeChangeSet($metaCatalog, $catalog);
+                $minId = $entity->getId();
+                $catIdList = array();
+                $catIdList[] = $entity->getId();
+
+                foreach ($catalogs as $catalog) {
+
+                    $minId = ($minId == 0 ? ($minId < $catalog->getId() ? $minId : $catalog->getId()) : $catalog->getId());
+
+                    $catIdList[] = $catalog->getId();
+
+                }
+
+                $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sample s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
+                $numUpdated = $query->execute();
+
+                $catIdString = array();
+
+                foreach($catIdList as $catId){
+                    $catIdString[] = "'" . (string) $catId ."'";
+                }
+
+                $query = $em->createQuery('UPDATE Carbon\ApiBundle\Entity\Attachment a SET a.objectId = \'' . (string) $minId . '\' where a.objectId in (' . implode(', ', $catIdString) . ') and a.objectClass = \'AppBundle\Entity\Storage\Catalog\'');
+                $catUpdated = $query->execute();
+
+                $now = new \DateTime('now');
+
+                foreach($catIdList as $idEntry){
+                    if($idEntry == $minId) continue;
+
+                    $ent = $catalogRepo->find($idEntry);
+                    $ent->setName($ent->getId()."->".$minId);
+                    $ent->setMergedInto($catalogRepo->find($minId));
+                    // $ent->setDeletedAt($now);
                 }
 
             }
-
         }
     }
 }

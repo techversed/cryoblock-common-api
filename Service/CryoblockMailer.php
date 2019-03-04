@@ -4,6 +4,18 @@ namespace Carbon\ApiBundle\Service;
 
 use Symfony\Component\DependencyInjection\Container;
 
+/*
+
+    Cryoblock mailer serves as a wrapper for swiftmailer (vendor code) and allows for us to have custom code which pulls data from psql and sends emails to the users of our system.
+
+
+
+    Outstanding issues and things to consider:
+        I am not sure if we really want to be throwing an exception near line 75 -- this might stop subsequent listeners from running -- check the behavior of exceptions in Doctrine and Symfony to see if this will end up presenting issues.
+        If we start having groups which point to people outside of the vaccine center then we might want to move beyond having people.
+
+*/
+
 class CryoblockMailer
 {
     /**
@@ -51,12 +63,17 @@ class CryoblockMailer
             foreach ($groups as $group) {
                 foreach ($group->getGroupUsers() as $groupUser) {
                     $user = $groupUser->getUser();
-                    $to[$user->getEmail()] = $user->getStringLabel();
+
+                    // If the user has been disabled the we do not want to send them emails -- similar filtering takes place in the Object Notification listener and it might be a good idea for us to move both things to the same location at some point.
+                    if ($user->isEnabled() == true) {
+                        $to[$user->getEmail()] = $user->getStringLabel();
+                    }
                 }
             }
 
         }
 
+        // We may not even want to throw an exception -- may want to just return.
         if (count($to) == 0) {
             throw new \UnexpectedValueException('Can not send email to no one. $to array is empty');
         }
