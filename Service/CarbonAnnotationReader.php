@@ -6,6 +6,12 @@ use Carbon\ApiBundle\Annotation\Searchable;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\Column;
 
+/*
+    Future directions -- it would be nice to have some sort of annotation which would specify that a certain listener event would need to call a given function.
+    For instance it would be nice to make it so that contact - institution's string which concatenates together the contact and institution should be rerun whenever one of those other objects is updated.
+*/
+
+
 /**
  * The carbon annotation reader stores helper methods
  * for carbon services and controllers to use for reading

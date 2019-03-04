@@ -10,6 +10,13 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 
+/*
+
+    Future changes that will need to take place here
+    There are changes that will need to be made to buildMatchQuery in order to make it so that the count of valid matching divisions which are returned are equal to the number of entities which should show up in the results set if we are going strictly baseed upon filter.
+
+*/
+
 class BaseDivisionRepository extends NestedTreeRepository
 {
     public function findMatchedDivisionsWithDimension(SampleType $sampleType, StorageContainer $storageContainer)
@@ -46,8 +53,12 @@ class BaseDivisionRepository extends NestedTreeRepository
         return $qb->getQuery()->getResult();
     }
 
+
+    // Changes needed here.
+    // We are also ordering by percentfull? what about matches?
     public function buildMatchQuery($sampleTypeId, $storageContainerId, User $user)
     {
+
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         $qb->select(array('d'))

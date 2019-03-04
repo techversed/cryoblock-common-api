@@ -11,8 +11,31 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Carbon\ApiBundle\Entity\EntityDetail;
-
 use Carbon\ApiBundle\Entity\UserObjectNotification;
+
+/*
+
+    This listener sends emails to notifiy users when they objects and types of objects that they watch are updated.
+
+    There are 2 types of notifications
+        User object notifications and user object notificatiosn
+        Group object notifications specifies the groups that should be notified with every update and creation.
+
+
+    Entity detail also plays a heavy role in the operation of this file. Essentially an EntityDetail entry is a collection of metadata that goes along with each type of entity that defines how the Entity interacts with the various other services that are built into the system.
+        The autowatch feature for entity deatil makes it so that the user who creates an entity will automatically watch the entity that is created.
+
+
+    Upcoming improvements:
+        The url and description is being set with every iteration of userobjectnoficiation and group objectnofitication
+        Need to check how the !entDet instanceof EntityDetail is defiend.
+
+
+    Long term suggested changes:
+        We might want to move the group filtering that takes place into this file and possibly kill support for sending to groups altogether.
+        It might make sense to keep it simple and just have users in cryoblock mailer.
+
+*/
 
 class ObjectNotificationListener
 {
@@ -31,16 +54,17 @@ class ObjectNotificationListener
     public $ignoreClasses = array(
         'Carbon\ApiBundle\Entity\UserObjectNotification',
         'Carbon\ApiBundle\Entity\EntityDetail',
+        'Carbon\ApiBundle\Entity\Comment',
         'Gedmo\Loggable\Entity\LogEntry'
     );
 
+    // Todo
     public function postPersist(LifecycleEventArgs $args)
     {
 
         $entity = $args->getEntity();
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
-
 
         if (in_array(get_class($entity), $this->ignoreClasses)) {
             return;
@@ -49,7 +73,6 @@ class ObjectNotificationListener
         if (!$this->tokenStorage->getToken()) {
             return;
         }
-
 
         $creatingUser = $this->tokenStorage->getToken()->getUser();
 
@@ -77,7 +100,7 @@ class ObjectNotificationListener
 
         }
 
-        $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification') //Have not even changed this yet...
+        $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
                 'entityDetailId' => $entDetId
             ))
@@ -100,7 +123,13 @@ class ObjectNotificationListener
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnCreate() && $userObjectNotification->getUser() != $creatingUser) {
-                $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+
+                if (is_object($userObjectNotification->getUser())) {
+                    if ($userObjectNotification->getUser()->isEnabled()) {
+                        $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                    }
+                }
+
                 $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
                 $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
             }
@@ -161,6 +190,7 @@ class ObjectNotificationListener
 
     }
 
+    // Fixed
     public function postUpdate(LifecycleEventArgs $args)
     {
 
@@ -218,17 +248,31 @@ class ObjectNotificationListener
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnUpdate()) {
-                $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+
+                if (is_object($userObjectNotification->getUser())) {
+                    if ($userObjectNotification->getUser()->isEnabled() == true){
+                        $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                    }
+                }
+
                 $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
                 $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
+
             }
         }
 
         foreach ($watchingUserNotifications as $watchingUserNotification) {
             if ($watchingUserNotification->getOnUpdate()) {
-                $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
+
+                if (is_object($watchingUserNotification->getUser())) {
+                    if ($watchingUserNotification->getUser()->isEnabled() == true) {
+                        $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
+                    }
+                }
+
                 $url = $watchingUserNotification->getEntityDetail()->getObjectUrl();
                 $objectDescription = $watchingUserNotification->getEntityDetail()->getObjectDescription();
+
             }
         }
 
@@ -322,6 +366,8 @@ class ObjectNotificationListener
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array(
             'objectClassName' => get_class($entity)
         ));
+
+        // I'm not sure how this evaluates
         if (!$entDet instanceof EntityDetail) {
             return;
         }
@@ -357,15 +403,30 @@ class ObjectNotificationListener
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
             if ($userObjectNotification->getOnDelete()) {
-                $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+
+                if (is_object($userObjectNotification->getUser())) {
+                    if ($userObjectNotification->getUser()->isEnabled() == true){
+                        $to[$userObjectNotification->getUser()->getEmail()] = $userObjectNotification->getUser()->getFullName();
+                    }
+                }
+
+                // This does not need to be set with every iteration of the loop this is a waste
                 $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
                 $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
             }
         }
 
+        // Check to make sure that the user in question is still enabled
         foreach ($watchingUserNotifications as $watchingUserNotification) {
             if ($watchingUserNotification->getOnDelete()) {
-                $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
+
+                if (is_object($watchingUserNotification->getUser())) {
+                    if($watchingUserNotification->getUser()->isEnabled() == true){
+                        $to[$watchingUserNotification->getUser()->getEmail()] = $watchingUserNotification->getUser()->getFullName();
+                    }
+                }
+
+                // This does not need to be set with every iteration of the loop
                 $url = $watchingUserNotification->getEntityDetail()->getObjectUrl();
                 $objectDescription = $watchingUserNotification->getEntityDetail()->getObjectDescription();
             }

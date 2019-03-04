@@ -19,6 +19,12 @@ Carbon\ApiBundle\Entity\User:
         lastName:
           expose: true
           groups: [default]
+        title:
+          expose: true
+          groups: [default]
+        about:
+          expose: true
+          groups: [default]
         createdAt:
           expose: true
           groups: [default]
