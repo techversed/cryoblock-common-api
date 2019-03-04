@@ -79,7 +79,6 @@ class ObjectNotificationListener
         return false;
     }
 
-    // Todo
     public function postPersist(LifecycleEventArgs $args)
     {
 
@@ -208,7 +207,6 @@ class ObjectNotificationListener
 
     }
 
-    // Fixed
     public function postUpdate(LifecycleEventArgs $args)
     {
 
@@ -385,7 +383,6 @@ class ObjectNotificationListener
             'objectClassName' => get_class($entity)
         ));
 
-        // I'm not sure how this evaluates
         if (!$entDet instanceof EntityDetail) {
             return;
         }
@@ -428,7 +425,6 @@ class ObjectNotificationListener
                     }
                 }
 
-                // This does not need to be set with every iteration of the loop this is a waste
                 $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
                 $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
             }
