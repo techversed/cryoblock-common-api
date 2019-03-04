@@ -19,10 +19,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
     // I don't know how we should handle toggling isPublicEdit/allowAllStorageContainer...etc booleans when cascading permissiosn.
     // Trampling permissions should have toggling handled propertly.
 
+
 /*
     Base Division Listener
     Written by Andre Jon Branchizio
     Modified by Taylor Jones
+
 
     Originally we chose to make it so that the permissions of chidren divisions would be overwritten by changes to their immediate parent
     This has been modified so that the changes that take place with the parent will also be applied to the children

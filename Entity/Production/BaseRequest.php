@@ -7,20 +7,54 @@ use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
 
 /** @ORM\MappedSuperclass */
-abstract class BaseRequest Implements BaseRequestInterface
+abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInterface
 {
+
+    /*
+        Important note -- All requests must have an object called requestProjects which is a one to many using a linker table which is specific to that implmentation of this abstract class --
+
+
+         * JMS\VirtualProperty()
+         * JMS\Groups({"default"})
+        public function getProjectString()
+        {
+            $projectNames = [];
+            if ($this->projectRequests && (is_array($this->projectRequests) || is_object($this->projectRequests))) {
+                foreach ($this->projectRequests as $requestProject) {
+                    $projectNames[] = $requestProject->getProject()->getName();
+                }
+                return implode(", ", $projectNames);
+            }
+        }
+
+
+    */
+
+    /*
+    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="request")
+    */
+    abstract public function getRequestProjects();
+    abstract public function setRequestProjects($requestProjects);
+    abstract public function getProjectString();
+    abstract public function getInputSamples();
+    abstract public function setInputSamples($inputSamples);
+    abstract public function getOutputSamples();
+    abstract public function setOutputSamples($outputSamples);
+
+    /*
+    transient
+    */
+    public $projects;
+    public $samples;
+
     const STATUS_PENDING = 'Pending';
-
     const STATUS_PENDING_PIPELINE = 'Pending-Pipeline';
-
     const STATUS_PROCESSING = 'Processing';
-
     const STATUS_ABORTED = 'Aborted';
-
     const STATUS_COMPLETED = 'Completed';
-
     const STATUS_ACTION_REQUIRED = 'Action Required';
 
     /**
@@ -90,72 +124,6 @@ abstract class BaseRequest Implements BaseRequestInterface
      * @JMS\Groups({"default"})
      */
     protected $pipelineStep;
-
-    /**
-     * @var User $createdBy
-     *
-     * @Gedmo\Blameable(on="create")
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
-     * @ORM\JoinColumn(name="created_by_id", referencedColumnName="id")
-     * @JMS\Groups({"default"})
-     */
-    protected $createdBy;
-
-    /**
-     * Created by id
-     * @ORM\Column(name="created_by_id", type="integer", nullable=false)
-     * @JMS\Groups({"default"})
-     */
-    protected $createdById;
-
-    /**
-     * @var User $updatedBy
-     *
-     * @Gedmo\Blameable(on="update")
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
-     * @ORM\JoinColumn(name="updated_by_id", referencedColumnName="id")
-     * @JMS\Groups({"default"})
-     */
-    protected $updatedBy;
-
-    /**
-     * Created by id
-     * @ORM\Column(name="updated_by_id", type="integer", nullable=false)
-     * @JMS\Groups({"default"})
-     */
-    protected $updatedById;
-
-    /**
-     * @var \DateTime $created
-     *
-     * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(type="datetime")
-     * @JMS\Groups({"default"})
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime $updated
-     *
-     * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(type="datetime")
-     * @JMS\Groups({"default"})
-     */
-    protected $updatedAt;
-
-    /**
-     * @var \DateTime $deletedAt
-     *
-     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
-     * @JMS\Groups({"default"})
-     */
-    protected $deletedAt;
-
-    /**
-    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="request")
-    */
-    protected $projectRequests;
-
 
     /**
      * Gets the value of alias.
@@ -278,174 +246,6 @@ abstract class BaseRequest Implements BaseRequestInterface
     }
 
     /**
-     * Gets the value of createdBy.
-     *
-     * @return User $createdBy
-     */
-    public function getCreatedBy()
-    {
-        return $this->createdBy;
-    }
-
-    /**
-     * Sets the value of createdBy.
-     *
-     * @param User $createdBy $createdBy the created by
-     *
-     * @return self
-     */
-    public function setCreatedBy($createdBy)
-    {
-        $this->createdBy = $createdBy;
-
-        return $this;
-    }
-
-    /**
-     * Gets the Created by id.
-     *
-     * @return mixed
-     */
-    public function getCreatedById()
-    {
-        return $this->createdById;
-    }
-
-    /**
-     * Sets the Created by id.
-     *
-     * @param mixed $createdById the created by id
-     *
-     * @return self
-     */
-    public function setCreatedById($createdById)
-    {
-        $this->createdById = $createdById;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of updatedBy.
-     *
-     * @return User $updatedBy
-     */
-    public function getUpdatedBy()
-    {
-        return $this->updatedBy;
-    }
-
-    /**
-     * Sets the value of updatedBy.
-     *
-     * @param User $updatedBy $updatedBy the updated by
-     *
-     * @return self
-     */
-    public function setUpdatedBy($updatedBy)
-    {
-        $this->updatedBy = $updatedBy;
-
-        return $this;
-    }
-
-    /**
-     * Gets the Created by id.
-     *
-     * @return mixed
-     */
-    public function getUpdatedById()
-    {
-        return $this->updatedById;
-    }
-
-    /**
-     * Sets the Created by id.
-     *
-     * @param mixed $updatedById the updated by id
-     *
-     * @return self
-     */
-    public function setUpdatedById($updatedById)
-    {
-        $this->updatedById = $updatedById;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of createdAt.
-     *
-     * @return \DateTime $created
-     */
-    public function getCreatedAt()
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * Sets the value of createdAt.
-     *
-     * @param \DateTime $created $createdAt the created at
-     *
-     * @return self
-     */
-    public function setCreatedAt($createdAt)
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of updatedAt.
-     *
-     * @return \DateTime $updated
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
-    }
-
-    /**
-     * Sets the value of updatedAt.
-     *
-     * @param \DateTime $updated $updatedAt the updated at
-     *
-     * @return self
-     */
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of deletedAt.
-     *
-     * @return \DateTime $deletedAt
-     */
-    public function getDeletedAt()
-    {
-        return $this->deletedAt;
-    }
-
-    /**
-     * Sets the value of deletedAt.
-     *
-     * @param \DateTime $deletedAt $deletedAt the deleted at
-     *
-     * @return self
-     */
-    public function setDeletedAt($deletedAt)
-    {
-        $this->deletedAt = $deletedAt;
-
-        return $this;
-    }
-
-    /**
      * Gets the value of status.
      *
      * @return string $status
@@ -474,38 +274,50 @@ abstract class BaseRequest Implements BaseRequestInterface
    }
 
     /**
-     * @JMS\VirtualProperty()
-     * @JMS\Groups({"default"})
-     */
-    public function getProjectString()
-    {
-        $projectNames = [];
-        if ($this->projectRequests && (is_array($this->projectRequests) || is_object($this->projectRequests))) {
-            foreach ($this->projectRequests as $requestProject) {
-                $projectNames[] = $requestProject->getProject()->getName();
-            }
-            return implode(", ", $projectNames);
-        }
-    }
-    /**
-     * Gets the value of projectRequests.
+     * Gets the value of samples.
      *
      * @return mixed
      */
-    public function getProjectRequests()
+    public function getSamples()
     {
-        return $this->projectRequests;
+        return $this->samples;
     }
+
     /**
-     * Sets the value of projectRequests.
+     * Sets the value of samples.
      *
-     * @param mixed $projectRequests the project requests
+     * @param mixed $samples the samples
      *
      * @return self
      */
-    public function setProjectRequests($projectRequests)
+    public function setSamples($samples)
     {
-        $this->projectRequests = $projectRequests;
+        $this->samples = $samples;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of projects.
+     *
+     * @return mixed
+     */
+    public function getProjects()
+    {
+        return $this->projects;
+    }
+
+    /**
+     * Sets the value of projects.
+     *
+     * @param mixed $projects the projects
+     *
+     * @return self
+     */
+    public function setProjects($projects)
+    {
+        $this->projects = $projects;
+
         return $this;
     }
 }

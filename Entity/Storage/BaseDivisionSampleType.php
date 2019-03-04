@@ -7,9 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Validator\Constraints as Assert;
+use Carbon\ApiBundle\Entity\Storage\BaseDivisionAccessGovernor;
 
 /** @ORM\MappedSuperclass */
-class BaseDivisionSampleType
+class BaseDivisionSampleType extends BaseDivisionAccessGovernor
 {
     /**
      * @var integer
@@ -25,21 +26,6 @@ class BaseDivisionSampleType
      * @JMS\Groups({"default"})
      */
     protected $sampleType;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="division_id", type="integer")
-     * @JMS\Groups({"default"})
-     */
-    protected $divisionId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Division", inversedBy="divisionSampleTypes")
-     * @ORM\JoinColumn(name="division_id", nullable=false)
-     * @JMS\Groups({"default"})
-     */
-    protected $division;
 
     /**
      * Gets the value of sampleTypeId.
@@ -89,51 +75,4 @@ class BaseDivisionSampleType
         return $this;
     }
 
-    /**
-     * Gets the value of divisionId.
-     *
-     * @return integer
-     */
-    public function getDivisionId()
-    {
-        return $this->divisionId;
-    }
-
-    /**
-     * Sets the value of divisionId.
-     *
-     * @param integer $divisionId the division id
-     *
-     * @return self
-     */
-    public function setDivisionId($divisionId)
-    {
-        $this->divisionId = $divisionId;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of division.
-     *
-     * @return mixed
-     */
-    public function getDivision()
-    {
-        return $this->division;
-    }
-
-    /**
-     * Sets the value of division.
-     *
-     * @param mixed $division the division
-     *
-     * @return self
-     */
-    public function setDivision($division)
-    {
-        $this->division = $division;
-
-        return $this;
-    }
 }
