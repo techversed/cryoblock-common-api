@@ -168,16 +168,19 @@ class BaseDivisionListener
     */
     public function bulkUpdateBooleans($conn, $booleans = array(), $divisions)
     {
-        if (count($booleans > 0)){
+        if (count($booleans) > 0){
+
             $strarr = array();
+
             foreach ($booleans as $key => $value)
             {
+
                 $strarr[] = $key.' = '.$value;
             }
 
             $valString = '('.implode(', ', $divisions).')';
 
-            $strstr = implode(' and ', $strarr);
+            $strstr = implode(', ', $strarr);
 
             $query = "UPDATE storage.division set ".$strstr." where id in ".$valString;
             $stmt = $conn->prepare($query);
@@ -185,7 +188,9 @@ class BaseDivisionListener
         }
     }
 
-    //Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
+
+    // This should really have a more strict set of conditions for when to get called -- not just if it has a property called cascade
+    // Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
@@ -196,6 +201,7 @@ class BaseDivisionListener
         if (!array_key_exists('cascade', $request)) {
             return;
         }
+
         $cascade =  $request['cascade'];
 
         // If we are creating an entity it will not have an id or children and it will have no need for any sort of cascading
@@ -300,6 +306,30 @@ class BaseDivisionListener
                     $condition = 'id IN (SELECT division_id FROM storage.division_group_viewer WHERE group_id = '.$entityId.')';
                     $divisionList = $this->buildChildList($conn,$divisionId, $condition);
                     $this->removeFromChildren($conn, 'storage.division_group_viewer', 'group_id', $entityId, $divisionList);
+                }
+            }
+
+            foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
+
+                if ($entity instanceof Division && $entity->getId() == $request['id']) { // Only want to call this portion for the update which was created by the request -- don't want to end up in an infinite loop...
+                    $divisionMetadata = $em->getClassMetaData(get_class($entity));
+
+                    $accessorBooleans = array();
+                    $id = $entity->getId();
+
+                    foreach ( $uow->getEntityChangeset($entity) as $keyField => $field){
+
+                        if ( in_array($keyField, array('isPublicEdit', 'isPublicView', 'allowAllStorageContainers', 'allowAllSampleTypes')) ) {
+
+                            $accessorBooleans[$divisionMetadata->getColumnName($keyField)] = $field[1] ? "true" : "false";
+                            // $accessorBooleans[] = array($keyField => $field[1]);
+
+                        }
+                    }
+
+                    $childList = $this->buildChildList($conn, $request['id']);
+                    $this->bulkUpdateBooleans($conn, $accessorBooleans, $childList);
+
                 }
             }
 
