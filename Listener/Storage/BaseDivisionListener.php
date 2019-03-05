@@ -196,7 +196,7 @@ class BaseDivisionListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
         $conn = $em->getConnection();
-        $request =  $this->request_stack->getCurrentRequest()
+        $request =  $this->request_stack->getCurrentRequest();
 
         if(!is_object($request)){
             return;

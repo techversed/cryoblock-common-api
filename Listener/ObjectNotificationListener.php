@@ -86,7 +86,7 @@ class ObjectNotificationListener
 
         $entity = $args->getEntity();
 
-        if (classOrInterfaceIgnored($entity)) {
+        if ($this->classOrInterfaceIgnored($entity)) {
             return;
         }
 
@@ -213,7 +213,7 @@ class ObjectNotificationListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
-        if (classOrInterfaceIgnored($entity)) {
+        if ($this->classOrInterfaceIgnored($entity)) {
             return;
         }
 

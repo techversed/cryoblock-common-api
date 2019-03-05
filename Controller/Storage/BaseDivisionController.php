@@ -45,7 +45,7 @@ class BaseDivisionController extends CarbonApiController
      */
     public function handleGet()
     {
-        // return parent::handleGet();
+        return parent::handleGet();
         // $isDataTableRequest = $this->isDataTableRequest($request);
 
         // $entityRepository = $this->getEntityRepository();
@@ -69,12 +69,21 @@ class BaseDivisionController extends CarbonApiController
             'tree',
             'parent',
             'samples',
+            'viewers',
+            'groupViewers',
+            'groupEditors',
+            'editors',
             'children',
             'children' => array(
                 'default',
                 'parent',
+                'viewers',
+                'editors',
+                'groupViewers',
+                'groupEditors',
                 'samples',
                 'tree'
+
 
             )
         ));
