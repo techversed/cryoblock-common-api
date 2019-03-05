@@ -45,7 +45,7 @@ class BaseDivisionController extends CarbonApiController
      */
     public function handleGet()
     {
-        return parent::handleGet();
+        // return parent::handleGet();
         // $isDataTableRequest = $this->isDataTableRequest($request);
 
         // $entityRepository = $this->getEntityRepository();
@@ -67,24 +67,54 @@ class BaseDivisionController extends CarbonApiController
         $context = SerializationContext::create()->setGroups(array(
             'default',
             'tree',
-            'parent',
             'samples',
-            'viewers',
-            'groupViewers',
-            'groupEditors',
-            'editors',
+            'parent',
             'children',
+
             'children' => array(
                 'default',
-                'parent',
                 'viewers',
                 'editors',
                 'groupViewers',
                 'groupEditors',
-                'samples',
-                'tree'
-
-
+                'sampleTypes',
+                'containers',
+                'divisionGroupViewers' => array(
+                    'default',
+                    'group' => array(
+                        'default'
+                    )
+                ),
+                'divisionGroupEditors' => array(
+                    'defualt',
+                    'group' => array(
+                        'default'
+                    )
+                ),
+                'divisionViewers' => array(
+                    'default',
+                    'user' => array(
+                        'default'
+                    )
+                ),
+                'divisionEditors' => array(
+                    'default',
+                    'user' => array(
+                        'default'
+                    )
+                ),
+                'divisionStorageContainers' => array(
+                    'default',
+                    'storageContainer' => array(
+                        'default'
+                    )
+                ),
+                'divisionSampleTypes' => array(
+                    'default',
+                    'sampleType' => array(
+                        'default'
+                    )
+                )
             )
         ));
 
