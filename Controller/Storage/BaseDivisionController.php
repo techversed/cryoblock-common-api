@@ -66,11 +66,48 @@ class BaseDivisionController extends CarbonApiController
 
         $context = SerializationContext::create()->setGroups(array(
             'default',
-            'tree',
+            // 'tree',
             'samples',
             'parent',
             'children',
-
+            'parent' => array(
+                'default',
+                'children',
+                'parent',
+                'samples',
+                'tree',
+                'viewers',
+                'editors',
+                'groupViewers',
+                'groupEditors',
+                'conatiners',
+                'sampleTypes',
+                'parent' => array(
+                    'default',
+                    'children',
+                    'parent',
+                    'samples',
+                    'tree',
+                    'viewers',
+                    'editors',
+                    'groupViewers',
+                    'groupEditors',
+                    'conatiners',
+                    'sampleTypes',
+                    'parent' => array(
+                        'default',
+                        // 'parent',
+                        // 'parent' => array(
+                        //     'parent',
+                        //     'default',
+                        //     'parent' => array(
+                        //         'default',
+                        //         'parent'
+                        //     )
+                        // )
+                    )
+                )
+            ),
             'children' => array(
                 'default',
                 'viewers',

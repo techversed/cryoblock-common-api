@@ -15,7 +15,6 @@ Upcoming changes:
     Need to make it so that we are not encoding the strings for dimension string or percent full string -- that can take place on the front end and we do not need to waste time computing it on the backend whenever we serialize a division -- it's dumb.
     We can probably cut down on the number of things that we are serializing which will be important for improving performance.
 
-
 */
 
 
@@ -135,7 +134,7 @@ class BaseDivision extends BaseCryoblockEntity
     /**
      * @ORM\OneToMany(targetEntity="Division", mappedBy="parent")
      * @JMS\Groups({"children"})
-     * @JMS\MaxDepth(2)
+     * @JMS\MaxDepth(5)
      */
     protected $children;
 

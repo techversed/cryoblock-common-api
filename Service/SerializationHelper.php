@@ -9,6 +9,12 @@ use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Config\FileLocator;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/*
+    Written by Andre Branchizio
+    This file serves as a wrapper for
+
+*/
+
 /**
  * Builds the SerializationContext from GET Parameters
  */
@@ -47,10 +53,12 @@ class SerializationHelper
         return $this->serializer->serialize($data, $type, $this->buildSerializationContext($groups));
     }
 
+    // Added by Taylor Jones -- I was running into an instance where I needed to use a custom context
     public function serializeWithContext($data, $context, $type= 'json') {
         return $this->serializer->serialize($data, $type, $context);
     }
 
+    // Added by Taylor Jones -- I did not end up using this. It should be possible to do everything with just the serialize with constext things
     public function getSerializer()
     {
         return $this->serializer;
