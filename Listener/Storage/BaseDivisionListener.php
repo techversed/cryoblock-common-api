@@ -198,6 +198,10 @@ class BaseDivisionListener
         $conn = $em->getConnection();
         $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
 
+        if(!is_object($request)){
+            return;
+        }
+
         if (!array_key_exists('propagationBehavior', $request)){
             return;
         }
@@ -362,6 +366,10 @@ class BaseDivisionListener
         $em = $args->getEntityManager();
         $conn = $em->getConnection();
         $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
+
+        if(!is_object($request)){
+            return;
+        }
 
         if ($propMethod == 'Trample') {
 

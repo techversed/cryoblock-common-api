@@ -66,8 +66,17 @@ class BaseDivisionController extends CarbonApiController
 
         $context = SerializationContext::create()->setGroups(array(
             'default',
+            'tree',
+            'parent',
+            'samples',
             'children',
+            'children' => array(
+                'default',
+                'parent',
+                'samples',
+                'tree'
 
+            )
         ));
 
         $context->enableMaxDepthChecks();
