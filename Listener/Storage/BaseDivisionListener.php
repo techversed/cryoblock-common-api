@@ -196,11 +196,14 @@ class BaseDivisionListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
         $conn = $em->getConnection();
-        $request =  json_decode($this->request_stack->getCurrentRequest()->getContent(), true);
+        $request =  $this->request_stack->getCurrentRequest()
 
         if(!is_object($request)){
             return;
         }
+
+        $request = json_decode($request->getContent(), true);
+
 
         if (!array_key_exists('propagationBehavior', $request)){
             return;
