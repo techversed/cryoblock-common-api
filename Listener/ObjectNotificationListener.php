@@ -43,7 +43,6 @@ use Carbon\ApiBundle\Entity\Storage\BaseAccessGovernor;
     Long term suggested changes:
         We might want to move the group filtering that takes place into this file and possibly kill support for sending to groups altogether.
         It might make sense to keep it simple and just have users in cryoblock mailer.
-
 */
 
 class ObjectNotificationListener

@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Doctrine\Common\Collections\ArrayCollection;
+use JMS\Serializer\SerializationContext;
 
 /*
 
@@ -44,7 +45,46 @@ class BaseDivisionController extends CarbonApiController
      */
     public function handleGet()
     {
-        return parent::handleGet();
+        // return parent::handleGet();
+        // $isDataTableRequest = $this->isDataTableRequest($request);
+
+        // $entityRepository = $this->getEntityRepository();
+        // $request = $this->getRequest();
+        // $request = json_decode($request->getContent(), true);
+        // $data = $this->container->get('doctrine.orm.default_entity_manager')->getRepository(static::RESOURCE_ENTITY)->find(365);
+
+        // $isDataTableRequest = $this->isDataTableRequest($request);
+
+        // $data = $this->getSerializationHelper()->serialize(
+        //     $this->getGrid($isDataTableRequest)->getResult($this->getEntityRepository())
+        // );
+
+        // return $this->getJsonResponse($data);
+
+        $request = $this->getRequest();
+        $isDataTableRequest = $this->isDataTableRequest($request);
+
+        $context = SerializationContext::create()->setGroups(array(
+            'default',
+            'children',
+
+        ));
+
+        $context->enableMaxDepthChecks();
+
+        $data = $this->getSerializationHelper()->serializeWithContext(
+            $this->getGrid($isDataTableRequest)->getResult($this->getEntityRepository()), $context
+        );
+
+        // $tree = $this->getSerializationHelper()->serializeWithContext($data, $context, 'json');
+        return $this->getJsonResponse($data);
+
+        // $tree = $this->getSerializationHelper()->getSerializer()->serialize($data, 'json', $context);
+        // $tree = json_decode($tree, true);
+        // $tree = json_encode($tree);
+        // return $this->getJsonResponse($tree);
+
+        // return parent::handleGet();
     }
 
     /**
@@ -71,6 +111,7 @@ class BaseDivisionController extends CarbonApiController
 
     }
 
+    // Are we even hitting this route????
     /**
      * Handles the HTTP get request for getting a divisions children
      *

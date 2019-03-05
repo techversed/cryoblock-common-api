@@ -47,6 +47,15 @@ class SerializationHelper
         return $this->serializer->serialize($data, $type, $this->buildSerializationContext($groups));
     }
 
+    public function serializeWithContext($data, $context, $type= 'json') {
+        return $this->serializer->serialize($data, $type, $context);
+    }
+
+    public function getSerializer()
+    {
+        return $this->serializer;
+    }
+
     /**
      * Builds the JMSSerializationContext from GET request params
      * and unsets the params from the request
