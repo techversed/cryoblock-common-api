@@ -35,6 +35,10 @@ class BaseDivisionController extends CarbonApiController
      */
     const FORM_TYPE = "division";
 
+    // Rewritten by Taylor -- The depth limitations on the serialization of children was resulting in problems where the divisionsampeltype, divisonstoragecontainer...etc were not being serialized
+    // In order to get around this problem while maintaining the performance characteristics of the original I had to sidestep the serialization helper so that I could use a custom serialization context ...
+    // The use of the custom context to limit serialization made it so that I could raise the max depth on children to where it could serialize children -> divisionviewers -> user -> avatar attachment and other similar cases with access governors
+
     /**
      * Handles the HTTP get request for the division entity
      *

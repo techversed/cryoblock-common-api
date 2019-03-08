@@ -12,6 +12,28 @@ use Carbon\ApiBundle\Entity\Storage\BaseDivisionAccessGovernor;
 /** @ORM\MappedSuperclass */
 class BaseDivisionSampleType extends BaseDivisionAccessGovernor
 {
+
+// Constants
+
+// Implemenations of Abstract Classes
+    public function getAccessGovernor () {
+        $this->getSampleType();
+    }
+
+    public function setAccessGovernor ($ag) {
+        $this->setSampleType($ag);
+    }
+
+    public function getAccessGovernorId () {
+        $this->getSampleTypeId();
+    }
+
+    public function setAccessGovernorId ($id) {
+        $this->setSampleType($id);
+    }
+
+// Attributes
+
     /**
      * @var integer
      *
@@ -27,6 +49,8 @@ class BaseDivisionSampleType extends BaseDivisionAccessGovernor
      */
     protected $sampleType;
 
+
+// Getters and setters
     /**
      * Gets the value of sampleTypeId.
      *

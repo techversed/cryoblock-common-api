@@ -12,6 +12,27 @@ use Carbon\ApiBundle\Entity\Storage\BaseDivisionAccessGovernor;
 /** @ORM\MappedSuperclass */
 class BaseDivisionStorageContainer extends BaseDivisionAccessGovernor
 {
+
+// Constants
+
+// Implementaitons of Parent's Abstract classes
+    public function getAccessGovernor () {
+        $this->getStorageContainer();
+    }
+
+    public function setAccessGovernor ($ag) {
+        $this->setStorageContainer($ag);
+    }
+
+    public function getAccessGovernorId () {
+        $this->getStorageContainerId();
+    }
+
+    public function setAccessGovernorId ($id) {
+        $this->setStorageContainer($id);
+    }
+
+//Attributes
     /**
      * @var integer
      *
@@ -27,6 +48,8 @@ class BaseDivisionStorageContainer extends BaseDivisionAccessGovernor
      */
     protected $storageContainer;
 
+
+// Getters and setters
     /**
 
      * Gets the value of storageContainerId.

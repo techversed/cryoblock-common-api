@@ -12,6 +12,25 @@ use Carbon\ApiBundle\Entity\Storage\BaseDivisionAccessGovernor;
 /** @ORM\MappedSuperclass */
 class BaseDivisionEditor extends BaseDivisionAccessGovernor
 {
+
+// Parent's abstract fuction implementations
+    public function getAccessGovernor () {
+        $this->getUser();
+    }
+
+    public function setAccessGovernor ($ag) {
+        $this->setUser($ag);
+    }
+
+    public function getAccessGovernorId () {
+        $this->getUserId();
+    }
+
+    public function setAccessGovernorId ($id) {
+        $this->setUserId($id);
+    }
+
+// Attributes
     /**
      * @var integer
      *
@@ -26,6 +45,12 @@ class BaseDivisionEditor extends BaseDivisionAccessGovernor
      * @JMS\Groups({"default"})
      */
     protected $user;
+
+// Transient variables
+
+// Virtual Properties
+
+// Getters and settters
 
     /**
      * Gets the value of userId.

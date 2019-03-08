@@ -7,6 +7,17 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation AS JMS;
 
+/*
+    Should be implemented by all things that where the following properties should be kept
+        deletedat
+        createdat
+        updatedat
+        createdby
+        updatedby
+
+
+*/
+
 /** @ORM\MappedSuperclass */
 class BaseCryoblockEntity
 {

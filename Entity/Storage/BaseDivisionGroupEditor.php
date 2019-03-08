@@ -12,6 +12,26 @@ use Carbon\ApiBundle\Entity\Storage\BaseDivisionAccessGovernor;
 /** @ORM\MappedSuperclass */
 class BaseDivisionGroupEditor extends BaseDivisionAccessGovernor
 {
+
+// Implmentations of parent's abstract classes
+    public function getAccessGovernor () {
+        $this->getGroup();
+    }
+
+    public function setAccessGovernor ($ag) {
+        $this->setGroup($ag);
+    }
+
+    public function getAccessGovernorId () {
+        $this->getGroupId();
+    }
+
+    public function setAccessGovernorId ($id) {
+        $this->setGroupId($id);
+    }
+
+
+// Attributes
     /**
      * @var integer
      *
@@ -27,6 +47,11 @@ class BaseDivisionGroupEditor extends BaseDivisionAccessGovernor
      */
     protected $group;
 
+// Transient Variables
+
+// Virtual Properties
+
+// Getters and setters
     /**
 
      * Gets the value of groupId.

@@ -8,9 +8,30 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/*
+    This class serves as a base class for all things which govern access to storage divisions
+
+
+    static::
+
+
+    // Future plans -- change get
+        // Add another abstract function which makes it so that this same pricipal can be used with virtually any groupi
+            //abstract getGroupingElement() -- gets the grouping that is used for grouping documents or simulating a filesystem or whatever the case may be.
+
+
+*/
+
 /** @ORM\MappedSuperClass */
 class BaseDivisionAccessGovernor {
 
+// Abstract functions
+    abstract public function getAccessGovernor();
+    abstract public function setAccessGovernor($ag);
+    abstract public function getAccessGovernorId();
+    abstract public function setAccessGovernorId($id);
+
+// Attributes
     /**
      * @var integer
      *
@@ -33,6 +54,10 @@ class BaseDivisionAccessGovernor {
      * @JMS\Groups({"default"})
      */
     protected $deletedAt;
+
+// Transient variables
+
+// Getters and setters
 
     /**
      * Gets the value of divisionId.
