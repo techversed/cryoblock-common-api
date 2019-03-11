@@ -14,8 +14,6 @@ use JMS\Serializer\Annotation AS JMS;
         updatedAt
         createdBy
         updatedBy
-
-
 */
 
 /** @ORM\MappedSuperclass */

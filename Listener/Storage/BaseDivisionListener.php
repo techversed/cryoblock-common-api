@@ -18,10 +18,18 @@ use Carbon\ApiBundle\Entity\Storage\BaseDivisionStorageContainer;
 use Carbon\ApiBundle\Entity\Storage\BaseDivisionSampleType;
 use Carbon\ApiBundle\Entity\Storage\BaseDivisionAccessGovernor;
 
-// VIOLATION -- This is located in command and it is dependant upon certain functionality being located in a known namespace outside of common.
-use AppBundle\Entity\Storage\Division as SpecificDivName;
+// VIOLATION -- This is located in command and it is dependant upon certain functionality being located in a known namespace outside of common. -- This can be fixed by making this class abstract and extending it locally in the crowelab project directory...
+// use AppBundle\Entity\Storage\Division as SpecificDivName;
     // CollectionType is used to make the rest of this code as generic as possible.
     // Collection type must extend BaseDivision -- This should be changed later on... -- There should be an abstract class above base division in all honesty
+
+
+// VIOLATION --
+/*
+    This listener makes the assumption that the database which is being used is SQL based -- The performance of this apporoach is much faster than any alternative however this is VERY bad behavior in common
+    --  I would like to get to the point where we do not make any assumptions in common about the nature of the implementation's database...
+    -- I think that this could be done by having a series of steps which are implemented using
+*/
 
 // Outstanding concerns:
     // I don't know how we should handle toggling isPublicEdit/allowAllStorageContainer...etc booleans when cascading permissions.
@@ -60,8 +68,14 @@ use AppBundle\Entity\Storage\Division as SpecificDivName;
     Later versions may make it possible to select the method fo cascading which is going to be used for this update operation -- I think that this will present problems because users will not take the time to get to understand the tools that we are creating
 */
 
-class BaseDivisionListener
+abstract class BaseDivisionListener
 {
+
+    // This function must be call a constructor of the type of division taht is being used in this hierarchy.
+    // By default we have only used sample storage divisions with this type of listener but I am trying to make it so that the propagation behavior which is implemented in this file can easily be brought to any set of divisions that are structured as a tree
+    //
+    abstract public function createDivisionOfSpecificType();
+
     private $logger;
     private $runPostFlush = false;
     private $request_stack;
@@ -74,6 +88,8 @@ class BaseDivisionListener
 
     // VIOLATION -- this should really use the doctrine query language but this is just so fast and straight forward that it is hard to bring myself to replace it.
     // This is called to build lists of children instead of using doctrine query language or the ->createChildQuery which is present in the division repository -- I ran some benchamrks and the version that queried the database directly ran 35 times faster in the little test that I perormed. about 20 ms instead of 70 ms
+
+    // Since this tree building implementation is so much faster than building a similar tree with frequency entity manager calls it would probably be a good idea to move this into one of the base repository classes.
 
     /*
         $conn = database connection
@@ -130,7 +146,7 @@ class BaseDivisionListener
 
         $hasAccessor ? '' : 'NOT';
 
-        $query = "SELECT ".$divTableColumn." FROM ".$divTableColumn." AS d WHERE ".$divTableColumn." IN ". $strlist." AND d.id ".$hasAccessor." IN (division_id FROM ".$accessorTable." WHERE " . $accessorColumn. " = ".$accessorValue." AND ".$accessorCondition.") AND ".$divCondition;
+        $query = "SELECT d.".$divTableColumn." FROM ".$divTableName." AS d WHERE d.".$divTableColumn." IN ". $strlist." AND d.".$divTableColumn." ".$hasAccessor." IN (SELECT division_id FROM ".$accessorTable." WHERE " . $accessorColumn. " = ".$accessorValue." AND ".$accessorCondition.") AND ".$divCondition;
         $stmt = $conn->prepare($query);
         $stmt->execute();
         $testSet = $stmt->fetchAll();
@@ -140,10 +156,13 @@ class BaseDivisionListener
 
 
     // use array_diff in order to fine the elements which are in the first array but not the second.
+    // $em - entity manager
+    // $divisionId = the id of the parent division
+    // $entity = the divisionAccessor entity that is being added.
     private function cascadeToChildren($em, $divisionId, $entity)
     {
 
-        $divClass = get_class(new SpecificDivName());
+        $divClass = get_class($this->createDivisionOfSpecificType());
         $divRepo = $em->getRepository($divClass);
         $divisionMetadata = $em->getClassMetadata($divClass);
         $divQb = $divRepo->createQueryBuilder($alias = "divs");
@@ -155,7 +174,11 @@ class BaseDivisionListener
         $childList = $this->buildChildList($em->getConnection(), $divisionMetadata->getTableName(), $divisionId);
 
         // VIOLATION -- should really avoid hard coding the divisison_id -- it is fine here since we are the only ones using this class -- When this is really common it should be avoided.
-        $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisonMetadata->getTableName(), 'id', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId());
+        $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisionMetadata->getTableName(), 'id', 'deleted_at IS NOT NULL', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId(), "deleted_at IS NOT NULL", false);
+    }
+
+    public function bulkUpdateBooleans (){
+
 
     }
 

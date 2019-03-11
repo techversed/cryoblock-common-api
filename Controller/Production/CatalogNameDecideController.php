@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Carbon\ApiBundle\Serializer\Dot;
 
+// There are VIOLATIONS IN THIS FILE -- I want to get to the point where there are no references to AppBundle in common -- We need to create generic classes which make it so that common does not make any assertions about the underlaying database structure..
+
 class CatalogNameDecideController extends CarbonApiController
 {
     /**
