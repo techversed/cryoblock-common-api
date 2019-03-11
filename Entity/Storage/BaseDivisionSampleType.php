@@ -29,6 +29,10 @@ abstract class BaseDivisionSampleType extends BaseDivisionAccessGovernor
     public function setAccessGovernorId($id) {
         return $this->setSampleType($id);
     }
+    public function testing()
+    {
+        return $this->getDivision()->getId();
+    }
 
 // Attributes
 

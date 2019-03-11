@@ -72,38 +72,98 @@ class BaseDivisionListener
         $this->request_stack = $request_stack;
     }
 
+
+    public function buildChildList($conn, $startDivisionId, $condition = 'deleted_at IS NULL')
+    {
+        $parentArray = array();
+        $currCount = 0;
+
+        $mapFunc =  function($temp){
+            return $temp['id'];
+        };
+
+        do {
+            $currCount = count($parentArray);
+
+            $arrString = $currCount > 0 ? ' OR parent_id IN  ('.implode(', ', $parentArray).') ' : '';
+            $query = "SELECT id FROM storage.division WHERE (parent_id = ".$startDivisionId.$arrString." ) AND ".$condition.";"; // VIOLATION -- assumes that they are using an sql based datababase
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+            $testSet = $stmt->fetchAll();
+
+            $parentArray = array_map($mapFunc, $testSet);
+
+        } while ($currCount != count($parentArray));
+
+        // echo count($parentArray);
+        // die();
+        return $parentArray;
+    }
+
+
     // use array_diff in order to fine the elements which are in the first array but not the second.
-    private function cascadeToChildren($em, $conn, $className, $entity)
+    private function cascadeToChildren($em, $divisionId, $entity)
     {
 
+        // die();
         //getChildrenQuery on repository
 
         $divRepo = $em->getRepository(get_class(new SpecificDivName()));
+        $divQb = $divRepo->createQueryBuilder($alias = "divs");
 
-        echo $entity->getDivision()->getId();
+        $accessorRepo = $em->getRepository(get_class($entity));
+        $accessorQb = $accessorRepo->createQueryBuilder($alias = "accessors");
+
+        $children = array();
+        $initChildren = array($divRepo->find($divisionId));
+
+        // do {
+
+        //     $numEntries = count($children);
+        //     $children2 = array();
+
+        //     foreach ($initChildren as $child) {
+        //         $temp  = $divRepo->getChildrenQuery($child, true)->getResult();
+
+        //         foreach ($temp as $t){
+        //             $children2[] = $t;
+        //         }
+        //     }
+
+        //     $initChildren = $children2;
+        //     $children = $children + $children2;
+
+        // } while ($numEntries != count($children));
+
+        // $valArr = array();
+        // foreach ($children as $child){
+        //     $valArr[] = $child->getId();
+        // }
+
+       // return $valArr;
+
+
+        // echo count($children);
+
+        // die();
+
+        // echo $entity->getDivision()->getId();
 
         // This will be uncommented on the final version
         // $node = $divRepo->find(1);
 
         // $childNodes = $divRepo->getChildrenQuery($node, true)->getResult();
 
-        // die();
         // $childNodes = $this->getEntityRepository()->getChildrenQuery($nodes[0], true)->getResult();
 
+        // $results = $accessorQb->getQuery()->getResult();
 
-        $divQb = $divRepo->createQueryBuilder($alias = "divs");
+        // $count = 0;
 
-        $accessorRepo = $em->getRepository($className);
-        $accessorQb = $repo->createQueryBuilder($alias = "accessors");
-
-        $results = $accessorQb->getQuery()->getResult();
-
-        $count = 0;
-
-        foreach ($results as $result){
-            echo $count;
-            $count++;
-        }
+        // foreach ($results as $result){
+        //     echo $count;
+        //     $count++;
+        // }
 
         // die();
 
@@ -134,7 +194,8 @@ class BaseDivisionListener
             return;
         }
 
-        // If we are creating an entity it will not have an id or children and it will have no need for any sort of cascading
+        // If this is a creation it will not have an id
+            // If it is a creation there is also no need to cascade any permissions
         if (!array_key_exists('id', $request)) {
             return;
         }
@@ -146,58 +207,17 @@ class BaseDivisionListener
                 if ($entity instanceof BaseDivision) {
                     continue;
                 }
-                elseif ($entity instanceof BaseDivisionAccessGovernor){
+                elseif ($entity instanceof BaseDivisionAccessGovernor) {
 
-                    // $divisionId    = $entity->getDivision()->getId();
-                    $entityId = $entity->getAccessGovernor()->getId();
-                    // $className     = get_class($entity);
+                    $divisionId = $request['id'];
+                    // $entityId = $entity->getAccessGovernor()->getId();
 
-                    echo $entity->getDivision()->getDescription();
-
-                    // $classMetadata = $em->getClassMetaData($className); // Might not even need this
-
-                    // echo 'get'.$entity->getAccessGovernor();
-                    // $test = 'get'.$entity->getAccessGovernor()."()";
-                    // echo $entity->$test;
-                    // $test = $entity->getAccessGovernor();
-                    // echo $test->getId();
-                    // echo $entityId;
-                    // echo $divisionId;
-
-
-                    // echo $entity->getDivisionId();
-                    // $entity->test;
-
-                    // foreach ($uow->getEntityChangeSet($entity) as $keyField => $field) {
-
-                        // echo $entity->getSampleType()->getId();
-                        // echo $entity->getAccessGovernor()->getId();
-                        // echo $entity instanceof BaseDivisionSampleType;
-
-                        // if ($keyField == 'sampleType'){
-                        //     echo $keyField;
-                        //     echo $field[1]->getId();
-                        // }
-
-                        // echo get_class($field[1]);
-                        // die();
-                    // }
-
-
-                    // echo get_class($entity);
-                    // echo $entity->getAccessGovernor()->getDescription();
-
+                    $this->cascadeToChildren($em, $divisionId, $entity);
                     die();
-                    // echo $entity->getDivision()->getDescription();
-                    // $divId = $entity->getId();
-                    // echo $divisionId;
-                    // echo $entity->getDivisionId();
-                    die();
-
 
                     // Build child node set
 
-                    $this->cascadeToChildren($em, $conn, $className, $entity);
+
 
                     // $tableName = $classMetadata->getTableName();
                     // echo get_class($entity);
@@ -218,6 +238,7 @@ class BaseDivisionListener
             }
 
             foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
+
                 if ($entity instanceof BaseDivision && $entity->getId() == $request['id']) { // Only want to call this portion for the update which was created by the request -- don't want to end up in an infinite loop...
                     $divisionMetadata = $em->getClassMetaData(get_class($entity));
 
@@ -234,11 +255,11 @@ class BaseDivisionListener
                     $childList = $this->buildChildList($conn, $request['id']);
                     $this->bulkUpdateBooleans($conn, $accessorBooleans, $childList);
                 }
+
             }
 
 // When cascade is on...
     // What should the boolean cascade methodolgy look like?
-
         }
         else { // If cascade  is false then we need to get ready to trample stuff in the postFlush
             foreach (array_merge( array_merge($uow->getScheduledEntityUpdates(), $uow->getScheduledEntityInsertions() ), $uow->getScheduledEntityDeletions()) as $keyEntity => $entity){
