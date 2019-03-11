@@ -10,26 +10,26 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Carbon\ApiBundle\Entity\Storage\BaseDivisionAccessGovernor;
 
 /** @ORM\MappedSuperclass */
-class BaseDivisionViewer extends BaseDivisionAccessGovernor
+abstract class BaseDivisionViewer extends BaseDivisionAccessGovernor
 {
 
 // Constants
 
 // Implementations of parents abstract classes
     public function getAccessGovernor () {
-        $this->getUser();
+        return $this->getUser();
     }
 
     public function setAccessGovernor ($ag) {
-        $this->setUser($ag);
+        return $this->setUser($ag);
     }
 
     public function getAccessGovernorId () {
-        $this->getUserId();
+        return $this->getUserId();
     }
 
     public function setAccessGovernorId ($id) {
-        $this->setUserId($id);
+        return $this->setUserId($id);
     }
 
 // Attributes

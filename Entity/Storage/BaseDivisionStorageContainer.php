@@ -10,26 +10,26 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Carbon\ApiBundle\Entity\Storage\BaseDivisionAccessGovernor;
 
 /** @ORM\MappedSuperclass */
-class BaseDivisionStorageContainer extends BaseDivisionAccessGovernor
+abstract class BaseDivisionStorageContainer extends BaseDivisionAccessGovernor
 {
 
 // Constants
 
 // Implementaitons of Parent's Abstract classes
     public function getAccessGovernor () {
-        $this->getStorageContainer();
+        return $this->getStorageContainer();
     }
 
     public function setAccessGovernor ($ag) {
-        $this->setStorageContainer($ag);
+        return $this->setStorageContainer($ag);
     }
 
     public function getAccessGovernorId () {
-        $this->getStorageContainerId();
+        return $this->getStorageContainerId();
     }
 
     public function setAccessGovernorId ($id) {
-        $this->setStorageContainer($id);
+        return $this->setStorageContainer($id);
     }
 
 //Attributes

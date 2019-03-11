@@ -23,9 +23,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 */
 
 /** @ORM\MappedSuperClass */
-class BaseDivisionAccessGovernor {
+abstract class BaseDivisionAccessGovernor {
 
 // Abstract functions
+    abstract public function getId();
+    abstract public function setId($id);
     abstract public function getAccessGovernor();
     abstract public function setAccessGovernor($ag);
     abstract public function getAccessGovernorId();

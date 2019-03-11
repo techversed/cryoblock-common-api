@@ -2,7 +2,9 @@
 
 namespace Carbon\ApiBundle\Controller\Storage;
 
+// VIOLATION -- Common really should not make assertions about the location of anything outside of common.
 use AppBundle\Entity\Storage\Division;
+
 use Carbon\ApiBundle\Serializer\Dot;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -23,12 +25,13 @@ use JMS\Serializer\SerializationContext;
 
 */
 
+// We should declare this as abstract and make it so that "divison" and "RESOURCE_ENTITY" are both only listed on the class that extends this one...
 class BaseDivisionController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity
      */
-    const RESOURCE_ENTITY = "AppBundle\Entity\Storage\Division";
+    const RESOURCE_ENTITY = "AppBundle\Entity\Storage\Division"; // VIOLATION -- Common should not depend upon namespaces outside of common
 
     /**
      * @var string The form type for this resource
@@ -253,6 +256,7 @@ class BaseDivisionController extends CarbonApiController
 
         $division = $gridResult['data'][0];
 
+        // VIOLATION -- this should really not make assertions about the location of classes in common.
         $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')
             ->canUserEdit($division, $this->getUser())
         ;
@@ -456,7 +460,7 @@ class BaseDivisionController extends CarbonApiController
 
         $objPHPExcel = new \PHPExcel();
 
-        $prodRequest = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')->find($id);
+        $prodRequest = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')->find($id); // VIOLATION
         $prodRequestInputSamples = $prodRequest->getSamples();
 
         //If there are no samples in the division just return an empty response. Will prevent this endpoint from being hit in that event
@@ -510,6 +514,7 @@ class BaseDivisionController extends CarbonApiController
             'Division Column',
         );
 
+        // VIOLATION -- Common should not make assertions about the locations of things outside of common
         $storageContainers = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\StorageContainer')->findAll();
 
         $storageContainerNames = array();
@@ -518,10 +523,13 @@ class BaseDivisionController extends CarbonApiController
             $storageContainerNames[] = $storageContainer->getName();
         }
 
+        // VIOLATION -- This makes assertions about the Sampletype implemenation -- allowed units should not be in common
         $storageContainerNames = implode(', ', $storageContainerNames);
         $concentrationUnits = implode(', ', array(
             'mg/mL',
             'ng/uL',
+            'cells/ml',
+            'cells/ul',
             'Molar',
         ));
 
