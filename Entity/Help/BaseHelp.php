@@ -91,6 +91,18 @@ class BaseHelp extends BaseCryoblockEntity
     public $helpViewers;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Help\HelpGroupViewer", mappedBy="help", cascade={"remove"})
+     * @JMS\Groups({"children", "groupViewers"})
+     */
+    protected $helpGroupViewers;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Help\HelpGroupEditor", mappedBy="help", cascade={"remove"})
+     * @JMS\Groups({"children", "groupEditors"})
+     */
+    protected $helpGroupEditors;
+
+    /**
      * @ORM\Column(name="is_public_edit", type="boolean", nullable=false)
      * @JMS\Groups({"default"})
      */
@@ -483,6 +495,54 @@ class BaseHelp extends BaseCryoblockEntity
     public function setEditors($editors)
     {
         $this->editors = $editors;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of helpGroupViewers.
+     *
+     * @return mixed
+     */
+    public function getHelpGroupViewers()
+    {
+        return $this->helpGroupViewers;
+    }
+
+    /**
+     * Sets the value of helpGroupViewers.
+     *
+     * @param mixed $helpGroupViewers the help group viewers
+     *
+     * @return self
+     */
+    public function setHelpGroupViewers($helpGroupViewers)
+    {
+        $this->helpGroupViewers = $helpGroupViewers;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of helpGroupEditors.
+     *
+     * @return mixed
+     */
+    public function getHelpGroupEditors()
+    {
+        return $this->helpGroupEditors;
+    }
+
+    /**
+     * Sets the value of helpGroupEditors.
+     *
+     * @param mixed $helpGroupEditors the help group editors
+     *
+     * @return self
+     */
+    public function setHelpGroupEditors($helpGroupEditors)
+    {
+        $this->helpGroupEditors = $helpGroupEditors;
 
         return $this;
     }
