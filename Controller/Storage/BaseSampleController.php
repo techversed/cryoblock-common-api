@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NotFoundHttpException;
 
-class BaseSampleController extends CarbonApiController
+abstract class BaseSampleController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity

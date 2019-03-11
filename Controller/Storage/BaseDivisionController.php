@@ -26,7 +26,7 @@ use JMS\Serializer\SerializationContext;
 */
 
 // We should declare this as abstract and make it so that "divison" and "RESOURCE_ENTITY" are both only listed on the class that extends this one...
-class BaseDivisionController extends CarbonApiController
+abstract class BaseDivisionController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity

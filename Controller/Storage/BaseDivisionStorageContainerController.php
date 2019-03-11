@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Response;
 
-class BaseDivisionStorageContainerController extends CarbonApiController
+abtract class BaseDivisionStorageContainerController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity

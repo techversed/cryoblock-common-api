@@ -8,7 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 
-class BaseCatalogController extends CarbonApiController
+abstract class BaseCatalogController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity
