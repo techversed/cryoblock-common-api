@@ -11,6 +11,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Doctrine\Common\Collections\ArrayCollection;
 
+/*
+
+    Outstanding issues:
+        The division match route is filtering the number of elements down after is cutting it up into groups of 10.
+            For further clarification: If the filter on the grid is set to return 10 results but 6 of the results which would appear in the normal filterfree result set then it will instead return 4 elements.
+
+
+        CarbonGrid is resetting the orderby when you move to another page.
+
+*/
+
 class BaseDivisionController extends CarbonApiController
 {
     /**
@@ -76,8 +87,8 @@ class BaseDivisionController extends CarbonApiController
         $children = $this->getSerializationHelper()->serialize($childNodes);
 
         return $this->getJsonResponse($children);
-
     }
+
     /**
      * Handles the HTTP get request for the card entity
      *
@@ -198,7 +209,6 @@ class BaseDivisionController extends CarbonApiController
 
         }
 
-
         return $response;
     }
 
@@ -254,6 +264,8 @@ class BaseDivisionController extends CarbonApiController
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 
+
+    // This function is having problems where it is returning fewer results than expected when there is a division
     /**
      * Handles the HTTP POST request for moving a division
      *
@@ -264,6 +276,8 @@ class BaseDivisionController extends CarbonApiController
      */
     public function match($sampleTypeId, $storageContainerId)
     {
+        // buildMatchQuery
+
         $repo = $this->getEntityRepository();
         $qb = $repo->buildMatchQuery($sampleTypeId, $storageContainerId, $this->getUser());
 
@@ -523,5 +537,4 @@ class BaseDivisionController extends CarbonApiController
         return $response;
 
     }
-
 }
