@@ -27,6 +27,7 @@ abstract class BaseDivisionAccessGovernor {
 
 // Abstract functions
     abstract public function getId();
+    abstract public function getAccessorColumnName();
     abstract public function setId($id);
     abstract public function getAccessGovernor();
     abstract public function setAccessGovernor($ag);

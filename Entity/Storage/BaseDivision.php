@@ -19,8 +19,9 @@ Upcoming changes:
 
 
 /** @ORM\MappedSuperclass */
-class BaseDivision extends BaseCryoblockEntity
+abstract class BaseDivision extends BaseCryoblockEntity
 {
+
     /**
      * @ORM\Column(name="has_dimension", type="boolean")
      * @JMS\Groups({"default"})

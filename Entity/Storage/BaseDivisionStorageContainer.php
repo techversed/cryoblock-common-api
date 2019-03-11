@@ -16,19 +16,28 @@ abstract class BaseDivisionStorageContainer extends BaseDivisionAccessGovernor
 // Constants
 
 // Implementaitons of Parent's Abstract classes
-    public function getAccessGovernor () {
+    public function getAccessorColumnName()
+    {
+        return "storage_container_id";
+    }
+
+    public function getAccessGovernor ()
+    {
         return $this->getStorageContainer();
     }
 
-    public function setAccessGovernor ($ag) {
+    public function setAccessGovernor ($ag)
+    {
         return $this->setStorageContainer($ag);
     }
 
-    public function getAccessGovernorId () {
+    public function getAccessGovernorId ()
+    {
         return $this->getStorageContainerId();
     }
 
-    public function setAccessGovernorId ($id) {
+    public function setAccessGovernorId ($id)
+    {
         return $this->setStorageContainer($id);
     }
 

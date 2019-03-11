@@ -24,7 +24,7 @@ use AppBundle\Entity\Storage\Division as SpecificDivName;
     // Collection type must extend BaseDivision -- This should be changed later on... -- There should be an abstract class above base division in all honesty
 
 // Outstanding concerns:
-    // I don't know how we should handle toggling isPublicEdit/allowAllStorageContainer...etc booleans when cascading permissiosn.
+    // I don't know how we should handle toggling isPublicEdit/allowAllStorageContainer...etc booleans when cascading permissions.
     // Trampling permissions should have toggling handled propertly.
 
 // get_class
@@ -72,9 +72,18 @@ class BaseDivisionListener
         $this->request_stack = $request_stack;
     }
 
+    // VIOLATION -- this should really use the doctrine query language but this is just so fast and straight forward that it is hard to bring myself to replace it.
+    // This is called to build lists of children instead of using doctrine query language or the ->createChildQuery which is present in the division repository -- I ran some benchamrks and the version that queried the database directly ran 35 times faster in the little test that I perormed. about 20 ms instead of 70 ms
 
-    public function buildChildList($conn, $startDivisionId, $condition = 'deleted_at IS NULL')
+    /*
+        $conn = database connection
+        $tablename = the table table that is being queried (in this case it will be storage.divison -- kept abstract so that we can move things over into a more refined version of common
+        $startDivisionId = The base division that we want the children of
+        $condition = The thing that needs to be true == in this case we are using deleted_at IS NULL -- but this can be overridden
+    */
+    private function buildChildList($conn, $tablename, $startDivisionId, $condition = 'deleted_at IS NULL')
     {
+
         $parentArray = array();
         $currCount = 0;
 
@@ -86,7 +95,7 @@ class BaseDivisionListener
             $currCount = count($parentArray);
 
             $arrString = $currCount > 0 ? ' OR parent_id IN  ('.implode(', ', $parentArray).') ' : '';
-            $query = "SELECT id FROM storage.division WHERE (parent_id = ".$startDivisionId.$arrString." ) AND ".$condition.";"; // VIOLATION -- assumes that they are using an sql based datababase
+            $query = "SELECT id FROM ".$tablename." WHERE (parent_id = ".$startDivisionId.$arrString." ) AND ".$condition.";"; // VIOLATION -- assumes that they are using an sql based datababase
             $stmt = $conn->prepare($query);
             $stmt->execute();
             $testSet = $stmt->fetchAll();
@@ -95,9 +104,38 @@ class BaseDivisionListener
 
         } while ($currCount != count($parentArray));
 
-        // echo count($parentArray);
-        // die();
         return $parentArray;
+    }
+
+    // This is a disgusting function call... It needs to be this way in order to maintain flexbility but if we were only going to be using it for storage divisions a lot of stuff could be hard coded instead...
+    /*
+        $conn = database connection
+        $divTableName = table name for the divsion that you are searhcing,
+        $divCondition = lets the user provide a condition that applies to all parent entries which are returned
+        $childList -
+        $accessorTable -
+        $accessorColumn -
+        $accessorCondition - Anything else that needs to be appended to the thing that is being queried...
+        $accessorValue - The value that needs to be present in the column to move forwards
+            hasAccessor should be true when you want a list of children that have the accessor in question
+            hasAccessor should be false when you want a list of children that do not have the accessor in question
+    */
+    private function reduceDivisionList($conn, $divTableName, $divTableColumn, $divCondition = "deleted_at IS NOT NULL", $childList, $accessorTable, $accessorColumn, $accessorValue, $accessorCondition = "deleted_at IS NOT NULL", $hasAccessor = false){
+
+        $strlist = '('.implode(', ', $childList).')';
+
+        $mapFunc =  function($temp){
+            return $temp['id'];
+        };
+
+        $hasAccessor ? '' : 'NOT';
+
+        $query = "SELECT ".$divTableColumn." FROM ".$divTableColumn." AS d WHERE ".$divTableColumn." IN ". $strlist." AND d.id ".$hasAccessor." IN (division_id FROM ".$accessorTable." WHERE " . $accessorColumn. " = ".$accessorValue." AND ".$accessorCondition.") AND ".$divCondition;
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        $testSet = $stmt->fetchAll();
+
+        return array_map($mapFunc, $testSet);
     }
 
 
@@ -105,67 +143,19 @@ class BaseDivisionListener
     private function cascadeToChildren($em, $divisionId, $entity)
     {
 
-        // die();
-        //getChildrenQuery on repository
-
-        $divRepo = $em->getRepository(get_class(new SpecificDivName()));
+        $divClass = get_class(new SpecificDivName());
+        $divRepo = $em->getRepository($divClass);
+        $divisionMetadata = $em->getClassMetadata($divClass);
         $divQb = $divRepo->createQueryBuilder($alias = "divs");
 
         $accessorRepo = $em->getRepository(get_class($entity));
         $accessorQb = $accessorRepo->createQueryBuilder($alias = "accessors");
+        $accessorMetadata = $em->getClassMetadata(get_class($entity));
 
-        $children = array();
-        $initChildren = array($divRepo->find($divisionId));
+        $childList = $this->buildChildList($em->getConnection(), $divisionMetadata->getTableName(), $divisionId);
 
-        // do {
-
-        //     $numEntries = count($children);
-        //     $children2 = array();
-
-        //     foreach ($initChildren as $child) {
-        //         $temp  = $divRepo->getChildrenQuery($child, true)->getResult();
-
-        //         foreach ($temp as $t){
-        //             $children2[] = $t;
-        //         }
-        //     }
-
-        //     $initChildren = $children2;
-        //     $children = $children + $children2;
-
-        // } while ($numEntries != count($children));
-
-        // $valArr = array();
-        // foreach ($children as $child){
-        //     $valArr[] = $child->getId();
-        // }
-
-       // return $valArr;
-
-
-        // echo count($children);
-
-        // die();
-
-        // echo $entity->getDivision()->getId();
-
-        // This will be uncommented on the final version
-        // $node = $divRepo->find(1);
-
-        // $childNodes = $divRepo->getChildrenQuery($node, true)->getResult();
-
-        // $childNodes = $this->getEntityRepository()->getChildrenQuery($nodes[0], true)->getResult();
-
-        // $results = $accessorQb->getQuery()->getResult();
-
-        // $count = 0;
-
-        // foreach ($results as $result){
-        //     echo $count;
-        //     $count++;
-        // }
-
-        // die();
+        // VIOLATION -- should really avoid hard coding the divisison_id -- it is fine here since we are the only ones using this class -- When this is really common it should be avoided.
+        $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisonMetadata->getTableName(), 'id', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId());
 
     }
 
@@ -184,7 +174,7 @@ class BaseDivisionListener
 
         $request = json_decode($request->getContent(), true);
 
-        if (!array_key_exists('propagationBehavior', $request)){
+        if (!array_key_exists('propagationBehavior', $request)) {
             return;
         }
 
@@ -210,18 +200,8 @@ class BaseDivisionListener
                 elseif ($entity instanceof BaseDivisionAccessGovernor) {
 
                     $divisionId = $request['id'];
-                    // $entityId = $entity->getAccessGovernor()->getId();
-
                     $this->cascadeToChildren($em, $divisionId, $entity);
                     die();
-
-                    // Build child node set
-
-
-
-                    // $tableName = $classMetadata->getTableName();
-                    // echo get_class($entity);
-                    // echo $tableName;
 
                 }
             }
@@ -239,7 +219,8 @@ class BaseDivisionListener
 
             foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
-                if ($entity instanceof BaseDivision && $entity->getId() == $request['id']) { // Only want to call this portion for the update which was created by the request -- don't want to end up in an infinite loop...
+                // This listener should only be called for
+                if ($entity instanceof BaseDivision && $entity->getId() == $request['id']) {
                     $divisionMetadata = $em->getClassMetaData(get_class($entity));
 
                     $accessorBooleans = array();

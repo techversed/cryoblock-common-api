@@ -9,18 +9,21 @@ use JMS\Serializer\Annotation AS JMS;
 
 /*
     Should be implemented by all things that where the following properties should be kept
-        deletedat
-        createdat
-        updatedat
-        createdby
-        updatedby
+        deletedAt
+        createdAt
+        updatedAt
+        createdBy
+        updatedBy
 
 
 */
 
 /** @ORM\MappedSuperclass */
-class BaseCryoblockEntity
+abstract class BaseCryoblockEntity
 {
+    abstract public function getId();
+    abstract public function setId($value);
+
     /**
      * @var User $createdBy
      *

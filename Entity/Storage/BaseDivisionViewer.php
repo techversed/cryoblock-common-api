@@ -16,19 +16,28 @@ abstract class BaseDivisionViewer extends BaseDivisionAccessGovernor
 // Constants
 
 // Implementations of parents abstract classes
-    public function getAccessGovernor () {
+    public function getAccessorColumnName()
+    {
+        return "user_id";
+    }
+
+    public function getAccessGovernor ()
+    {
         return $this->getUser();
     }
 
-    public function setAccessGovernor ($ag) {
+    public function setAccessGovernor ($ag)
+    {
         return $this->setUser($ag);
     }
 
-    public function getAccessGovernorId () {
+    public function getAccessGovernorId ()
+    {
         return $this->getUserId();
     }
 
-    public function setAccessGovernorId ($id) {
+    public function setAccessGovernorId ($id)
+    {
         return $this->setUserId($id);
     }
 

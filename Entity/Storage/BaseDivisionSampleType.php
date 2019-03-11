@@ -16,22 +16,29 @@ abstract class BaseDivisionSampleType extends BaseDivisionAccessGovernor
 // Constants
 
 // Implemenations of Abstract Classes
-    public function getAccessGovernor ()
+    public function getAccessorColumnName()
+    {
+        return "sample_type_id";
+    }
+
+    public function getAccessGovernor()
     {
         return $this->getSampleType();
     }
-    public function setAccessGovernor($ag) {
+
+    public function setAccessGovernor($ag)
+    {
         return $this->setSampleType($ag);
     }
-    public function getAccessGovernorId() {
+
+    public function getAccessGovernorId()
+    {
         return $this->getSampleTypeId();
     }
-    public function setAccessGovernorId($id) {
-        return $this->setSampleType($id);
-    }
-    public function testing()
+
+    public function setAccessGovernorId($id)
     {
-        return $this->getDivision()->getId();
+        return $this->setSampleType($id);
     }
 
 // Attributes
