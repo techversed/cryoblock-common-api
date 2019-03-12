@@ -52,21 +52,6 @@ abstract class BaseDivisionController extends CarbonApiController
      */
     public function handleGet()
     {
-        // return parent::handleGet();
-        // $isDataTableRequest = $this->isDataTableRequest($request);
-
-        // $entityRepository = $this->getEntityRepository();
-        // $request = $this->getRequest();
-        // $request = json_decode($request->getContent(), true);
-        // $data = $this->container->get('doctrine.orm.default_entity_manager')->getRepository(static::RESOURCE_ENTITY)->find(365);
-
-        // $isDataTableRequest = $this->isDataTableRequest($request);
-
-        // $data = $this->getSerializationHelper()->serialize(
-        //     $this->getGrid($isDataTableRequest)->getResult($this->getEntityRepository())
-        // );
-
-        // return $this->getJsonResponse($data);
 
         $request = $this->getRequest();
         $isDataTableRequest = $this->isDataTableRequest($request);
@@ -102,16 +87,7 @@ abstract class BaseDivisionController extends CarbonApiController
                     'conatiners',
                     'sampleTypes',
                     'parent' => array(
-                        'default',
-                        // 'parent',
-                        // 'parent' => array(
-                        //     'parent',
-                        //     'default',
-                        //     'parent' => array(
-                        //         'default',
-                        //         'parent'
-                        //     )
-                        // )
+                        'default'
                     )
                 )
             ),
@@ -168,15 +144,7 @@ abstract class BaseDivisionController extends CarbonApiController
             $this->getGrid($isDataTableRequest)->getResult($this->getEntityRepository()), $context
         );
 
-        // $tree = $this->getSerializationHelper()->serializeWithContext($data, $context, 'json');
         return $this->getJsonResponse($data);
-
-        // $tree = $this->getSerializationHelper()->getSerializer()->serialize($data, 'json', $context);
-        // $tree = json_decode($tree, true);
-        // $tree = json_encode($tree);
-        // return $this->getJsonResponse($tree);
-
-        // return parent::handleGet();
     }
 
     /**

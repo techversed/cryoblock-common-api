@@ -58,12 +58,6 @@ class SerializationHelper
         return $this->serializer->serialize($data, $type, $context);
     }
 
-    // Added by Taylor Jones -- I did not end up using this. It should be possible to do everything with just the serialize with constext things
-    public function getSerializer()
-    {
-        return $this->serializer;
-    }
-
     /**
      * Builds the JMSSerializationContext from GET request params
      * and unsets the params from the request
