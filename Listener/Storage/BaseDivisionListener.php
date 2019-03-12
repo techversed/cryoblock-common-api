@@ -74,7 +74,7 @@ abstract class BaseDivisionListener
     // This function must be call a constructor of the type of division taht is being used in this hierarchy.
     // By default we have only used sample storage divisions with this type of listener but I am trying to make it so that the propagation behavior which is implemented in this file can easily be brought to any set of divisions that are structured as a tree
     //
-    abstract public function createDivisionOfSpecificType();
+    abstract protected function createDivisionOfSpecificType();
 
     private $logger;
     private $runPostFlush = false;
@@ -155,11 +155,15 @@ abstract class BaseDivisionListener
     }
 
 
+    // We should probably make this abstract at some point and just move this implementation over to the class that implements this functionality...
     // use array_diff in order to fine the elements which are in the first array but not the second.
     // $em - entity manager
     // $divisionId = the id of the parent division
     // $entity = the divisionAccessor entity that is being added.
-    private function cascadeToChildren($em, $divisionId, $entity)
+    // $addOrDelete
+        // True if you want to add the given property to the children that do not have it yet.
+        // False if you want to remove the given accessor from the children that already have it.
+    private function cascadeToChildren($em, $divisionId, $entity, $addOrDelete = true)
     {
 
         $divClass = get_class($this->createDivisionOfSpecificType());
@@ -174,11 +178,38 @@ abstract class BaseDivisionListener
         $childList = $this->buildChildList($em->getConnection(), $divisionMetadata->getTableName(), $divisionId);
 
         // VIOLATION -- should really avoid hard coding the divisison_id -- it is fine here since we are the only ones using this class -- When this is really common it should be avoided.
-        $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisionMetadata->getTableName(), 'id', 'deleted_at IS NOT NULL', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId(), "deleted_at IS NOT NULL", false);
+        $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisionMetadata->getTableName(), 'id', 'deleted_at IS NOT NULL', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId(), "deleted_at IS NOT NULL", $addOrDelete ? false : true);
+
+        if ($addOrDelete == true) {
+            $ag = $entity->getAccessGovernor->getId();
+            $agCol = $entity->getAccessorColumnName();
+
+            $pairs = array();
+            foreach($needyChildren as $nc){
+                $pairs[] = "(".$ag.", ".$nc.")";
+            }
+            $argList = implode(", ", $pairs);
+
+            $query = "INSERT INTO $tablename (".$agCol.", ".$division_id") = ".$argList;
+        }
+        else {
+            $query = "";
+        }
+
+        $conn = $em->getConnection();
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
     }
 
-    public function bulkUpdateBooleans (){
+    public function trampleToChildren()
+    {
 
+    }
+
+    public function bulkUpdateBooleans()
+    {
 
     }
 
@@ -203,7 +234,7 @@ abstract class BaseDivisionListener
 
         $propMethod = explode(" ",$request['propagationBehavior'])[0];
 
-        if($propMethod == "Default"){
+        if ($propMethod == "Default") {
             return;
         }
 
@@ -213,6 +244,8 @@ abstract class BaseDivisionListener
             return;
         }
 
+        $divisionId = $request['id']; // Listener should only be called when the given division and its accessors are changed.
+
         if ($propMethod == "Cascade") {
 
             foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
@@ -221,25 +254,17 @@ abstract class BaseDivisionListener
                     continue;
                 }
                 elseif ($entity instanceof BaseDivisionAccessGovernor) {
-
-                    $divisionId = $request['id'];
-                    $this->cascadeToChildren($em, $divisionId, $entity);
-                    die();
-
+                    $this->cascadeToChildren($em, $divisionId, $entity, true);
                 }
             }
-
             foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
                 if ($entity instanceof BaseDivision) {
                     continue; // We are not going to allow users to delete divisions that have children -- this case should not take place
                 }
-                elseif ($entity instanceof BaseDivisionAccessGovernor){
-                    // get class name
-                    // get class metadata
-                    // get table
+                elseif ($entity instanceof BaseDivisionAccessGovernor) {
+                    $this->cascadeToChildren($em, $divisionId, $entity, false);
                 }
             }
-
             foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
                 // This listener should only be called for
@@ -252,7 +277,6 @@ abstract class BaseDivisionListener
                     foreach ( $uow->getEntityChangeset($entity) as $keyField => $field){
                         if ( in_array($keyField, array('isPublicEdit', 'isPublicView', 'allowAllStorageContainers', 'allowAllSampleTypes')) ) {
                             $accessorBooleans[$divisionMetadata->getColumnName($keyField)] = $field[1] ? "true" : "false";
-                            // $accessorBooleans[] = array($keyField => $field[1]);
                         }
                     }
 
@@ -262,8 +286,6 @@ abstract class BaseDivisionListener
 
             }
 
-// When cascade is on...
-    // What should the boolean cascade methodolgy look like?
         }
         else { // If cascade  is false then we need to get ready to trample stuff in the postFlush
             foreach (array_merge( array_merge($uow->getScheduledEntityUpdates(), $uow->getScheduledEntityInsertions() ), $uow->getScheduledEntityDeletions()) as $keyEntity => $entity){
