@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Response;
 
-abtract class BaseDivisionGroupViewerController extends CarbonApiController
+class BaseDivisionGroupViewerController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity

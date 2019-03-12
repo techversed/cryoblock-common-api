@@ -73,7 +73,6 @@ abstract class BaseDivisionListener
 
     // This function must be call a constructor of the type of division taht is being used in this hierarchy.
     // By default we have only used sample storage divisions with this type of listener but I am trying to make it so that the propagation behavior which is implemented in this file can easily be brought to any set of divisions that are structured as a tree
-    //
     abstract protected function createDivisionOfSpecificType();
 
     private $logger;
@@ -190,10 +189,10 @@ abstract class BaseDivisionListener
             }
             $argList = implode(", ", $pairs);
 
-            $query = "INSERT INTO ".$accessorMetadata->getTableName()." (".$agCol.", ".$division_id") = ".$argList;
+            $query = "INSERT INTO ".$accessorMetadata->getTableName()." (".$agCol.", ".$division_id.") = ".$argList;
         }
         else {
-            $query = "DELTE FROM ".$accessorMetadata->getTableName()." WHERE ".$agCol." = ".$entity->getAccessGovernor()->getId()." AND division_id = ".$division_id;
+            $query = "UPDATE ".$accessorMetadata->getTableName()." SET deleted_at=NOW() WHERE ".$agCol." = ".$entity->getAccessGovernor()->getId()." AND division_id = ".$division_id;
         }
 
         $conn = $em->getConnection();
@@ -267,13 +266,13 @@ abstract class BaseDivisionListener
             }
             foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
-                // This listener should only be called for
                 if ($entity instanceof BaseDivision && $entity->getId() == $request['id']) {
                     $divisionMetadata = $em->getClassMetaData(get_class($entity));
 
                     $accessorBooleans = array();
                     $id = $entity->getId();
 
+                    // VIOLATION -- It would be good to avoid naming the booleans explicitly -- We should add some sort of metadata to the division class in order to help us decide which ones should be cascaded.
                     foreach ( $uow->getEntityChangeset($entity) as $keyField => $field){
                         if ( in_array($keyField, array('isPublicEdit', 'isPublicView', 'allowAllStorageContainers', 'allowAllSampleTypes')) ) {
                             $accessorBooleans[$divisionMetadata->getColumnName($keyField)] = $field[1] ? "true" : "false";
@@ -283,9 +282,7 @@ abstract class BaseDivisionListener
                     $childList = $this->buildChildList($conn, $request['id']);
                     $this->bulkUpdateBooleans($conn, $accessorBooleans, $childList);
                 }
-
             }
-
         }
         else { // If cascade  is false then we need to get ready to trample stuff in the postFlush
             foreach (array_merge( array_merge($uow->getScheduledEntityUpdates(), $uow->getScheduledEntityInsertions() ), $uow->getScheduledEntityDeletions()) as $keyEntity => $entity){
