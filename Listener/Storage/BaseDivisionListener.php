@@ -180,20 +180,20 @@ abstract class BaseDivisionListener
         // VIOLATION -- should really avoid hard coding the divisison_id -- it is fine here since we are the only ones using this class -- When this is really common it should be avoided.
         $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisionMetadata->getTableName(), 'id', 'deleted_at IS NOT NULL', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId(), "deleted_at IS NOT NULL", $addOrDelete ? false : true);
 
-        if ($addOrDelete == true) {
-            $ag = $entity->getAccessGovernor->getId();
-            $agCol = $entity->getAccessorColumnName();
+        $ag = $entity->getAccessGovernor->getId();
+        $agCol = $entity->getAccessorColumnName();
 
+        if ($addOrDelete == true) {
             $pairs = array();
             foreach($needyChildren as $nc){
                 $pairs[] = "(".$ag.", ".$nc.")";
             }
             $argList = implode(", ", $pairs);
 
-            $query = "INSERT INTO $tablename (".$agCol.", ".$division_id") = ".$argList;
+            $query = "INSERT INTO ".$accessorMetadata->getTableName()." (".$agCol.", ".$division_id") = ".$argList;
         }
         else {
-            $query = "";
+            $query = "DELTE FROM ".$accessorMetadata->getTableName()." WHERE ".$agCol." = ".$entity->getAccessGovernor()->getId()." AND division_id = ".$division_id;
         }
 
         $conn = $em->getConnection();
