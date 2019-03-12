@@ -110,10 +110,14 @@ abstract class BaseCatalog extends BaseCryoblockEntity
      */
     public function setStatus($status)
     {
+        if (!in_array($status, $this->validStatuses)) {
+            throw new \InvalidArgumentException(sprintf('%s is not a valid status', $status));
+        }
+
         $this->status = $status;
 
         return $this;
-    }
+   }
 
     /**
      * Gets the Valid sample statuses.
