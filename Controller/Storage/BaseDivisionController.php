@@ -58,7 +58,6 @@ abstract class BaseDivisionController extends CarbonApiController
 
         $context = SerializationContext::create()->setGroups(array(
             'default',
-            // 'tree',
             'samples',
             'parent',
             'children',

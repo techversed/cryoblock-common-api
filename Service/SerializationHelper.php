@@ -53,7 +53,7 @@ class SerializationHelper
         return $this->serializer->serialize($data, $type, $this->buildSerializationContext($groups));
     }
 
-    // Added by Taylor Jones -- I was running into an instance where I needed to use a custom context
+    // Added by Taylor Jones -- Needed in BaseDivisionController -- makes it so that you can serialize the accessors on children divisions without serializeing the grandchildren of the current division
     public function serializeWithContext($data, $context, $type= 'json') {
         return $this->serializer->serialize($data, $type, $context);
     }
