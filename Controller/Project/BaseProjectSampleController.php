@@ -6,7 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFounndation\Response;
 
-abstract class BaseProjectSampleController extends CarbonApiController
+class BaseProjectSampleController extends CarbonApiController
 {
 
     /**
