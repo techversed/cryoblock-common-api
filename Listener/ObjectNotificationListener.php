@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Doctrine\ORM\Event\PostFlushEventArgs;
 
 // Classes where we are not calling this listener
 use Carbon\ApiBundle\Entity\EntityDetail;
@@ -78,6 +79,8 @@ class ObjectNotificationListener
         return false;
     }
 
+    private $needsFlush = false;
+
     public function postPersist(LifecycleEventArgs $args)
     {
 
@@ -112,7 +115,8 @@ class ObjectNotificationListener
             $creatingUserObjectNotification->setOnUpdate(true);
             $creatingUserObjectNotification->setOnDelete(true);
             $em->persist($creatingUserObjectNotification);
-            $em->flush();
+            $this->needsFlush = true;
+            // $em->flush();
 
         }
 
@@ -471,6 +475,17 @@ class ObjectNotificationListener
             $from,
             $groups
         );
+    }
+
+    public function postFlush(PostFlushEventArgs $args) {
+
+        $em = $args->getEntityManager();
+
+        if ($this->needsFlush == true){
+            $this->needsFlush = false;
+            $em->flush();
+        }
 
     }
+
 }
