@@ -13,9 +13,8 @@ use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
 
-
 /** @ORM\MappedSuperclass */
-class BaseSample extends BaseCryoblockEntity
+abstract class BaseSample extends BaseCryoblockEntity
 {
 
     /**
