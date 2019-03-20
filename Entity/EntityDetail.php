@@ -24,6 +24,7 @@ use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
  */
 class EntityDetail extends BaseCryoblockEntity
 {
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -70,6 +71,17 @@ class EntityDetail extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      */
     protected $srefName;
+
+    protected $entityDetailId = 1;
+
+    /**
+     * Gets the value of EntityDetailId
+     *
+     * @return mixed
+     */
+    public function getEntityDetailId(){
+        return $this->entityDetailId;
+    }
 
     /**
      * Gets the value of id.

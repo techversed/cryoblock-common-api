@@ -19,8 +19,10 @@ use JMS\Serializer\Annotation AS JMS;
 /** @ORM\MappedSuperclass */
 abstract class BaseCryoblockEntity
 {
+
     abstract public function getId();
     abstract public function setId($value);
+    abstract public function getEntityDetailId();
 
     /**
      * @var User $createdBy

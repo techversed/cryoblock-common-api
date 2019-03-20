@@ -11,10 +11,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation AS JMS;
 use Symfony\Component\Validator\Constraints as Assert;
+use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
+
 
 /** @ORM\MappedSuperclass */
-class BaseSample
+class BaseSample extends BaseCryoblockEntity
 {
+
     /**
      * Valid concentration units
      *
@@ -89,40 +92,6 @@ class BaseSample
     protected $notes;
 
     /**
-     * @var User $createdBy
-     *
-     * @Gedmo\Blameable(on="create")
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
-     * @ORM\JoinColumn(name="created_by_id", referencedColumnName="id")
-     * @JMS\Groups({"default"})
-     */
-    protected $createdBy;
-
-    /**
-     * Created by id
-     * @ORM\Column(name="created_by_id", type="integer", nullable=false)
-     * @JMS\Groups({"default"})
-     */
-    protected $createdById;
-
-    /**
-     * @var User $updatedBy
-     *
-     * @Gedmo\Blameable(on="update")
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
-     * @ORM\JoinColumn(name="updated_by_id", referencedColumnName="id")
-     * @JMS\Groups({"default"})
-     */
-    protected $updatedBy;
-
-    /**
-     * Created by id
-     * @ORM\Column(name="updated_by_id", type="integer", nullable=false)
-     * @JMS\Groups({"default"})
-     */
-    protected $updatedById;
-
-    /**
      * @var integer
      *
      * @ORM\Column(name="division_id", type="integer", nullable=true)
@@ -157,33 +126,6 @@ class BaseSample
      * @Gedmo\Versioned
      */
     protected $divisionColumn;
-
-    /**
-     * @var \DateTime $created
-     *
-     * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(type="datetime")
-     * @JMS\Groups({"default"})
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime $updated
-     *
-     * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(type="datetime")
-     * @JMS\Groups({"default"})
-     */
-    protected $updatedAt;
-
-    /**
-     * @var \DateTime $deletedAt
-     *
-     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
-     * @Gedmo\Versioned
-     * @JMS\Groups({"default"})
-     */
-    protected $deletedAt;
 
     /**
      * @var SampleType $sampleType
@@ -283,8 +225,9 @@ class BaseSample
     */
     protected $projectSamples;
 
+    // The alias of the lot number --
     /**
-     * @var integer $lot
+     * @var string $lot
      *
      * @ORM\Column(name="lot", type="string", length=300, nullable=true)
      * @Gedmo\Versioned
@@ -292,6 +235,37 @@ class BaseSample
      * @Carbon\Searchable(name="lot")
      */
     protected $lot;
+
+    // This can be set by a listener -- whenever a new lot is added it should call a listener which sorts things out -- could also be explicitly set on the frontend.
+    /**
+     * @var int $lotId
+     * @ORM\Column(name="lot_id", type="integer", nullable=true)
+     *
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $lotId;
+
+    // Don't really need to keep this in the database -- It could probably live in its current location
+    /**
+     * @var int $lotEntityDetailId
+     * @ORM\Column(name="lot_entity_detail_id", type="integer", nullable=true)
+     *
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $lotEntityDetailId;
+
+    /**
+     * @var EntityDetail $lotEntityDetail
+     *
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
+     * @ORM\JoinColumn(name="lot_entity_detail_id", referencedColumnName="id")
+     * @Gedmo\Versioned
+     * @Carbon\Searchable(name="lot_entity_detail", join=true, searchProp="name", joinProp="lotEntityId", subAlias="led")
+     * @JMS\Groups({"default"})
+     */
+    protected $lotEntityDetail;
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SampleTag", mappedBy="sample")
@@ -353,7 +327,6 @@ class BaseSample
             $this->sampleTags = $newSampleTags;
 
         }
-
 
         if ($this->projectSamples) {
 
@@ -499,46 +472,6 @@ class BaseSample
     }
 
     /**
-     * Get created by id
-     *
-     * @return integer
-     */
-    public function getCreatedById()
-    {
-        return $this->createdById;
-    }
-
-    /**
-     * Get created by user
-     *
-     * @return Carbon\ApiBundle\User
-     */
-    public function getCreatedBy()
-    {
-        return $this->createdBy;
-    }
-
-    /**
-     * Get updated by user
-     *
-     * @return Carbon\ApiBundle\User
-     */
-    public function getUpdatedBy()
-    {
-        return $this->updateBy;
-    }
-
-    /**
-     * Get updated by id
-     *
-     * @return integer
-     */
-    public function getUpdatedById()
-    {
-        return $this->updatedById;
-    }
-
-    /**
      * Get notes
      *
      * @return string
@@ -546,26 +479,6 @@ class BaseSample
     public function getNotes()
     {
         return $this->notes;
-    }
-
-    public function getDeletedAt()
-    {
-        return $this->deletedAt;
-    }
-
-    public function setDeletedAt($deletedAt)
-    {
-        $this->deletedAt = $deletedAt;
-    }
-
-    public function getCreatedAt()
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
     }
 
     public function getSampleType()
@@ -674,90 +587,6 @@ class BaseSample
     public function setNotes($notes)
     {
         $this->notes = $notes;
-
-        return $this;
-    }
-
-    /**
-     * Sets the value of createdBy.
-     *
-     * @param User $createdBy $createdBy the created by
-     *
-     * @return self
-     */
-    public function setCreatedBy($createdBy)
-    {
-        $this->createdBy = $createdBy;
-
-        return $this;
-    }
-
-    /**
-     * Sets the Created by id.
-     *
-     * @param mixed $createdById the created by id
-     *
-     * @return self
-     */
-    public function setCreatedById($createdById)
-    {
-        $this->createdById = $createdById;
-
-        return $this;
-    }
-
-    /**
-     * Sets the value of updatedBy.
-     *
-     * @param User $updatedBy $updatedBy the updated by
-     *
-     * @return self
-     */
-    public function setUpdatedBy($updatedBy)
-    {
-        $this->updatedBy = $updatedBy;
-
-        return $this;
-    }
-
-    /**
-     * Sets the Created by id.
-     *
-     * @param mixed $updatedById the updated by id
-     *
-     * @return self
-     */
-    public function setUpdatedById($updatedById)
-    {
-        $this->updatedById = $updatedById;
-
-        return $this;
-    }
-
-    /**
-     * Sets the value of createdAt.
-     *
-     * @param \DateTime $created $createdAt the created at
-     *
-     * @return self
-     */
-    public function setCreatedAt($createdAt)
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    /**
-     * Sets the value of updatedAt.
-     *
-     * @param \DateTime $updated $updatedAt the updated at
-     *
-     * @return self
-     */
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }
@@ -1124,7 +953,6 @@ class BaseSample
         }
     }
 
-
     /**
      * @JMS\VirtualProperty()
      * @JMS\Groups({"default"})
@@ -1261,6 +1089,66 @@ class BaseSample
     public function setProjects($projects)
     {
         $this->projects = $projects;
+
+        return $this;
+    }
+
+    /**
+     * @return int $lotId
+     */
+    public function getLotId()
+    {
+        return $this->lotId;
+    }
+
+    /**
+     * @param int $lotId $lotId
+     *
+     * @return self
+     */
+    public function setLotId($lotId)
+    {
+        $this->lotId = $lotId;
+
+        return $this;
+    }
+
+    /**
+     * @return int $lotEntityDetailId
+     */
+    public function getLotEntityDetailId()
+    {
+        return $this->lotEntityDetailId;
+    }
+
+    /**
+     * @param int $lotEntityDetailId $lotEntityDetailId
+     *
+     * @return self
+     */
+    public function setLotEntityDetailId($lotEntityDetailId)
+    {
+        $this->lotEntityDetailId = $lotEntityDetailId;
+
+        return $this;
+    }
+
+    /**
+     * @return EntityDetail $lotEntityDetail
+     */
+    public function getLotEntityDetail()
+    {
+        return $this->lotEntityDetail;
+    }
+
+    /**
+     * @param EntityDetail $lotEntityDetail $lotEntityDetail
+     *
+     * @return self
+     */
+    public function setLotEntityDetail($lotEntityDetail)
+    {
+        $this->lotEntityDetail = $lotEntityDetail;
 
         return $this;
     }
