@@ -135,20 +135,20 @@ abstract class BaseDivisionListener
             hasAccessor should be true when you want a list of children that have the accessor in question
             hasAccessor should be false when you want a list of children that do not have the accessor in question
     */
-    private function reduceDivisionList($conn, $divTableName, $divTableColumn, $divCondition = "deleted_at IS NOT NULL", $childList, $accessorTable, $accessorColumn, $accessorValue, $accessorCondition = "deleted_at IS NOT NULL", $hasAccessor = false){
+    private function reduceDivisionList($conn, $divTableName, $divTableColumn, $divCondition = "deleted_at IS NULL", $childList, $accessorTable, $accessorColumn, $accessorValue, $accessorCondition = "deleted_at IS NULL", $hasAccessor = false){
 
         $strlist = '('.implode(', ', $childList).')';
 
-        $mapFunc =  function($temp){
-            return $temp['id'];
-        };
-
-        $hasAccessor ? '' : 'NOT';
+        $hasAccessor = $hasAccessor ? '' : 'NOT';
 
         $query = "SELECT d.".$divTableColumn." FROM ".$divTableName." AS d WHERE d.".$divTableColumn." IN ". $strlist." AND d.".$divTableColumn." ".$hasAccessor." IN (SELECT division_id FROM ".$accessorTable." WHERE " . $accessorColumn. " = ".$accessorValue." AND ".$accessorCondition.") AND ".$divCondition;
         $stmt = $conn->prepare($query);
         $stmt->execute();
         $testSet = $stmt->fetchAll();
+
+        $mapFunc =  function($temp){
+            return $temp['id'];
+        };
 
         return array_map($mapFunc, $testSet);
     }
@@ -168,48 +168,135 @@ abstract class BaseDivisionListener
         $divClass = get_class($this->createDivisionOfSpecificType());
         $divRepo = $em->getRepository($divClass);
         $divisionMetadata = $em->getClassMetadata($divClass);
-        $divQb = $divRepo->createQueryBuilder($alias = "divs");
 
         $accessorRepo = $em->getRepository(get_class($entity));
-        $accessorQb = $accessorRepo->createQueryBuilder($alias = "accessors");
         $accessorMetadata = $em->getClassMetadata(get_class($entity));
 
         $childList = $this->buildChildList($em->getConnection(), $divisionMetadata->getTableName(), $divisionId);
 
-        // VIOLATION -- should really avoid hard coding the divisison_id -- it is fine here since we are the only ones using this class -- When this is really common it should be avoided.
-        $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisionMetadata->getTableName(), 'id', 'deleted_at IS NOT NULL', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId(), "deleted_at IS NOT NULL", $addOrDelete ? false : true);
+        if ( count($childList) == 0 ) return;
 
-        $ag = $entity->getAccessGovernor->getId();
+        $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisionMetadata->getTableName(), 'id', 'deleted_at IS NULL', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId(), "deleted_at IS NULL", $addOrDelete ? false : true);
+
+        $ag = $entity->getAccessGovernor()->getId();
         $agCol = $entity->getAccessorColumnName();
 
         if ($addOrDelete == true) {
             $pairs = array();
+
             foreach($needyChildren as $nc){
                 $pairs[] = "(".$ag.", ".$nc.")";
             }
-            $argList = implode(", ", $pairs);
 
-            $query = "INSERT INTO ".$accessorMetadata->getTableName()." (".$agCol.", ".$division_id.") = ".$argList;
+            if ( count($pairs) > 0){
+                $argList = implode(", ", $pairs);
+
+                $query = "INSERT INTO ".$accessorMetadata->getTableName()." (".$agCol.", division_id) values ".$argList;
+                $conn = $em->getConnection();
+                $stmt = $conn->prepare($query);
+                $stmt->execute();
+            }
         }
+
         else {
-            $query = "UPDATE ".$accessorMetadata->getTableName()." SET deleted_at=NOW() WHERE ".$agCol." = ".$entity->getAccessGovernor()->getId()." AND division_id = ".$division_id;
+
+            foreach($needyChildren as $nc){
+
+                $query = "UPDATE ".$accessorMetadata->getTableName()." SET deleted_at=NOW() WHERE ".$agCol." = ".$entity->getAccessGovernor()->getId()." AND division_id = ".$nc;
+                echo $query . "\n";
+                $conn = $em->getConnection();
+                $stmt = $conn->prepare($query);
+                $stmt->execute();
+
+            }
         }
 
+    }
+
+    public function trampleToChildren($em, $parent)
+    {
+
+        $childList = $this->buildChildList($em->getConnection(), $divisionMetadata->getTableName(), $divisionId);
         $conn = $em->getConnection();
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetchAll();
+
+        $this->removeAllChildLinks($conn, $childList);
+
+        $this->copyAllLinks($conn, $parent, $childList);
 
     }
 
-    public function trampleToChildren()
+    // Violation -- this is hardcoded and it should not be in the final version
+    public function removeAllChildLinks($conn, $list=array())
     {
+        $listImplode = '('.implode(',',$list).')';
+
+        $queries = array(
+            "DELETE from storage.division_storage_container where division_id in ".$listImplode,
+            "DELETE from storage.division_sample_type where division_id in ".$listImplode,
+            "DELETE from storage.division_editor where division_id in ".$listImplode,
+            "DELETE from storage.division_viewer where division_id in ".$listImplode,
+            "DELETE from storage.division_group_editor where division_id in ".$listImplode,
+            "DELETE from storage.division_group_viewer where division_id in ".$listImplode,
+        );
+
+        foreach ($queries as $query) {
+            $conn->prepare($query)->execute();
+        }
 
     }
 
-    public function bulkUpdateBooleans()
+    public function copyAllLinks($conn, $parent, $childList)
     {
+        $tables = array(
+                'storage.division_editor' => 'user_id',
+                'storage.division_viewer' => 'user_id',
+                'storage.division_group_editor' => 'group_id',
+                'storage.division_group_viewer' => 'group_id',
+                'storage.division_storage_container' => 'storage_container_id',
+                'storage.division_sample_type' => 'sample_type_id'
+        );
 
+        foreach ($tables as $table => $field) {
+
+            $parentQuery = "SELECT " . $field . " from " . $table . " where division_id = " . $parent;
+            $stmt = $conn->prepare($parentQuery);
+            $stmt->execute();
+
+            foreach ($stmt->fetchAll() as $result) {
+                $this->propToChildren($conn, $table, '('.$field.', '.'division_id)', $result[$field], $childList);
+            }
+        }
+    }
+
+    /*
+        Updates the booleans associated with a list of divisiosn to reflect a set of arguments that is passed in.
+        Booleans should be an associative array mapping field name to a value that should go in that field.
+            Ex.
+                array(
+                    is_public_edit => "true"
+                    is_public_view => "false"
+                    ...
+                    )
+                If a key does not exist in the array then the value that the record currently holdes will not be altered.
+    */
+    public function bulkUpdateBooleans($conn, $booleans = array(), $divisions)
+    {
+        if (count($booleans) > 0){
+            $strarr = array();
+
+            foreach ($booleans as $key => $value)
+            {
+                $strarr[] = $key.' = '.$value;
+            }
+
+            $valString = '('.implode(', ', $divisions).')';
+
+            $strstr = implode(', ', $strarr);
+
+            $query = "UPDATE storage.division set ".$strstr." where id in ".$valString;
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+        }
     }
 
     // Directly calling getDivisionId() was not working -- have to call get division then getid... Don't know why that would be the case...
@@ -256,6 +343,7 @@ abstract class BaseDivisionListener
                     $this->cascadeToChildren($em, $divisionId, $entity, true);
                 }
             }
+
             foreach ($uow->getScheduledEntityDeletions() as $keyEntity => $entity) {
                 if ($entity instanceof BaseDivision) {
                     continue; // We are not going to allow users to delete divisions that have children -- this case should not take place
@@ -279,7 +367,7 @@ abstract class BaseDivisionListener
                         }
                     }
 
-                    $childList = $this->buildChildList($conn, $request['id']);
+                    $childList = $this->buildChildList($conn, 'storage.division', $request['id']);
                     $this->bulkUpdateBooleans($conn, $accessorBooleans, $childList);
                 }
             }
@@ -308,7 +396,7 @@ abstract class BaseDivisionListener
             return;
         }
 
-        $request =  json_decode($request->getContent(), true);
+        $request = json_decode($request->getContent(), true);
 
         if (!array_key_exists('propagationBehavior', $request)){
             return;
@@ -326,7 +414,7 @@ abstract class BaseDivisionListener
                 'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers() == true ? "true" : "false"
             );
 
-            $childList = $this->buildChildList($conn, $request['id']);
+            $childList = $this->buildChildList($conn, 'storage.division', $request['id']);
 
             $this->bulkUpdateBooleans($conn, $propertyList, $childList);
 
