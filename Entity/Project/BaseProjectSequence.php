@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\MappedSuperclass
  */
-class BaseProjectSequence extends BaseCryoblockEntity
+abstract class BaseProjectSequence extends BaseCryoblockEntity
 {
     /**
     * @var integer

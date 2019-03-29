@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
 
 /** @ORM\MappedSuperclass */
-class BaseSequence extends BaseCryoblockEntity
+abstract class BaseSequence extends BaseCryoblockEntity
 {
     /**
      * @var integer
