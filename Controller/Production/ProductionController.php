@@ -221,6 +221,7 @@ class ProductionController extends CarbonApiController
         foreach ($storageContainers as $storageContainer) {
             $storageContainerNames[] = $storageContainer->getName();
         }
+
         $storageContainerNames = implode(', ', $storageContainerNames);
         $concentrationUnits = implode(', ', array(
             'mg/mL',
@@ -417,6 +418,19 @@ class ProductionController extends CarbonApiController
         return $response;
     }
 
+
+    //check to see if something is a multidimensional array... The objects that we were getting from the front end were unfortunately passing the is_arry check regardless of whether they were objects or arrays of objects...
+    protected function isMultiDimArray($arr)
+    {
+        foreach ($arr as $a)
+        {
+            if (is_array($a)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private function getOutputExcelTemplateResponse()
     {
         $request = $this->getRequest();
@@ -428,12 +442,19 @@ class ProductionController extends CarbonApiController
             $outputSampleDefaults = [];
         }
 
+        if (!$this->isMultiDimArray($outputSampleDefaults)) {
+            $temp = array();
+            for ($i =0; $i < $totalOutputSamples; $i++) {
+                $temp[] = $outputSampleDefaults;
+            }
+            $outputSampleDefaults = $temp;
+        }
+
         if (array_key_exists('id', $data)) {
             $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
         } else {
             $fileName = 'Sample Import Template.xls';
         }
-
 
         $objPHPExcel = new \PHPExcel();
 
@@ -446,16 +467,14 @@ class ProductionController extends CarbonApiController
         $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->find($outputSampleTypeId);
 
         $importer = $this->container->get('sample.importer');
-        $sampleTypeMapping = $importer->getMapping($sampleType);
+        $sampleTypeMapping = $importer->getMapping($sampleType); //This does not need an argument... ? ? ?
 
         $currentSample = 0;
 
         $aRange = range('A', 'Z');
         $current = 0;
 
-        // $enumMap = [];
         foreach ($sampleTypeMapping as $label => &$column) {
-
             $objPHPExcel->getActiveSheet()->getColumnDimension($aRange[$current])->setWidth(15);
             $cell = $objPHPExcel->getActiveSheet()->getCell($aRange[$current] . '1');
             $cell->setValue($label);
@@ -464,6 +483,7 @@ class ProductionController extends CarbonApiController
 
             $current++;
         }
+        unset($column); //Dear god why?
 
         $currentSample = 1;
 
@@ -510,7 +530,6 @@ class ProductionController extends CarbonApiController
         while ($currentOutputSampleIndex < $totalOutputSamples) {
 
             $current = 0;
-
             foreach ($sampleTypeMapping as $label => $column) {
 
                 $num = $currentSample + 1;
@@ -611,10 +630,8 @@ class ProductionController extends CarbonApiController
                     $objValidation->setFormula1('"' . $statuses . '"');
 
                 }
-
-                if (array_key_exists($column['prop'], $outputSampleDefaults)) {
-
-                    if (is_array($outputSampleDefaults[$column['prop']])) {
+                if (array_key_exists($column['prop'], $outputSampleDefaults[$currentOutputSampleIndex])) {
+                    if (is_array($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']])) {
                         $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
                         $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
                         $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
@@ -626,12 +643,11 @@ class ProductionController extends CarbonApiController
                         $objValidation->setError('Value is not in list.');
                         $objValidation->setPromptTitle('Pick from list');
                         $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                        $objValidation->setFormula1('"' . implode(', ', $outputSampleDefaults[$column['prop']]) . '"');
-
-                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$column['prop']][0]);
+                        $objValidation->setFormula1('"' . implode(', ', $outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]) . '"');
+                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']][0]);
                     } else {
 
-                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$column['prop']]);
+                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]);
 
                     }
 
@@ -644,7 +660,6 @@ class ProductionController extends CarbonApiController
             $currentOutputSampleIndex++;
 
         }
-
         if (array_key_exists('id', $data)) {
             $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
             $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);

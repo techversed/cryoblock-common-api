@@ -67,7 +67,7 @@ abstract class CarbonApiController extends Controller
 
         $map = $this->resourceLinkMap[$type];
 
-        $qb = $this->getEntityManager()->createQueryBuilder()   ;
+        $qb = $this->getEntityManager()->createQueryBuilder();
         $sub = $this->getEntityManager()->createQueryBuilder();
 
         $alias = 'a';
