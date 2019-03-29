@@ -79,6 +79,8 @@ abstract class BaseDivisionListener
     private $runPostFlush = false;
     private $request_stack;
 
+    private $propMethod = 'Default';
+
     public function __construct(Logger $logger, RequestStack $request_stack)
     {
         $this->logger = $logger;
@@ -165,6 +167,8 @@ abstract class BaseDivisionListener
     private function cascadeToChildren($em, $divisionId, $entity, $addOrDelete = true)
     {
 
+        $conn = $em->getConnection();
+
         $divClass = get_class($this->createDivisionOfSpecificType());
         $divRepo = $em->getRepository($divClass);
         $divisionMetadata = $em->getClassMetadata($divClass);
@@ -177,6 +181,7 @@ abstract class BaseDivisionListener
         if ( count($childList) == 0 ) return;
 
         $needyChildren = $this->reduceDivisionList($em->getConnection(), $divisionMetadata->getTableName(), 'id', 'deleted_at IS NULL', $childList, $accessorMetadata->getTableName(), $entity->getAccessorColumnName(), $entity->getAccessGovernor()->getId(), "deleted_at IS NULL", $addOrDelete ? false : true);
+        // $needyChildren = $childList;
 
         $ag = $entity->getAccessGovernor()->getId();
         $agCol = $entity->getAccessorColumnName();
@@ -192,7 +197,6 @@ abstract class BaseDivisionListener
                 $argList = implode(", ", $pairs);
 
                 $query = "INSERT INTO ".$accessorMetadata->getTableName()." (".$agCol.", division_id) values ".$argList;
-                $conn = $em->getConnection();
                 $stmt = $conn->prepare($query);
                 $stmt->execute();
             }
@@ -202,9 +206,7 @@ abstract class BaseDivisionListener
 
             foreach($needyChildren as $nc){
 
-                $query = "UPDATE ".$accessorMetadata->getTableName()." SET deleted_at=NOW() WHERE ".$agCol." = ".$entity->getAccessGovernor()->getId()." AND division_id = ".$nc;
-                echo $query . "\n";
-                $conn = $em->getConnection();
+                $query = "DELETE FROM ".$accessorMetadata->getTableName()." WHERE ".$agCol." = ".$entity->getAccessGovernor()->getId()." AND division_id = ".$nc;
                 $stmt = $conn->prepare($query);
                 $stmt->execute();
 
@@ -245,6 +247,21 @@ abstract class BaseDivisionListener
 
     }
 
+    public function propToChildren($conn, $table, $prototype, $entityId, $divisions)
+    {
+        $itemArr = array();
+        foreach ($divisions as $division) {
+            $itemArr[] = "(".$entityId.", ".$division.")";
+        }
+
+        if (count($itemArr) > 0) {
+            $valString = implode(', ', $itemArr);
+            $query = "INSERT INTO ".$table." ".$prototype." VALUES ".$valString.";";
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+        }
+    }
+
     public function copyAllLinks($conn, $parent, $childList)
     {
         $tables = array(
@@ -262,7 +279,9 @@ abstract class BaseDivisionListener
             $stmt = $conn->prepare($parentQuery);
             $stmt->execute();
 
-            foreach ($stmt->fetchAll() as $result) {
+            $results = $stmt->fetchAll();
+
+            foreach ($results as $result) {
                 $this->propToChildren($conn, $table, '('.$field.', '.'division_id)', $result[$field], $childList);
             }
         }
@@ -318,9 +337,9 @@ abstract class BaseDivisionListener
             return;
         }
 
-        $propMethod = explode(" ",$request['propagationBehavior'])[0];
+        $this->propMethod = explode(" ",$request['propagationBehavior'])[0];
 
-        if ($propMethod == "Default") {
+        if ($this->propMethod == "Default") {
             return;
         }
 
@@ -332,7 +351,7 @@ abstract class BaseDivisionListener
 
         $divisionId = $request['id']; // Listener should only be called when the given division and its accessors are changed.
 
-        if ($propMethod == "Cascade") {
+        if ($this->propMethod == "Cascade") {
 
             foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
@@ -372,7 +391,7 @@ abstract class BaseDivisionListener
                 }
             }
         }
-        else { // If cascade  is false then we need to get ready to trample stuff in the postFlush
+        else {
             foreach (array_merge( array_merge($uow->getScheduledEntityUpdates(), $uow->getScheduledEntityInsertions() ), $uow->getScheduledEntityDeletions()) as $keyEntity => $entity){
                 if ($entity instanceof BaseDivision || $entity instanceof BaseDivisionAccessGovernor) {
                     $this->runPostFlush = true;
@@ -384,42 +403,62 @@ abstract class BaseDivisionListener
     public function postFlush(PostFlushEventArgs $args)
     {
 
-        if ($this->runPostFlush == false) {
-            return;
-        }
-
         $em = $args->getEntityManager();
         $conn = $em->getConnection();
         $request = $this->request_stack->getCurrentRequest();
 
-        if(!is_object($request)){
-            return;
+        if ($this->runPostFlush == true) {
+
+            if(!is_object($request)){
+                return;
+            }
+
+            $request = json_decode($request->getContent(), true);
+
+            if (!array_key_exists('propagationBehavior', $request)){
+                return;
+            }
+
+            $this->propMethod = explode(" ",$request['propagationBehavior'])[0];
+
+            if ($this->propMethod == 'Trample') {
+
+                $divRepo = $em->getRepository('AppBundle\Entity\Storage\Division');
+                $divOfInterest = $divRepo->findOneById($request['id']);
+
+                $propertyList = array(
+                    'is_public_view' => $divOfInterest->getIsPublicView() == true ? "true" : "false",
+                    'is_public_edit' => $divOfInterest->getIsPublicEdit() == true ? "true" : "false",
+                    'allow_all_sample_types' => $divOfInterest->getAllowAllSampleTypes() == true ? "true" : "false",
+                    'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers() == true ? "true" : "false"
+                );
+
+                $childList = $this->buildChildList($conn, 'storage.division', $request['id']);
+
+                $this->bulkUpdateBooleans($conn, $propertyList, $childList);
+                $this->removeAllChildLinks($conn, $childList);
+                $this->copyAllLinks($conn, $request['id'], $childList); // This is not working as intended.
+            }
         }
 
-        $request = json_decode($request->getContent(), true);
+        $this->cleanUp($conn);
+    }
 
-        if (!array_key_exists('propagationBehavior', $request)){
-            return;
-        }
+    public function cleanUp($conn){
+        $queries = array(
+            "delete from storage.division_editor where deleted_at is not null",
+            "delete from storage.division_viewer where deleted_at is not null",
+            "delete from storage.division_group_viewer where deleted_at is not null",
+            "delete from storage.division_group_editor where deleted_at is not null",
+            "delete from storage.division_storage_container where deleted_at is not null",
+            "delete from storage.division_sample_type where deleted_at is not null"
+        );
 
-        if ($propMethod == 'Trample') {
+        foreach($queries as $query){
 
-            $divRepo = $em->getRepository('AppBundle\Entity\Storage\Division');
-            $divOfInterest = $divRepo->findOneById($request['id']);
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
 
-            $propertyList = array(
-                'is_public_view' => $divOfInterest->getIsPublicView() == true ? "true" : "false",
-                'is_public_edit' => $divOfInterest->getIsPublicEdit() == true ? "true" : "false",
-                'allow_all_sample_types' => $divOfInterest->getAllowAllSampleTypes() == true ? "true" : "false",
-                'allow_all_storage_containers' => $divOfInterest->getAllowAllStorageContainers() == true ? "true" : "false"
-            );
-
-            $childList = $this->buildChildList($conn, 'storage.division', $request['id']);
-
-            $this->bulkUpdateBooleans($conn, $propertyList, $childList);
-
-            $this->removeAllChildLinks($conn, $childList);
-            $this->copyAllLinks($conn, $request['id'], $childList); // This is not working as intended.
         }
     }
 }
