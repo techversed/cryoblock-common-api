@@ -10,10 +10,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 /** @ORM\MappedSuperclass */
-class BaseProject extends BaseCryoblockEntity
+abstract class BaseProject extends BaseCryoblockEntity
 {
-
-//createdBy, createdById, updatedBy, updatedById, createdAt, updatedAt, deletedAt in BaseCryoblockEntity
 
     /**
      * @var string

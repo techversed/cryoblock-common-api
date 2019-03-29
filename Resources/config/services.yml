@@ -97,6 +97,7 @@ services:
             - { name: doctrine.event_listener, event: postPersist }
             - { name: doctrine.event_listener, event: postUpdate }
             - { name: doctrine.event_listener, event: postSoftDelete }
+            - { name: doctrine.event_listener, event: postFlush }
 
     carbon_api.cryoblock_voter:
         class: Carbon\ApiBundle\Voter\CommentVoter

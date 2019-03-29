@@ -9,6 +9,12 @@ use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Config\FileLocator;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/*
+    Written by Andre Branchizio
+    This file serves as a wrapper for
+
+*/
+
 /**
  * Builds the SerializationContext from GET Parameters
  */
@@ -45,6 +51,11 @@ class SerializationHelper
     public function serialize($data, $groups = array(), $type = 'json')
     {
         return $this->serializer->serialize($data, $type, $this->buildSerializationContext($groups));
+    }
+
+    // Added by Taylor Jones -- Needed in BaseDivisionController -- makes it so that you can serialize the accessors on children divisions without serializeing the grandchildren of the current division
+    public function serializeWithContext($data, $context, $type= 'json') {
+        return $this->serializer->serialize($data, $type, $context);
     }
 
     /**

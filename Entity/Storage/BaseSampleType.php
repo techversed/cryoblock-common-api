@@ -10,7 +10,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @ORM\MappedSuperclass */
-class BaseSampleType extends BaseCryoblockEntity
+abstract class BaseSampleType extends BaseCryoblockEntity
 {
     /**
      * @var string

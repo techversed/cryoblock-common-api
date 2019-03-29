@@ -14,6 +14,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/*
+    One issue that I created in this file is that common really should not refer to 'ROLE_UNDERGRAD_STUDENT_WORKER' since this is specific to the crowelab user permissions setup. -- In the long term I think that it would be a good idea to implement a series ofa ccounts which do not have the full permissions of a regular user in case you want to share some of the data with collaborators -- you may want to have collaborator accounts.
+
+
+*/
 
 class UserController extends CarbonApiController
 {
@@ -30,7 +35,7 @@ class UserController extends CarbonApiController
     /**
      * @Route("/user", name="user_get")
      * @Method("GET")
-     * @Security("has_role('ROLE_USER')")
+     * @Security("has_role('ROLE_USER') || has_role('ROLE_UNDERGRAD_STUDENT_WORKER')")
      *
      * @return Response
      */

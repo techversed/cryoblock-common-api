@@ -14,6 +14,8 @@ use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 
     Future changes that will need to take place here
     There are changes that will need to be made to buildMatchQuery in order to make it so that the count of valid matching divisions which are returned are equal to the number of entities which should show up in the results set if we are going strictly baseed upon filter.
+        --Remembered what the previosus comment was about -- If permissions are set then the user can receive a list where several elements have been removed from suggestion lists
+        --If a user requests a list of 25 top storage locations then they can run into issues whre 25 are returned to the entity manager but then the non-applicable ones are filtered out -- the end result is that fewer than 25 elements are reutnred to the user.
 
 */
 
