@@ -58,15 +58,6 @@ class BaseSampleSequence
     protected $relationshipType; // Discovery or Insert or Construct
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="lot", type="text")
-     * @Gedmo\Versioned
-     * @JMS\Groups({"default"})
-     */
-    protected $lot; // What sequencing request created this?
-
-    /**
      * @var \DateTime $deletedAt
      *
      * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
