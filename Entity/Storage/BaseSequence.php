@@ -62,7 +62,7 @@ abstract class BaseSequence extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      * @Gedmo\Versioned
      */
-    protected $parent; // the sequence that this was taken from
+    protected $parent; // the sample that this was taken from
 
 
     // Boolean to indicate if the nucleotide or the amino acid sequence was specified by the user at time of upload. In the end we might even make it so that we generate the most likely nucleotide sequence when an amino acid sequence is given.
