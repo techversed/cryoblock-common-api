@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @ORM\MappedSuperclass */
-class BaseSequenceTag
+abstact class BaseSequenceTag
 {
     /**
      * @var integer
@@ -34,6 +34,7 @@ class BaseSequenceTag
      */
     private $sequenceId;
 
+    // I don't like having these things hard coded
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Sequence", inversedBy="sampleTags")
      * @ORM\JoinColumn(name="sample_id", nullable=false)
