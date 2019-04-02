@@ -9,7 +9,7 @@ CHANGES THAT I THINK WE SHOULD MAKE
 
 */
 
-namespace Carbon\ApiBundle\Entity\Storage;
+namespace Carbon\ApiBundle\Entity\Storage\Sequence;
 
 use Carbon\ApiBundle\Annotation AS Carbon;
 use Doctrine\ORM\Mapping as ORM;
