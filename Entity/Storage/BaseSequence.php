@@ -23,6 +23,5 @@ abstract class BaseSequence extends BaseCryoblockEntity
 {
 
     // I decided to move a lot of this into the crowelab repo instead of the cryoblock common repo -- it just was not working out.
-
-
+    // Base sequence should be set up to handle any type of sequence and we are really only going to support
 }
