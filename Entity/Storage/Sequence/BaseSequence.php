@@ -1,13 +1,4 @@
 <?php
-/*
-CHANGES THAT I THINK WE SHOULD MAKE
-    Need to add projects to the form type
-    Need to add projects to the sequence importer
-    Need to add support for generating the amino sequence if the nucleotide sequence is given
-
-
-
-*/
 
 namespace Carbon\ApiBundle\Entity\Storage\Sequence;
 
@@ -33,13 +24,13 @@ use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
         Check if to amino acid sequences are the same as each otehr
         check if an nucleotide sequence matches a given amino acid sequence
         Generate the reverse complement of a nucleotide sequence
-
 */
 
 
 /** @ORM\MappedSuperclass */
 abstract class BaseSequence extends BaseCryoblockEntity
 {
+    // Don't know what else we are going to need to implment here
 
     // I decided to move a lot of this into the crowelab repo instead of the cryoblock common repo -- it just was not working out.
     // Base sequence should be set up to handle any type of sequence and we are really only going to support
@@ -180,16 +171,13 @@ abstract class BaseSequence extends BaseCryoblockEntity
     //Converts a string of nucleic acids to a stirng of amino acids
     function nucToAmino($nucSequence)
     {
-
         $length = 3;
         $nucSequence = strtoupper($nucSequence);
         $aminoSequence = '';
 
         for($start = 0; $start <strlen($nucSequence) / $length; $start++){
-
             $triplet = substr($nucSequence, $start * $length, $length);
             $aminoSequence .= $this->nucToAminoLookup[$triplet[0]][$triplet[1]][$triplet[2]];
-
         }
 
         return $aminoSequence;
@@ -233,7 +221,6 @@ abstract class BaseSequence extends BaseCryoblockEntity
     }
 
     function reverseComplement($seq, $rnaInput = false, $rnaOutput = false){
-
         $seq = $rnaInput ? str_replace("U", "T", strtoupper($seq) ) : strtoupper($seq);
 
         $complementMap = array(
@@ -244,12 +231,10 @@ abstract class BaseSequence extends BaseCryoblockEntity
         );
 
         $test = array();
-
         $i = strlen($seq) -1;
 
         while($i>=0){
             $test[] = $complementMap[$seq[$i]];
-
             $i = $i-1;
         }
 
