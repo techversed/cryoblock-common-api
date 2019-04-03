@@ -235,6 +235,7 @@ abstract class BaseSample extends BaseCryoblockEntity
      */
     protected $lot;
 
+    // I don't think that I finished setting this up.
     // This can be set by a listener -- whenever a new lot is added it should call a listener which sorts things out -- could also be explicitly set on the frontend.
     /**
      * @var int $lotId
@@ -245,6 +246,7 @@ abstract class BaseSample extends BaseCryoblockEntity
      */
     protected $lotId;
 
+    // I don't think that I ended up finishing this up.
     // Don't really need to keep this in the database -- It could probably live in its current location
     /**
      * @var int $lotEntityDetailId
@@ -255,6 +257,7 @@ abstract class BaseSample extends BaseCryoblockEntity
      */
     protected $lotEntityDetailId;
 
+     // I don't think that I finished setting this up
     /**
      * @var EntityDetail $lotEntityDetail
      *
