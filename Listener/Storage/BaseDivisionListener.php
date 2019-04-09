@@ -333,7 +333,7 @@ abstract class BaseDivisionListener
 
         $request = json_decode($request->getContent(), true);
 
-        if (!array_key_exists('propagationBehavior', $request)) {
+        if ($request == array() || !array_key_exists('propagationBehavior', $request)) {
             return;
         }
 
@@ -345,7 +345,7 @@ abstract class BaseDivisionListener
 
         // If this is a creation it will not have an id
             // If it is a creation there is also no need to cascade any permissions
-        if (!array_key_exists('id', $request)) {
+        if ($request == array() || !array_key_exists('id', $request)) {
             return;
         }
 
@@ -415,7 +415,7 @@ abstract class BaseDivisionListener
 
             $request = json_decode($request->getContent(), true);
 
-            if (!array_key_exists('propagationBehavior', $request)){
+            if ($request == array() || !array_key_exists('propagationBehavior', $request)){
                 return;
             }
 

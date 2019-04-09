@@ -264,7 +264,6 @@ abstract class BaseSample extends BaseCryoblockEntity
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
      * @ORM\JoinColumn(name="lot_entity_detail_id", referencedColumnName="id")
      * @Gedmo\Versioned
-     * @Carbon\Searchable(name="lot_entity_detail", join=true, searchProp="name", joinProp="lotEntityId", subAlias="led")
      * @JMS\Groups({"default"})
      */
     protected $lotEntityDetail;

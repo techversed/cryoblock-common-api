@@ -22,6 +22,8 @@ use Gedmo\Loggable\Entity\LogEntry;
 use Carbon\ApiBundle\Entity\Storage\BaseDivision;
 use Carbon\ApiBundle\Entity\Storage\BaseAccessGovernor;
 
+use AppBundle\Entity\Record\VimSample; // Things which are specific to the Crowelab implemenation should not be mentioned in common
+
 
 /*
 
@@ -71,6 +73,7 @@ class ObjectNotificationListener
             ($entity instanceof BaseDivision) ||
             ($entity instanceof UserObjectNotification) ||
             ($entity instanceof GroupObjectNotification) ||
+            ($entity instanceof VimSample) ||
             ($entity instanceof BaseAccessGovernor)
         ){
             return true;
@@ -372,7 +375,7 @@ class ObjectNotificationListener
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
-        if (classOrInterfaceIgnored($entity)) {
+        if ($this->classOrInterfaceIgnored($entity)) {
             return;
         }
 
