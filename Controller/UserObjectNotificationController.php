@@ -65,4 +65,32 @@ class UserObjectNotificationController extends CarbonApiController
     {
         return parent::handleDelete();
     }
+
+    /**
+     * @Route("/cryoblock/user-object-notification/user/{userId}", name="user_object_notification_watching_get")
+     * @Method("GET")
+     *
+     * @return Response
+     */
+    public function getUserWatchedAction($userId)
+    {
+        $query = 'SELECT * from cryoblock.user_object_notification WHERE user_id = :user_id AND entity_id is NOT NULL';
+        $stmt = $this->getEntityManager()->getConnection()->prepare($query);
+        $stmt->execute(array(
+            'user_id' => $userId
+        ));
+
+        $results = $stmt->fetchAll();
+
+        $watchedObjects = [];
+
+        foreach ($results as $result) {
+
+            $route = $result->getEntityDetail->getObjectUrl();
+
+            $watchedObjects[] = $route + '/' + $result['entity_id'];
+        }
+
+        // return parent::handleGet();
+    }
 }
