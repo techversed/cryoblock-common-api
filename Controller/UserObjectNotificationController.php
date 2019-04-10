@@ -68,89 +68,48 @@ class UserObjectNotificationController extends CarbonApiController
     }
 
     /**
-     * @Route("/cryoblock/user-object-notification/user/{userId}", name="user_object_notification_watching_get")
+     * @Route("/cryoblock/user-object-notification/watched-requests", name="user_object_notification_watching_get")
      * @Method("GET")
      *
      * @return Response
      */
-    public function getUserWatchedAction($userId)
+    public function getUserWatchedAction()
     {
 
         $em = parent::getEntityManager();
         $objNotRep = parent::getEntityRepository();
 
         $notifications = $objNotRep->findBy(array( 'user' => $this->getUser()));
+
         $entReps = array();
 
-        foreach ($notifications as $notification) {
-            if (array_key_exists(..., $entReps ) ) {
+        $selectedNotifications = array();
 
+        foreach ($notifications as $notification) {
+
+            $entityDetail = $notification->getEntityDetail();
+            $objectClassName = $entityDetail->getObjectClassName();
+
+            if ($entityDetail->getInNotifications() && !$entityDetail->getDismissed()) {
+                continue;
             }
+
+            if (!array_key_exists($objectClassName, $entReps)) {
+                $entReps[$objectClassName] = $em->getRepository($objectClassName);
+            }
+
+            if ($notification->getEntityId() != null) {
+                $notification->setEntity($entReps[$objectClassName]->find($notification->getEntityId()));
+                $selectedNotifications[] = $notification;
+            }
+
         }
 
+        // echo count($selectedNotifications);
 
-        // $this->getSerializationHelper()->serialize();
-        // return $this->getJsonResponse($data);
+        $data = $this->getSerializationHelper()->serialize($selectedNotifications);
 
+        return $this->getJsonResponse($data);
 
-
-        $res = new Response();
-
-        return $res;
-
-
-
-
-
-        // We could probably handle this using a serializer listener
-
-        // echo count($notifications);
-        // instanceof BaseRequest
-
-
-        // echo count($objNotRep->getUser());
-        // echo $this->getUser()->getId();
-        // return
-        // $objNotRep->findBy("user
-
-
-        // $this->checkPermission('GET');
-
-        // $entityRepository = $this->getEntityRepository();
-
-        // $request = $this->getRequest();
-
-        // $isDataTableRequest = $this->isDataTableRequest($request);
-
-        // $data = $this->getSerializationHelper()->serialize(
-        //     $this->getGrid($isDataTableRequest)->getResult($this->getEntityRepository())
-        // );
-
-        // return $this->getJsonResponse($data);
-
-
-
-
-        // $entityRepository = $this->getEntityRepository();
-
-
-        // $query = 'SELECT * from cryoblock.user_object_notification WHERE user_id = :user_id AND entity_id is NOT NULL';
-        // $stmt = $this->getEntityManager()->getConnection()->prepare($query);
-        // $stmt->execute(array(
-            // 'user_id' => $userId
-        // ));
-
-        // $results = $stmt->fetchAll();
-
-        // $watchedObjects = [];
-
-        // foreach ($results as $result) {
-
-            // $route = $result->getEntityDetail->getObjectUrl();
-
-            // $watchedObjects[] = $route + '/' + $result['entity_id'];
-        // }
-
-        // return parent::handleGet();
     }
 }

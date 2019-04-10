@@ -74,6 +74,35 @@ class UserObjectNotification extends BaseCryoblockEntity
      */
     protected $onDelete = false;
 
+    /* Transient */
+
+    // This is not kept in the database at any point --  can't have a many to many because there is not a single table which the foreign key references -- there are a number of tables.
+    // When fetching user object notifications in the controller this should be populated automatically.
+    // DO NOT ADD AN ORM MAPPING TO THIS....
+
+    /**
+     * @JMS\Groups("default")
+     */
+    protected $entity;
+
+    /**
+     * @return mixed
+     */
+    public function getEntity()
+    {
+        return $this->entity;
+    }
+
+    /**
+     * @param mixed $entity
+     * @return self
+     */
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+        return $this;
+    }
+
     /**
      * Gets the value of id.
      *
