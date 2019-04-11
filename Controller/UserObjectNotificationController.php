@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NotFoundHttpException;
 use Carbon\ApiBundle\Entity\Production\BaseRequest;
+use JMS\Serializer\SerializationContext;
 
 class UserObjectNotificationController extends CarbonApiController
 {
@@ -90,7 +91,7 @@ class UserObjectNotificationController extends CarbonApiController
             $entityDetail = $notification->getEntityDetail();
             $objectClassName = $entityDetail->getObjectClassName();
 
-            if ($entityDetail->getInNotifications() && !$entityDetail->getDismissed()) {
+            if (!$entityDetail->getInNotifications() || $notification->getDismissed()) {
                 continue;
             }
 
@@ -105,11 +106,9 @@ class UserObjectNotificationController extends CarbonApiController
 
         }
 
-        // echo count($selectedNotifications);
-
         $data = $this->getSerializationHelper()->serialize($selectedNotifications);
-
         return $this->getJsonResponse($data);
+
 
     }
 }

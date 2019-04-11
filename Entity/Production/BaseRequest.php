@@ -76,7 +76,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      *
      * @ORM\Column(name="alias", type="string", length=300, nullable=true)
      * @Gedmo\Versioned
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "baseRequest"})
      * @Carbon\Searchable(name="alias")
      */
     protected $alias;
@@ -85,7 +85,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      * @var string $status
      *
      * @ORM\Column(name="status", type="string", nullable=false)
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "baseRequest"})
      * @Gedmo\Versioned
      */
     protected $status;
@@ -95,7 +95,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      *
      * @ORM\Column(name="name", type="string", length=300)
      * @Gedmo\Versioned
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "baseRequest"})
      * @Carbon\Searchable(name="name")
      * @Assert\NotBlank()
      */
@@ -106,7 +106,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      *
      * @ORM\Column(name="description", type="text")
      * @Gedmo\Versioned
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "baseRequest"})
      * @Carbon\Searchable(name="description")
      * @Assert\NotBlank()
      */

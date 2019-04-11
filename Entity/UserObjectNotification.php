@@ -28,10 +28,20 @@ class UserObjectNotification extends BaseCryoblockEntity
      */
     protected $entityId;
 
+
+    // Has the user chosen to stop recieving updates on this item?
+    /**
+     * @var boolean dismissed
+     *
+     * @ORM\Column(name="dismissed", type="boolean", nullable=false, options={"default": false})
+     * @JMS\Groups({"default"})
+     */
+    protected $dismissed = false;
+
     /**
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
      * @ORM\JoinColumn(name="entity_detail_id", referencedColumnName="id")
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "notifications"})
      */
     protected $entityDetail;
 
@@ -81,7 +91,8 @@ class UserObjectNotification extends BaseCryoblockEntity
     // DO NOT ADD AN ORM MAPPING TO THIS....
 
     /**
-     * @JMS\Groups("default")
+     * @JMS\Groups({"default", "notifications"})
+     * @JMS\MaxDepth(2)
      */
     protected $entity;
 
@@ -317,5 +328,33 @@ class UserObjectNotification extends BaseCryoblockEntity
         $this->onDelete = $onDelete;
 
         return $this;
+    }
+
+    /**
+     * @return boolean dismissed
+     */
+    public function isDismissed()
+    {
+        return $this->dismissed;
+    }
+
+    /**
+     * @param boolean dismissed $dismissed
+     *
+     * @return self
+     */
+    public function setDismissed($dismissed)
+    {
+        $this->dismissed = $dismissed;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean dismissed
+     */
+    public function getDismissed()
+    {
+        return $this->dismissed;
     }
 }

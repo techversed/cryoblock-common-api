@@ -42,15 +42,6 @@ class EntityDetail extends BaseCryoblockEntity
      */
     protected $inNotifications = false;
 
-    // Has the user chosen to stop recieving updates on this item?
-    /**
-     * @var boolean dismissed
-     *
-     * @ORM\Column(name="dismissed", type="boolean", nullable=false, options={"default": false})
-     * @JMS\Groups({"default"})
-     */
-    protected $dismissed = false;
-
     /**
      * @var string
      *
@@ -266,26 +257,6 @@ class EntityDetail extends BaseCryoblockEntity
     }
 
     /**
-     * @return boolean dismissed
-     */
-    public function isDismissed()
-    {
-        return $this->dismissed;
-    }
-
-    /**
-     * @param boolean dismissed $dismissed
-     *
-     * @return self
-     */
-    public function setDismissed($dismissed)
-    {
-        $this->dismissed = $dismissed;
-
-        return $this;
-    }
-
-    /**
      * @param mixed $entityDetailId
      *
      * @return self
@@ -303,13 +274,5 @@ class EntityDetail extends BaseCryoblockEntity
     public function getInNotifications()
     {
         return $this->inNotifications;
-    }
-
-    /**
-     * @return boolean dismissed
-     */
-    public function getDismissed()
-    {
-        return $this->dismissed;
     }
 }
