@@ -106,8 +106,20 @@ class UserObjectNotificationController extends CarbonApiController
 
         }
 
+
+
         $data = $this->getSerializationHelper()->serialize($selectedNotifications);
-        return $this->getJsonResponse($data);
+
+        $res = array(
+            'page' => 1,
+            'perPage' => count($selectedNotifications),
+            'hasNextPage' => false,
+            'unpaginatedTotal' => count($selectedNotifications),
+            'paginatedTotal' => count($selectedNotifications),
+            'data' => json_decode($data)
+        );
+
+        return $this->getJsonResponse(json_encode($res));
 
 
     }
