@@ -22,18 +22,26 @@ class GroupObjectNotification extends BaseCryoblockEntity
      */
     protected $id;
 
+    // We should change entity detail to linked entity detail and add a new thing of entity detail linker entries.
+    // protected $entityDetailId;
+
     /**
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
-     * @ORM\JoinColumn(name="entity_detail_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
      */
-    protected $entityDetail;
+    protected $entityDetailId = -1;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
+     * @ORM\JoinColumn(name="linked_entity_detail_id", referencedColumnName="id")
+     * @JMS\Groups({"default"})
+     */
+    protected $linkedEntityDetail;
 
     /**
      * @ORM\Column(name="entity_detail_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
-    protected $entityDetailId;
+    protected $linkedEntityDetailId;
 
     /**
      * @var Group $group
@@ -82,30 +90,6 @@ class GroupObjectNotification extends BaseCryoblockEntity
     public function setId($id)
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of entityDetail.
-     *
-     * @return mixed
-     */
-    public function getEntityDetail()
-    {
-        return $this->entityDetail;
-    }
-
-    /**
-     * Sets the value of entityDetail.
-     *
-     * @param mixed $entityDetail the entity detail
-     *
-     * @return self
-     */
-    public function setEntityDetail($entityDetail)
-    {
-        $this->entityDetail = $entityDetail;
 
         return $this;
     }
@@ -202,6 +186,46 @@ class GroupObjectNotification extends BaseCryoblockEntity
     public function setOnDeleteGroup($onDeleteGroup)
     {
         $this->onDeleteGroup = $onDeleteGroup;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLinkedEntityDetail()
+    {
+        return $this->linkedEntityDetail;
+    }
+
+    /**
+     * @param mixed $linkedEntityDetail
+     *
+     * @return self
+     */
+    public function setLinkedEntityDetail($linkedEntityDetail)
+    {
+        $this->linkedEntityDetail = $linkedEntityDetail;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLinkedEntityDetailId()
+    {
+        return $this->linkedEntityDetailId;
+    }
+
+    /**
+     * @param mixed $linkedEntityDetailId
+     *
+     * @return self
+     */
+    public function setLinkedEntityDetailId($linkedEntityDetailId)
+    {
+        $this->linkedEntityDetailId = $linkedEntityDetailId;
 
         return $this;
     }

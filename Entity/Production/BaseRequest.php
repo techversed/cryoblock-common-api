@@ -33,9 +33,6 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
 
     */
 
-    /*
-    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="request")
-    */
     abstract public function getRequestProjects();
     abstract public function setRequestProjects($requestProjects);
     abstract public function getProjectString();

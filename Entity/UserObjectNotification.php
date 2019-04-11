@@ -39,17 +39,22 @@ class UserObjectNotification extends BaseCryoblockEntity
     protected $dismissed = false;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
-     * @ORM\JoinColumn(name="entity_detail_id", referencedColumnName="id")
-     * @JMS\Groups({"default", "notifications"})
-     */
-    protected $entityDetail;
-
-    /**
-     * @ORM\Column(name="entity_detail_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
-    protected $entityDetailId;
+    protected $entityDetailId = -1;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
+     * @ORM\JoinColumn(name="linked_entity_detail_id", referencedColumnName="id")
+     * @JMS\Groups({"default", "notifications"})
+     */
+    protected $linkedEntityDetail; // change this name
+
+    /**
+     * @ORM\Column(name="linked_entity_detail_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
+     */
+    protected $linkedEntityDetailId; // change this name
 
     /**
      * @var User
@@ -86,10 +91,7 @@ class UserObjectNotification extends BaseCryoblockEntity
 
     /* Transient */
 
-    // This is not kept in the database at any point --  can't have a many to many because there is not a single table which the foreign key references -- there are a number of tables.
-    // When fetching user object notifications in the controller this should be populated automatically.
-    // DO NOT ADD AN ORM MAPPING TO THIS....
-
+// This is not kept in the database since we are linking to a number of different
     /**
      * @JMS\Groups({"default", "notifications"})
      * @JMS\MaxDepth(2)
@@ -158,54 +160,6 @@ class UserObjectNotification extends BaseCryoblockEntity
     public function setEntityId($entityId)
     {
         $this->entityId = $entityId;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of entityDetail.
-     *
-     * @return mixed
-     */
-    public function getEntityDetail()
-    {
-        return $this->entityDetail;
-    }
-
-    /**
-     * Sets the value of entityDetail.
-     *
-     * @param mixed $entityDetail the entity detail
-     *
-     * @return self
-     */
-    public function setEntityDetail($entityDetail)
-    {
-        $this->entityDetail = $entityDetail;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of entityDetailId.
-     *
-     * @return mixed
-     */
-    public function getEntityDetailId()
-    {
-        return $this->entityDetailId;
-    }
-
-    /**
-     * Sets the value of entityDetailId.
-     *
-     * @param mixed $entityDetailId the entity detail id
-     *
-     * @return self
-     */
-    public function setEntityDetailId($entityDetailId)
-    {
-        $this->entityDetailId = $entityDetailId;
 
         return $this;
     }
@@ -356,5 +310,65 @@ class UserObjectNotification extends BaseCryoblockEntity
     public function getDismissed()
     {
         return $this->dismissed;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityDetailId()
+    {
+        return $this->entityDetailId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLinkedEntityDetail()
+    {
+        return $this->linkedEntityDetail;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLinkedEntityDetailId()
+    {
+        return $this->linkedEntityDetailId;
+    }
+
+    /**
+     * @param mixed $entityDetailId
+     *
+     * @return self
+     */
+    public function setEntityDetailId($entityDetailId)
+    {
+        $this->entityDetailId = $entityDetailId;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $linkedEntityDetail
+     *
+     * @return self
+     */
+    public function setLinkedEntityDetail($linkedEntityDetail)
+    {
+        $this->linkedEntityDetail = $linkedEntityDetail;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $linkedEntityDetailId
+     *
+     * @return self
+     */
+    public function setLinkedEntityDetailId($linkedEntityDetailId)
+    {
+        $this->linkedEntityDetailId = $linkedEntityDetailId;
+
+        return $this;
     }
 }

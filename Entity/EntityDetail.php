@@ -81,7 +81,7 @@ class EntityDetail extends BaseCryoblockEntity
      */
     protected $srefName;
 
-    protected $entityDetailId = -1;
+    protected $entityDetailId = 51;
 
     /**
      * Gets the value of EntityDetailId

@@ -88,7 +88,7 @@ class UserObjectNotificationController extends CarbonApiController
 
         foreach ($notifications as $notification) {
 
-            $entityDetail = $notification->getEntityDetail();
+            $entityDetail = $notification->getLinkedEntityDetail();
             $objectClassName = $entityDetail->getObjectClassName();
 
             if (!$entityDetail->getInNotifications() || $notification->getDismissed()) {
