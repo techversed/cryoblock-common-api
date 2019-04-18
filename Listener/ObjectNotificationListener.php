@@ -125,13 +125,13 @@ class ObjectNotificationListener
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
-                'entityDetailId' => $entDetId
+                'linkedEntityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
@@ -242,20 +242,20 @@ class ObjectNotificationListener
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
-                'entityDetailId' => $entDetId
+                'linkedEntityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
 
         $watchingUserNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => $entity->getId(),
             ))
         ;
@@ -396,20 +396,20 @@ class ObjectNotificationListener
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
-                'entityDetailId' => $entDetId
+                'linkedEntityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
 
         $watchingUserNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => $entity->getId(),
             ))
         ;

@@ -38,7 +38,7 @@ class GroupObjectNotification extends BaseCryoblockEntity
     protected $linkedEntityDetail;
 
     /**
-     * @ORM\Column(name="entity_detail_id", type="integer", nullable=false)
+     * @ORM\Column(name="linked_entity_detail_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
     protected $linkedEntityDetailId;
