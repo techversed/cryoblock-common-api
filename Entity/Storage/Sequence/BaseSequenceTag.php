@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @ORM\MappedSuperclass */
-abstact class BaseSequenceTag
+abstract class BaseSequenceTag
 {
 
     abstract public function getTagId();
@@ -22,6 +22,6 @@ abstact class BaseSequenceTag
     abstract public function setSequence($sequence);
 
     abstract public function getSequenceId();
-    abstract public function setSequence($sequenceId);
+    abstract public function setSequenceId($sequenceId);
 
 }
