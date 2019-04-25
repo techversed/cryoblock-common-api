@@ -28,4 +28,7 @@ interface PassageHistoryOperationInterface
     */
     public function getOutputMaterials();
 
+    // It is also safe to assume that getEntityDetailId() is present ;
+    public function getEntityDetailId();
+
 }

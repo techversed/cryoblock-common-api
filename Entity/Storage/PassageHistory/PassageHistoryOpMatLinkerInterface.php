@@ -12,12 +12,8 @@ namespace Carbon\ApiBundle\Entity\Storage\PassageHistory;
 interface PassageHistoryOpMatLinkerInterface
 {
 
-
     public function getOperation();
 
     public function getMaterial();
-
-
-
 
 }

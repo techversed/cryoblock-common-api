@@ -21,11 +21,17 @@ interface PassageHistoryMaterialInterface
     */
     public function getDownstreamTransformers();
 
+
+
+
+
     /*
 
 
     */
     public function getUpstreamTransformers();
+
+    public function getEntityDetailId();
 
 }
 
