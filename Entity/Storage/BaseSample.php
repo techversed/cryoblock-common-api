@@ -275,6 +275,16 @@ abstract class BaseSample extends BaseCryoblockEntity
     protected $sampleTags;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\WorkingSet", mappedBy="sample")
+     * @JMS\Groups({"default"})
+     */
+    protected $workingSets;
+
+
+    // Transient
+    public $sets;
+
+    /**
      * @JMS\Groups({"default"})
      */
     public $tags;
@@ -722,24 +732,44 @@ abstract class BaseSample extends BaseCryoblockEntity
         return $this->storageContainerId;
     }
 
+    /**
+     * @return mixed Concentration
+     *
+     */
     public function getConcentration()
     {
         return $this->concentration;
     }
 
+    /**
+     *
+     * @return self 
+     */
     public function setConcentration($concentration)
     {
+        // Why was this done this way? won't the normal style of a setter work?
         $this->concentration = $concentration == $this->concentration ? $this->concentration : $concentration;
+
+        return $this;
     }
 
+    /**
+     * @return mixed ConcentrationUnits
+     *
+     */
     public function getConcentrationUnits()
     {
         return $this->concentrationUnits;
     }
 
+    /**
+     * @param mixed $concentrationUnits 
+     * @return self 
+     */
     public function setConcentrationUnits($concentrationUnits)
     {
         $this->concentrationUnits = $concentrationUnits;
+        return $this;
     }
 
     /**
@@ -1130,6 +1160,28 @@ abstract class BaseSample extends BaseCryoblockEntity
     public function setLotEntityDetailId($lotEntityDetailId)
     {
         $this->lotEntityDetailId = $lotEntityDetailId;
+    }
+
+    /**
+     * Gets the value of workingSets.
+     *
+     * @return mixed
+     */
+    public function getWorkingSets()
+    {
+        return $this->workingSets;
+    }
+
+    /**
+     * Sets the value of workingSets.
+     *
+     * @param mixed $workingSets the working sets
+     *
+     * @return self
+     */
+    public function setWorkingSets($workingSets)
+    {
+        $this->workingSets = $workingSets;
 
         return $this;
     }
@@ -1150,6 +1202,29 @@ abstract class BaseSample extends BaseCryoblockEntity
     public function setLotEntityDetail($lotEntityDetail)
     {
         $this->lotEntityDetail = $lotEntityDetail;
+    }
+
+
+    /**
+     * Gets the value of sets.
+     *
+     * @return mixed
+     */
+    public function getSets()
+    {
+        return $this->sets;
+    }
+
+    /**
+     * Sets the value of sets.
+     *
+     * @param mixed $sets the sets
+     *
+     * @return self
+     */
+    public function setSets($sets)
+    {
+        $this->sets = $sets;
 
         return $this;
     }
