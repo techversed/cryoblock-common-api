@@ -11,7 +11,7 @@ use Carbon\ApiBundle\Integration\BaseIntegrationInterface;
 
 */
 
-interface BaseHttpEndpointIntegrationInterface extends BaseIntegrationInterface
+interface BaseHttpEndpointInterface extends BaseIntegrationInterface
 {
 
 

@@ -33,7 +33,7 @@ use AppBundle\Service\Integration\Device\Storage;
 // This class should serve as a wrapper for all Biostore III and Biostore III Cryo devices that are purchased by the lab.
 
 // The class that it implements is going to need to change.
-class BrooksBiostoreIIIApi implements AutomatedFreezer
+class BrooksBiostoreIIICryo implements AutomatedFreezer
 {
 
     // Set up curl and hit
@@ -43,7 +43,7 @@ class BrooksBiostoreIIIApi implements AutomatedFreezer
     }
 
     // Set up
-    public function storeDivision($id = array(), $user())
+    public function storeDivision($id = array(), $user)
     {
 
     }
