@@ -534,7 +534,13 @@ abstract class BaseSample extends BaseCryoblockEntity
 
     public function setStatus($status)
     {
+
+        if (!in_array($status, $this->validStatuses)) {
+            throw new \InvalidArgumentException(sprintf('%s is not a valid status', $status));
+        }
+
         $this->status = $status;
+        return $this;
     }
 
     /**
@@ -743,7 +749,7 @@ abstract class BaseSample extends BaseCryoblockEntity
 
     /**
      *
-     * @return self 
+     * @return self
      */
     public function setConcentration($concentration)
     {
@@ -763,8 +769,8 @@ abstract class BaseSample extends BaseCryoblockEntity
     }
 
     /**
-     * @param mixed $concentrationUnits 
-     * @return self 
+     * @param mixed $concentrationUnits
+     * @return self
      */
     public function setConcentrationUnits($concentrationUnits)
     {

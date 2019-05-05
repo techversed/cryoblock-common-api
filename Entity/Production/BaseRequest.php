@@ -14,6 +14,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
 {
 
     /*
+
         Important note -- All requests must have an object called requestProjects which is a one to many using a linker table which is specific to that implmentation of this abstract class --
 
 
