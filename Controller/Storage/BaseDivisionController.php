@@ -2,7 +2,9 @@
 
 namespace Carbon\ApiBundle\Controller\Storage;
 
+// VIOLATION -- Common really should not make assertions about the location of anything outside of common.
 use AppBundle\Entity\Storage\Division;
+
 use Carbon\ApiBundle\Serializer\Dot;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -10,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Doctrine\Common\Collections\ArrayCollection;
+use JMS\Serializer\SerializationContext;
 
 /*
 
@@ -22,17 +25,22 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 */
 
-class BaseDivisionController extends CarbonApiController
+// We should declare this as abstract and make it so that "divison" and "RESOURCE_ENTITY" are both only listed on the class that extends this one...
+abstract class BaseDivisionController extends CarbonApiController
 {
     /**
      * @var string The namespace of the resource entity
      */
-    const RESOURCE_ENTITY = "AppBundle\Entity\Storage\Division";
+    const RESOURCE_ENTITY = "AppBundle\Entity\Storage\Division"; // VIOLATION -- Common should not depend upon namespaces outside of common
 
     /**
      * @var string The form type for this resource
      */
     const FORM_TYPE = "division";
+
+    // Rewritten by Taylor -- The depth limitations on the serialization of children was resulting in problems where the divisionsampeltype, divisonstoragecontainer...etc were not being serialized
+    // In order to get around this problem while maintaining the performance characteristics of the original I had to sidestep the serialization helper so that I could use a custom serialization context ...
+    // The use of the custom context to limit serialization made it so that I could raise the max depth on children to where it could serialize children -> divisionviewers -> user -> avatar attachment and other similar cases with access governors
 
     /**
      * Handles the HTTP get request for the division entity
@@ -44,7 +52,98 @@ class BaseDivisionController extends CarbonApiController
      */
     public function handleGet()
     {
-        return parent::handleGet();
+
+        $request = $this->getRequest();
+        $isDataTableRequest = $this->isDataTableRequest($request);
+
+        $context = SerializationContext::create()->setGroups(array(
+            'default',
+            'samples',
+            'parent',
+            'children',
+            'parent' => array(
+                'default',
+                'children',
+                'parent',
+                'samples',
+                'tree',
+                'viewers',
+                'editors',
+                'groupViewers',
+                'groupEditors',
+                'conatiners',
+                'sampleTypes',
+                'parent' => array(
+                    'default',
+                    'children',
+                    'parent',
+                    'samples',
+                    'tree',
+                    'viewers',
+                    'editors',
+                    'groupViewers',
+                    'groupEditors',
+                    'conatiners',
+                    'sampleTypes',
+                    'parent' => array(
+                        'default'
+                    )
+                )
+            ),
+            'children' => array(
+                'default',
+                'viewers',
+                'editors',
+                'groupViewers',
+                'groupEditors',
+                'sampleTypes',
+                'containers',
+                'divisionGroupViewers' => array(
+                    'default',
+                    'group' => array(
+                        'default'
+                    )
+                ),
+                'divisionGroupEditors' => array(
+                    'defualt',
+                    'group' => array(
+                        'default'
+                    )
+                ),
+                'divisionViewers' => array(
+                    'default',
+                    'user' => array(
+                        'default'
+                    )
+                ),
+                'divisionEditors' => array(
+                    'default',
+                    'user' => array(
+                        'default'
+                    )
+                ),
+                'divisionStorageContainers' => array(
+                    'default',
+                    'storageContainer' => array(
+                        'default'
+                    )
+                ),
+                'divisionSampleTypes' => array(
+                    'default',
+                    'sampleType' => array(
+                        'default'
+                    )
+                )
+            )
+        ));
+
+        $context->enableMaxDepthChecks();
+
+        $data = $this->getSerializationHelper()->serializeWithContext(
+            $this->getGrid($isDataTableRequest)->getResult($this->getEntityRepository()), $context
+        );
+
+        return $this->getJsonResponse($data);
     }
 
     /**
@@ -71,6 +170,7 @@ class BaseDivisionController extends CarbonApiController
 
     }
 
+    // Are we even hitting this route????
     /**
      * Handles the HTTP get request for getting a divisions children
      *
@@ -123,6 +223,7 @@ class BaseDivisionController extends CarbonApiController
 
         $division = $gridResult['data'][0];
 
+        // VIOLATION -- this should really not make assertions about the location of classes in common.
         $canEdit = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')
             ->canUserEdit($division, $this->getUser())
         ;
@@ -326,7 +427,7 @@ class BaseDivisionController extends CarbonApiController
 
         $objPHPExcel = new \PHPExcel();
 
-        $prodRequest = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')->find($id);
+        $prodRequest = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\Division')->find($id); // VIOLATION
         $prodRequestInputSamples = $prodRequest->getSamples();
 
         //If there are no samples in the division just return an empty response. Will prevent this endpoint from being hit in that event
@@ -380,6 +481,7 @@ class BaseDivisionController extends CarbonApiController
             'Division Column',
         );
 
+        // VIOLATION -- Common should not make assertions about the locations of things outside of common
         $storageContainers = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\StorageContainer')->findAll();
 
         $storageContainerNames = array();
@@ -388,10 +490,13 @@ class BaseDivisionController extends CarbonApiController
             $storageContainerNames[] = $storageContainer->getName();
         }
 
+        // VIOLATION -- This makes assertions about the Sampletype implemenation -- allowed units should not be in common
         $storageContainerNames = implode(', ', $storageContainerNames);
         $concentrationUnits = implode(', ', array(
             'mg/mL',
             'ng/uL',
+            'cells/ml',
+            'cells/ul',
             'Molar',
         ));
 

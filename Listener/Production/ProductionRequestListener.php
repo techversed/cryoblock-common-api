@@ -17,8 +17,20 @@ class ProductionRequestListener
      */
     public $insertedRequests = array();
 
+    /**
+     * Turn the listener on or off
+     */
+    protected $enabled = true;
+
+
     public function onFlush(OnFlushEventArgs $args)
     {
+
+        if (!$this->enabled) {
+            return;
+        }
+
+
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 

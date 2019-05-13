@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+// VIOLATIONS -- There are violations in this file -- There should not be anything refering directly to things in the AppBundle becuase those are all implemenation dependant.
+
 class ProductionController extends CarbonApiController
 {
     /**
@@ -224,6 +226,8 @@ class ProductionController extends CarbonApiController
             'mg/mL',
             'ng/uL',
             'Molar',
+            'cells/mL',
+            'cells/uL'
         ));
 
         $statuses = implode(', ', array(
@@ -485,6 +489,8 @@ class ProductionController extends CarbonApiController
             'mg/mL',
             'ng/uL',
             'Molar',
+            'cells/mL',
+            'cells/uL',
         ));
 
         $volumeUnits = implode(', ', array(
