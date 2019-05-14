@@ -9,6 +9,18 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
 use Symfony\Bridge\Monolog\Logger;
 
+/*
+    VIOLATION
+    This file contains a violation of the idea of Common.
+    This should not explicitly move antibody sequences over to the new catalog like this because many implementaitons of this software may not have antibody sequences.
+
+    This violation would be fixed by adding additional properties to entity detail which determine whether or not the new entities should be moved over when a catalog is ranamed...
+
+
+
+
+*/
+
 class CatalogListener
 {
     public function onFlush(OnFlushEventArgs $args)
@@ -39,6 +51,12 @@ class CatalogListener
                 }
 
                 $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sample s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
+                $numUpdated = $query->execute();
+
+
+// This will have to be sorted out using entity detail -- there would have to be a column for whether or not an entity should be moved to a new catalog when the catalog is ranamed
+//VIOLATION -- Antibody sequence is not in common --- we will need to find a way to make this more abstract...
+                $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sequence\Antibody\AntibodySequence s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
                 $numUpdated = $query->execute();
 
                 $catIdString = array();
