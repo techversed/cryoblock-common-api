@@ -33,6 +33,15 @@ class EntityDetail extends BaseCryoblockEntity
      */
     protected $id;
 
+    // Should this type of entity be displayed in the UserObjectNotificationsPane
+    /**
+     * @var boolean inNotifications
+     *
+     * @ORM\Column(name="in_notifications", type="boolean", nullable=false, options={"default": false})
+     * @JMS\Groups({"default"})
+     */
+    protected $inNotifications = false;
+
     /**
      * @var string
      *
@@ -72,7 +81,7 @@ class EntityDetail extends BaseCryoblockEntity
      */
     protected $srefName;
 
-    protected $entityDetailId = -1;
+    protected $entityDetailId = 51;
 
     /**
      * Gets the value of EntityDetailId
@@ -225,5 +234,45 @@ class EntityDetail extends BaseCryoblockEntity
         $this->srefName = $srefName;
 
         return $this;
+    }
+
+    /**
+     * @return boolean inNotifications
+     */
+    public function isInNotifications()
+    {
+        return $this->inNotifications;
+    }
+
+    /**
+     * @param boolean inNotifications $inNotifications
+     *
+     * @return self
+     */
+    public function setInNotifications($inNotifications)
+    {
+        $this->inNotifications = $inNotifications;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $entityDetailId
+     *
+     * @return self
+     */
+    public function setEntityDetailId($entityDetailId)
+    {
+        $this->entityDetailId = $entityDetailId;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean isNotifications
+     */
+    public function getInNotifications()
+    {
+        return $this->inNotifications;
     }
 }

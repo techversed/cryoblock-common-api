@@ -28,18 +28,33 @@ class UserObjectNotification extends BaseCryoblockEntity
      */
     protected $entityId;
 
+
+    // Has the user chosen to stop recieving updates on this item?
     /**
-     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
-     * @ORM\JoinColumn(name="entity_detail_id", referencedColumnName="id")
+     * @var boolean dismissed
+     *
+     * @ORM\Column(name="dismissed", type="boolean", nullable=false, options={"default": false})
      * @JMS\Groups({"default"})
      */
-    protected $entityDetail;
+    protected $dismissed = false;
 
     /**
-     * @ORM\Column(name="entity_detail_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
-    protected $entityDetailId;
+    protected $entityDetailId = -1;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\EntityDetail")
+     * @ORM\JoinColumn(name="linked_entity_detail_id", referencedColumnName="id")
+     * @JMS\Groups({"default", "notifications"})
+     */
+    protected $linkedEntityDetail; // change this name
+
+    /**
+     * @ORM\Column(name="linked_entity_detail_id", type="integer", nullable=false)
+     * @JMS\Groups({"default"})
+     */
+    protected $linkedEntityDetailId; // change this name
 
     /**
      * @var User
@@ -73,6 +88,33 @@ class UserObjectNotification extends BaseCryoblockEntity
      * @JMS\Groups("default")
      */
     protected $onDelete = false;
+
+    /* Transient */
+
+// This is not kept in the database since we are linking to a number of different
+    /**
+     * @JMS\Groups({"default", "notifications"})
+     * @JMS\MaxDepth(2)
+     */
+    protected $entity;
+
+    /**
+     * @return mixed
+     */
+    public function getEntity()
+    {
+        return $this->entity;
+    }
+
+    /**
+     * @param mixed $entity
+     * @return self
+     */
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+        return $this;
+    }
 
     /**
      * Gets the value of id.
@@ -118,54 +160,6 @@ class UserObjectNotification extends BaseCryoblockEntity
     public function setEntityId($entityId)
     {
         $this->entityId = $entityId;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of entityDetail.
-     *
-     * @return mixed
-     */
-    public function getEntityDetail()
-    {
-        return $this->entityDetail;
-    }
-
-    /**
-     * Sets the value of entityDetail.
-     *
-     * @param mixed $entityDetail the entity detail
-     *
-     * @return self
-     */
-    public function setEntityDetail($entityDetail)
-    {
-        $this->entityDetail = $entityDetail;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of entityDetailId.
-     *
-     * @return mixed
-     */
-    public function getEntityDetailId()
-    {
-        return $this->entityDetailId;
-    }
-
-    /**
-     * Sets the value of entityDetailId.
-     *
-     * @param mixed $entityDetailId the entity detail id
-     *
-     * @return self
-     */
-    public function setEntityDetailId($entityDetailId)
-    {
-        $this->entityDetailId = $entityDetailId;
 
         return $this;
     }
@@ -286,6 +280,94 @@ class UserObjectNotification extends BaseCryoblockEntity
     public function setOnDelete($onDelete)
     {
         $this->onDelete = $onDelete;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean dismissed
+     */
+    public function isDismissed()
+    {
+        return $this->dismissed;
+    }
+
+    /**
+     * @param boolean dismissed $dismissed
+     *
+     * @return self
+     */
+    public function setDismissed($dismissed)
+    {
+        $this->dismissed = $dismissed;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean dismissed
+     */
+    public function getDismissed()
+    {
+        return $this->dismissed;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityDetailId()
+    {
+        return $this->entityDetailId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLinkedEntityDetail()
+    {
+        return $this->linkedEntityDetail;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLinkedEntityDetailId()
+    {
+        return $this->linkedEntityDetailId;
+    }
+
+    /**
+     * @param mixed $entityDetailId
+     *
+     * @return self
+     */
+    public function setEntityDetailId($entityDetailId)
+    {
+        $this->entityDetailId = $entityDetailId;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $linkedEntityDetail
+     *
+     * @return self
+     */
+    public function setLinkedEntityDetail($linkedEntityDetail)
+    {
+        $this->linkedEntityDetail = $linkedEntityDetail;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $linkedEntityDetailId
+     *
+     * @return self
+     */
+    public function setLinkedEntityDetailId($linkedEntityDetailId)
+    {
+        $this->linkedEntityDetailId = $linkedEntityDetailId;
 
         return $this;
     }

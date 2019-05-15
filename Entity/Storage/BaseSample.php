@@ -60,6 +60,7 @@ abstract class BaseSample extends BaseCryoblockEntity
      * @Gedmo\Versioned
      * @Carbon\Searchable(name="catalog", join=true, searchProp="name", joinProp="catalogId", subAlias="ct")
      * @JMS\Groups({"default"})
+     * @JMS\MaxDepth(2)
      */
     protected $catalog;
 
