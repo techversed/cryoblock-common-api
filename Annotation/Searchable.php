@@ -2,7 +2,7 @@
 
 namespace Carbon\ApiBundle\Annotation;
 
-/**
+/*
     The searchable annoatation is used in the file Carbon\ApiBundle\Grid\CarbonGrid.php to handle searching -- still needs modifications in order to efficiently handle MTM relations.
 */
 
