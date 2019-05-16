@@ -113,7 +113,7 @@ class ObjectNotificationListener
 
             $creatingUserObjectNotification = new UserObjectNotification();
             $creatingUserObjectNotification->setEntityId($entity->getId());
-            $creatingUserObjectNotification->setEntityDetail($entDet);
+            $creatingUserObjectNotification->setLinkedEntityDetail($entDet);
             $creatingUserObjectNotification->setUser($creatingUser);
             $creatingUserObjectNotification->setOnUpdate(true);
             $creatingUserObjectNotification->setOnDelete(true);
