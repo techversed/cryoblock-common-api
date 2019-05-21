@@ -21,7 +21,7 @@ class UserObjectNotificationFormType extends CryoblockAbstractType
     {
         $builder
             ->add('entityId', 'integer')
-            ->add('entityDetail', 'entity', array(
+            ->add('linkedEntityDetail', 'entity', array(
                 'class' => 'Carbon\\ApiBundle\\Entity\\EntityDetail',
                 'property' => 'entity_detail_id',
                 'multiple' => false
@@ -42,7 +42,7 @@ class UserObjectNotificationFormType extends CryoblockAbstractType
             ))
         ;
 
-        $builder->get('entityDetail')
+        $builder->get('linkedEntityDetail')
             ->addViewTransformer(new CryoblockOTOTransformer(
                 $this->em, 'CarbonApiBundle:EntityDetail'
             ))
