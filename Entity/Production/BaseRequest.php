@@ -56,6 +56,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     const STATUS_ABORTED = 'Aborted';
     const STATUS_COMPLETED = 'Completed';
     const STATUS_ACTION_REQUIRED = 'Action Required';
+    const STATUS_FAILED = 'Failed';
 
     /**
      * Valid statuses
@@ -69,6 +70,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
         self::STATUS_ABORTED,
         self::STATUS_COMPLETED,
         self::STATUS_ACTION_REQUIRED,
+        self::STATUS_FAILED
     );
 
     /**
