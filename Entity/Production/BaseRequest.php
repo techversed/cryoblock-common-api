@@ -125,6 +125,10 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      */
     protected $pipelineStep;
 
+    // Transient;
+    public $inSamples;
+    public $outSamples;
+
     /**
      * Gets the value of alias.
      *
@@ -317,6 +321,54 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     public function setProjects($projects)
     {
         $this->projects = $projects;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getValidStatuses()
+    {
+        return $this->validStatuses;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInSample()
+    {
+        return $this->inSample;
+    }
+
+    /**
+     * @param mixed $inSample
+     *
+     * @return self
+     */
+    public function setInSample($inSample)
+    {
+        $this->inSample = $inSample;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOutSample()
+    {
+        return $this->outSample;
+    }
+
+    /**
+     * @param mixed $outSample
+     *
+     * @return self
+     */
+    public function setOutSample($outSample)
+    {
+        $this->outSample = $outSample;
 
         return $this;
     }
