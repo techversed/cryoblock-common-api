@@ -65,6 +65,23 @@ class BaseHelp extends BaseCryoblockEntity
     protected $parent;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="content", type="text", nullable=true)
+     * @Gedmo\Versioned
+     * @JMS\Groups({"default"})
+     */
+    protected $content;
+
+    /**
+     * @var string
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="html_content", type="text", nullable=true)
+     */
+    protected $htmlContent;
+
+    /**
      * @Gedmo\TreeLevel
      * @ORM\Column(name="level", type="integer", nullable=true)
      * @JMS\Groups({"default"})
@@ -117,6 +134,33 @@ class BaseHelp extends BaseCryoblockEntity
     public $viewers;
 
     public $editors;
+
+    protected $entityDetailId = -1;
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Sets the value of id.
+     *
+     * @param integer $id the id
+     *
+     * @return self
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
     /**
      * Gets the value of lft.
      *
@@ -543,6 +587,78 @@ class BaseHelp extends BaseCryoblockEntity
     public function setHelpGroupEditors($helpGroupEditors)
     {
         $this->helpGroupEditors = $helpGroupEditors;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of entityDetailId.
+     *
+     * @return mixed
+     */
+    public function getEntityDetailId()
+    {
+        return $this->entityDetailId;
+    }
+
+    /**
+     * Sets the value of entityDetailId.
+     *
+     * @param mixed $entityDetailId the entity detail id
+     *
+     * @return self
+     */
+    public function setEntityDetailId($entityDetailId)
+    {
+        $this->entityDetailId = $entityDetailId;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of content.
+     *
+     * @return string
+     */
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    /**
+     * Sets the value of content.
+     *
+     * @param string $content the content
+     *
+     * @return self
+     */
+    public function setContent($content)
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of htmlContent.
+     *
+     * @return string
+     */
+    public function getHtmlContent()
+    {
+        return $this->htmlContent;
+    }
+
+    /**
+     * Sets the value of htmlContent.
+     *
+     * @param string $htmlContent the html content
+     *
+     * @return self
+     */
+    public function setHtmlContent($htmlContent)
+    {
+        $this->htmlContent = $htmlContent;
 
         return $this;
     }
