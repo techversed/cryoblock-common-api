@@ -38,3 +38,9 @@ carbon_api_controllers:
 carbon_api_production_controllers:
     resource: "@CarbonApiBundle/Controller/Production"
     type:     annotation
+
+## Generic GridFormControllers
+## this should not be needed since we are importing all of the carbonapicontrollers
+# carbon_api_grid_form_controllers:
+#     resource: "@CarbonApiBundle/Controller/Production"
+#     type:     annotation
