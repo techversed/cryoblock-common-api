@@ -143,6 +143,8 @@ class GridFormController extends CarbonApiController
         End of the portion that may not make it into production
     */
 
+
+
     // This portion is not built yet.
     // We would like for ids to both be created and updated in the same action so we are going to need to
     //
@@ -222,6 +224,52 @@ class GridFormController extends CarbonApiController
     //
     protected function handlePutPostComplete()
     {
+
+
+        // for this first version we are going to cook up some sample data and use that instead of passing it with the request
+
+        // This is the structure of the data in the post request that we are going to be taking in.
+        // The top level is going to be an array of entries
+            // The second level is going to have properties for that entry.
+            // It is going to have metadata which are the properites which would normally be present within the form for the object
+            // It is also going to have a series of gridforms which are going to allow for additional metadata properties to be stored on the linker table entries for grid forms.
+        $exampleData = array(
+            'updateType' => 'mtmParent',
+            'Entities' => array(
+                array(
+                    'BaseMetadata' => array(),
+                    'GridForms' => array(
+                        'association1' => array(
+                            array(),
+                            array(),
+                            array()
+                        ),
+                        'association2' => array(
+                            array(),
+                            array(),
+                            array()
+                        );
+                        'association3' => array(
+                            array(),
+                            array(),
+                            array()
+                        );
+                    )
+                )
+            )
+        );
+
+        // Need to quickly validate that it would be possible to do bulk updates of non-nested data using this method...
+            // Lets start out by assuming that we are going to need to use this in order to perform bulk updates on samples... what needs to be added?
+            // We would also need to add a property at the top level asking if it is a mtm update or if it is a bulk update of a single type of entity.
+
+
+        // possible values for the 'updateType' key.
+            // mtmParent -- used when the user is trying to adjust the properties on a parent and would like to add metadata to a linker table entry (something that would not be possible using the regular formtype setup
+            // bulkEntity -- If there is no parent object and you would like to use the gridform essentially as a regular bulk (like the excel upload) then this can be specified.
+
+
+
 
         $em = $this->container->get('doctrine.orm.default_entity_manager');
 
@@ -317,3 +365,31 @@ class GridFormController extends CarbonApiController
     // asdfl
 
 }
+
+// The format of the request should be as follows
+/*
+
+// The entity which is sent to this should be a list of entities which have a series of entities
+
+// Grid forms should really only be used in order to set metadata on linker table entries.
+
+// On this first round we are going to make things
+    $entities = array(
+        // Entity 1
+        array(
+            baseProperties = array()
+            gridForms = array
+                array(
+                    'associationName' => array()
+                )
+            )
+        ),
+        // Entity 2
+        array(
+            baseProperties = array()
+            gridForms = array(
+                'associationName' => array()
+            )
+        )
+    )
+*/
