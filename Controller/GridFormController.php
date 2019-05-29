@@ -14,10 +14,62 @@ use Carbon\ApiBundle\Controller\CarbonApiController;
 /*
     We would like for grid forms to be powerful enough to create and update objects in the same action -- as a result we are going to need to make it so that
 
-
     At the current point in time we are not making it so that anything can be sent to these routes without a user being logged in first -- we have built code to make it so that users that are not logged in yet are assumed to be the utilities-services user.
 
+    This class is going to replace the sample import controller and portion of the production controller.
+
+    This is going to have a validate action which is going to run the data that was provided through the validators in the importer class
+
+    This is going to have a complete class which commits the requested action to the database.
+
 */
+
+/*
+NOTES:
+
+
+LIST OF OTHER CHANGES THAT ARE GOING TO BE NEEDED IN ORDER FOR THIS TO ALL WORK OUT.
+    Importers may need additioanl properties
+    Everything that you would like to update with this is going to need to have its own importer created
+    Entity detail needs to have the name of the form that needs to be grabbed.
+    Entity detail is going to need to have the importer stored for each type of element that is allowed to be imported with this mechanism
+    May need to have multiple different functions for bulk import -- not sure at this time if it makes more sense for us to have separate importers for bulk and linker updates or if it makes sense to add new functions to the importer depending upon which action you are attempting to make
+    Entity detail should be expanded to have update, create, delete permissions roles on it -- since we are going to try to make something generic that is going to work with all type of entities it is going to be absolutely essential for us to have a mechanism to set this for individual entity types instead of setting a standard in the controller.
+
+
+*/
+
+//JUNK notes area
+
+/*
+
+        // Need to quickly validate that it would be possible to do bulk updates of non-nested data using this method...
+            // Lets start out by assuming that we are going to need to use this in order to perform bulk updates on samples... what needs to be added?
+            // We would also need to add a property at the top level asking if it is a mtm update or if it is a bulk update of a single type of entity.
+
+
+        // possible values for the 'updateType' key.
+            // mtmParent -- used when the user is trying to adjust the properties on a parent and would like to add metadata to a linker table entry (something that would not be possible using the regular formtype setup
+            // bulkEntity -- If there is no parent object and you would like to use the gridform essentially as a regular bulk (like the excel upload) then this can be specified.
+
+        // This complete action is going to function in basically the same way that production controller operates...
+
+
+        // foreach($entities as $entity)
+        // {
+
+        //     // Here are all of the things
+
+        // }
+
+        // $requestObjectFormData = $data['requestObject'];
+        // $requestFormType = $data['requestFormType'];
+        // $prodRequest = $em->getRepository($data['entity'])->find($data['id']);
+
+        // This is not going to work yet
+
+*/
+
 
 
 
@@ -355,6 +407,7 @@ class GridFormController extends CarbonApiController
         else {
 
             // UPGRADE LATER -- in the short term we are just going to disallow the use of anon routes on grid forms...
+            // This is currently set up so that users must be logged in to reach this route -- this is still a good situation to prepare for though.
             // If the user is not logged in then we should check of anon users are allowd to access the route
             // This will be done on entity detail at some point
 
@@ -409,7 +462,6 @@ class GridFormController extends CarbonApiController
         // The metdata on linkertable use case
         // This should have id added to it later on.
         // Entities is going to hold all of the data that is used on the frontend.
-        //
         $exampleData1 = array(
             'actionType' => 'mtmParent',
             'Entities' => array(
@@ -469,12 +521,16 @@ class GridFormController extends CarbonApiController
         $examples = array($exampleData1, $exampleData2);
 
 
-// In the next stage of testing we are going to move to running both testcases
+        // In the next stage of testing we are going to move to running both testcases
 
 
         $example = $examples[1]; // right now we are just going to worry about getting the regular bulk import working.
+
 /* END OF TEST DATA PORTION */
-        if(true) {
+
+/* */
+
+        if(false) {
         // foreach($examples as $example) {
 
             // choose variable name other than example later on.
@@ -565,79 +621,7 @@ class GridFormController extends CarbonApiController
             }
         }
 
-        // Need to quickly validate that it would be possible to do bulk updates of non-nested data using this method...
-            // Lets start out by assuming that we are going to need to use this in order to perform bulk updates on samples... what needs to be added?
-            // We would also need to add a property at the top level asking if it is a mtm update or if it is a bulk update of a single type of entity.
+    } // end of function
 
 
-        // possible values for the 'updateType' key.
-            // mtmParent -- used when the user is trying to adjust the properties on a parent and would like to add metadata to a linker table entry (something that would not be possible using the regular formtype setup
-            // bulkEntity -- If there is no parent object and you would like to use the gridform essentially as a regular bulk (like the excel upload) then this can be specified.
-
-        // This complete action is going to function in basically the same way that production controller operates...
-
-
-        // foreach($entities as $entity)
-        // {
-
-        //     // Here are all of the things
-
-        // }
-
-        // $requestObjectFormData = $data['requestObject'];
-        // $requestFormType = $data['requestFormType'];
-        // $prodRequest = $em->getRepository($data['entity'])->find($data['id']);
-
-        // This is not going to work yet
-
-
-
-    }
-
-    // handle delete is not going to be implemented here
-    // asdf
-    // asdfl
-
-}
-
-// The format of the request should be as follows
-/*
-
-// The entity which is sent to this should be a list of entities which have a series of entities
-
-// Grid forms should really only be used in order to set metadata on linker table entries.
-
-// On this first round we are going to make things
-    $entities = array(
-        // Entity 1
-        array(
-            baseProperties = array()
-            gridForms = array
-                array(
-                    'associationName' => array()
-                )
-            )
-        ),
-        // Entity 2
-        array(
-            baseProperties = array()
-            gridForms = array(
-                'associationName' => array()
-            )
-        )
-    )
-*/
-// The above is outdated -- the new version of the standard is a comment in one of the functions above.
-
-
-/*
-LIST OF OTHER CHANGES THAT ARE GOING TO BE NEEDED IN ORDER FOR THIS TO ALL WORK OUT.
-    Importers may need additioanl properties
-    Everything that you would like to update with this is going to need to have its own importer created
-    Entity detail needs to have the name of the form that needs to be grabbed.
-    Entity detail is going to need to have the importer stored for each type of element that is allowed to be imported with this mechanism
-    May need to have multiple different functions for bulk import -- not sure at this time if it makes more sense for us to have separate importers for bulk and linker updates or if it makes sense to add new functions to the importer depending upon which action you are attempting to make
-    Entity detail should be expanded to have update, create, delete permissions roles on it -- since we are going to try to make something generic that is going to work with all type of entities it is going to be absolutely essential for us to have a mechanism to set this for individual entity types instead of setting a standard in the controller.
-
-
-*/
+} // end of class
