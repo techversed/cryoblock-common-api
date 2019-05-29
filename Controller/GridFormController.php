@@ -146,8 +146,8 @@ class GridFormController extends CarbonApiController
 
 
     // This portion is not built yet.
+    // This is really only going to take the importer class for the type of object that we are handling -- this is going to be a generic way of replacing the uploadAction in sample import controller.
     // We would like for ids to both be created and updated in the same action so we are going to need to
-    //
     protected function handlePutPostValidate()
     {
         // There should be an additional property in here that asks whether it should have the shit sent back in the form of one of the frontend grids that are in the produciton controller.
@@ -226,10 +226,13 @@ class GridFormController extends CarbonApiController
 
 
     // Might also give the option to look up other fields in the event that an id is not given
+    // We might not even end up needing to use this becuase if the id is given then we could just take that id and pass it to the transformer -- still a good thing to have though.
     /*
+
         This funciton is designed to take an object provided on the frontend, locate the
         $em should be an entity manager
         $object should be whatever you are looking to add to the frontend
+
     */
     protected function lookupObject($em, $obj)
     {
@@ -264,12 +267,16 @@ class GridFormController extends CarbonApiController
             // $foo =  $objRepo->find(-1);
 
             // If the object lookup failed throw an exception
-            if (!$foo) {
+            if ($foo) {
 
-                throw new \Exception("Thre is no entity detail with the specified id");
+                return $foo;
 
             }
+            else {
 
+                throw new \Exception("There is not an object with the specified id of the speicified class. Either the id or the entity detail id is wrong in this case.");
+
+            }
         }
         else {
 
@@ -284,16 +291,18 @@ class GridFormController extends CarbonApiController
 
             // For now we are just going to throw an exception reminding us of what we need to finish building
 
-            throw new \Exception("Need to finish buidling the lookupObject function in GridFormController.php in common");
+            throw new \Exception("Need to finish buidling the lookupObject function in GridFormController.php in common.");
 
         }
 
         // $lookedUpObject = array();
 
-        return $lookedUpObject;
+        // return $lookedUpObject;
+        throw new \Exception("Grid Form Controller's function lookupObject has reached an execution path that should never be reached.");
 
     }
 
+    // This should really only be needed in the event that we are needing to create new entities then link them to the new entities.
     /*
         This function takes an object which has been received from the entity manager and returns an array that conatains just the id
         This type of input is needed to hand things off to forms. The OTO transformer which is present in forms is set up to only need this information ...
@@ -301,11 +310,14 @@ class GridFormController extends CarbonApiController
     */
     protected function prepForOTO($obj)
     {
+
         return array('id' => $obj->getId());
+
     }
 
 
     // We are not done building this yet.
+    // This is going to be a generic way of replacing the save action in SampleImportController.php
     // We would like for ids to both be created and updated in the same action so we are going to need to
     // Production controllers complete action was not even creating the samples -- it was an earlier request within the pipeline.
     protected function handlePutPostComplete()
@@ -317,7 +329,63 @@ class GridFormController extends CarbonApiController
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
 
-        return $this->lookupObject($em, array("entityDetailId" => "2", 'id' => '1'));
+
+        $usersRepo = $em->getRepository('Carbon\ApiBundle\Entity\User');
+
+        $data = "200 OK";
+
+        $user = $this->getUser();
+        $userLoggedIn = $user ? true : false; // Bool to prepare for user not being logged in;
+        $authorized = false;
+
+        if ($userLoggedIn) {
+
+            // Check if the user has the desired permission
+            // FIX LATER -- for this stage in testing we are just going to assume that any logged in user has permissions to accesss any route -- this is going to be set on entity detail further down the line...
+
+
+            // check roles here once we are done with the testing portion of this controller development
+            // foreach(...){
+
+                $authorized = true;
+
+
+            // }
+        }
+        else {
+
+            // UPGRADE LATER -- in the short term we are just going to disallow the use of anon routes on grid forms...
+            // If the user is not logged in then we should check of anon users are allowd to access the route
+            // This will be done on entity detail at some point
+
+            // this route is going to be changed so that users are all allowed to
+            if (false) {
+
+                $authorized = true;
+                $user = $usersRepo->find(212); // if they are not logged in assume that they really want the utilities service account -- blame anything on them;
+
+                // echo "in the else";
+            }
+
+        }
+
+        if (!$authorized) {
+            throw new UnauthorizedHttpException("You don't have permission");
+        }
+
+// This portion is going to be removed from final version
+        $data = $user->getId();
+
+        $status = 200;
+        return new Response($data, $status, array(
+            'Content-Type' => 'application/json',
+        ));
+// End of portion to be removed.
+
+        /* END user validation portion */
+
+
+/*TEST DATA*/
 
         // THIS IS ONLY INTENDED TO BE USED WITH THE TEST CASES -- IT SHOULD NOT MAKE IT INTO PRODUCTION
         // This is obviously not final -- this is just for testing purposes
@@ -330,18 +398,6 @@ class GridFormController extends CarbonApiController
 
 
 
-        /*
-            THIS PORTION IS GOING TO
-        */
-
-
-
-
-
-        /*
-            END OF THE PARSING PORTION
-        */
-
         // for this first version we are going to cook up some sample data and use that instead of passing it with the request
 
         // This is the structure of the data in the post request that we are going to be taking in.
@@ -352,6 +408,8 @@ class GridFormController extends CarbonApiController
 
         // The metdata on linkertable use case
         // This should have id added to it later on.
+        // Entities is going to hold all of the data that is used on the frontend.
+        //
         $exampleData1 = array(
             'actionType' => 'mtmParent',
             'Entities' => array(
@@ -401,13 +459,6 @@ class GridFormController extends CarbonApiController
                         // array('id' => 2, 'field1' => 'value1','field2' => 'value1','field3' => 'value1'),
                         // array('id' => 3, 'field1' => 'value1','field2' => 'value1','field3' => 'value1')
                     )
-                    //,
-                    // 'update' => array(
-
-                    // ),
-                    // 'delete' => array(
-
-                    // )
                 )
             )
         );
@@ -419,12 +470,14 @@ class GridFormController extends CarbonApiController
 
 
 // In the next stage of testing we are going to move to running both testcases
+
+
+        $example = $examples[1]; // right now we are just going to worry about getting the regular bulk import working.
+/* END OF TEST DATA PORTION */
+        if(true) {
         // foreach($examples as $example) {
 
-        if(true) {
-
             // choose variable name other than example later on.
-            $example = $examples[1]; // right now we are just going to worry about getting the regular bulk import working.
 
             if ($example['actionType'] == 'mtmParent') {
 
@@ -512,9 +565,6 @@ class GridFormController extends CarbonApiController
             }
         }
 
-
-        die();
-
         // Need to quickly validate that it would be possible to do bulk updates of non-nested data using this method...
             // Lets start out by assuming that we are going to need to use this in order to perform bulk updates on samples... what needs to be added?
             // We would also need to add a property at the top level asking if it is a mtm update or if it is a bulk update of a single type of entity.
@@ -527,12 +577,12 @@ class GridFormController extends CarbonApiController
         // This complete action is going to function in basically the same way that production controller operates...
 
 
-        foreach($entities as $entity)
-        {
+        // foreach($entities as $entity)
+        // {
 
-            // Here are all of the things
+        //     // Here are all of the things
 
-        }
+        // }
 
         // $requestObjectFormData = $data['requestObject'];
         // $requestFormType = $data['requestFormType'];
@@ -540,70 +590,7 @@ class GridFormController extends CarbonApiController
 
         // This is not going to work yet
 
-        echo "Made it to the end of the portion that is being built right now.";
-        die();
 
-        $usersRepo = $em->getRepository('Carbon\ApiBundle\Entity\User');
-        // echo $em ? "yep" : "nah";
-        // We might as well check permissions here instead of setting it in the post and the put request place.
-
-        $data = "200 OK";
-        // get the user -- could add another check to see if they are hitting a route that is not in security.yml
-
-        $user = $this->getUser();
-        $userLoggedIn = $user ? true : false; // Bool to prepare for user not being logged in;
-        $authorized = false;
-
-        if ($userLoggedIn) {
-
-            // Check if the user has the desired permission
-            // FIX LATER -- for this stage in testing we are just going to assume that any logged in user has permissions to accesss any route -- this is going to be set on entity detail further down the line...
-
-
-            // check roles here once we are done with the testing portion of this controller development
-            // foreach(...){
-
-                $authorized = true;
-
-
-            // }
-        }
-        else {
-
-            // UPGRADE LATER -- in the short term we are just going to disallow the use of anon routes on grid forms...
-            // If the user is not logged in then we should check of anon users are allowd to access the route
-            // This will be done on entity detail at some point
-
-            // this route is going to be changed so that users are all allowed to
-            if (false) {
-
-                $authorized = true;
-                $user = $usersRepo->find(212); // if they are not logged in assume that they really want the utilities service account -- blame anything on them;
-
-                // echo "in the else";
-            }
-
-        }
-
-        if (!$authorized) {
-            throw new UnauthorizedHttpException("You don't have permission");
-        }
-
-        // if user not logged in;
-        //$authorized = true
-
-
-        // if user logged in
-        // loop over groups and roles
-
-        $data = $user->getId();
-
-        $status = 200;
-
-
-        return new Response($data, $status, array(
-            'Content-Type' => 'application/json',
-        ));
 
     }
 
