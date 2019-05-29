@@ -56,6 +56,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     const STATUS_ABORTED = 'Aborted';
     const STATUS_COMPLETED = 'Completed';
     const STATUS_ACTION_REQUIRED = 'Action Required';
+    const STATUS_FAILED = 'Failed';
 
     /**
      * Valid statuses
@@ -69,6 +70,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
         self::STATUS_ABORTED,
         self::STATUS_COMPLETED,
         self::STATUS_ACTION_REQUIRED,
+        self::STATUS_FAILED
     );
 
     /**
@@ -124,6 +126,10 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      * @JMS\Groups({"default"})
      */
     protected $pipelineStep;
+
+    // Transient;
+    public $inSamples;
+    public $outSamples;
 
     /**
      * Gets the value of alias.
@@ -317,6 +323,54 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     public function setProjects($projects)
     {
         $this->projects = $projects;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getValidStatuses()
+    {
+        return $this->validStatuses;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInSample()
+    {
+        return $this->inSample;
+    }
+
+    /**
+     * @param mixed $inSample
+     *
+     * @return self
+     */
+    public function setInSample($inSample)
+    {
+        $this->inSample = $inSample;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOutSample()
+    {
+        return $this->outSample;
+    }
+
+    /**
+     * @param mixed $outSample
+     *
+     * @return self
+     */
+    public function setOutSample($outSample)
+    {
+        $this->outSample = $outSample;
 
         return $this;
     }
