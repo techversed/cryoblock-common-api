@@ -356,6 +356,7 @@ class GridFormController extends CarbonApiController
 
     // This should really only be needed in the event that we are needing to create new entities then link them to the new entities.
     /*
+
         This function takes an object which has been received from the entity manager and returns an array that conatains just the id
         This type of input is needed to hand things off to forms. The OTO transformer which is present in forms is set up to only need this information ...
 
@@ -427,18 +428,21 @@ class GridFormController extends CarbonApiController
         }
 
 // This portion is going to be removed from final version
+
         $data = $user->getId();
 
         $status = 200;
+
         return new Response($data, $status, array(
             'Content-Type' => 'application/json',
         ));
+
 // End of portion to be removed.
 
         /* END user validation portion */
 
 
-/*TEST DATA*/
+/* TEST DATA */
 
         // THIS IS ONLY INTENDED TO BE USED WITH THE TEST CASES -- IT SHOULD NOT MAKE IT INTO PRODUCTION
         // This is obviously not final -- this is just for testing purposes
@@ -501,6 +505,7 @@ class GridFormController extends CarbonApiController
 
         // print_r($storageContainer);
         // die();
+
         $exampleData2 = array(
             'actionType' => 'bulkEntity',
             'Entities' => array(
@@ -508,12 +513,13 @@ class GridFormController extends CarbonApiController
                     'columns' => array(),
                     'entries' => array(
                         array('id' => 1, 'status' => 'Depleted','description' => 'this is the description','storageContainer' => $storageContainer, 'sampleType' => $sampleType)
-                        // array('id' => 2, 'field1' => 'value1','field2' => 'value1','field3' => 'value1'),
-                        // array('id' => 3, 'field1' => 'value1','field2' => 'value1','field3' => 'value1')
                     )
                 )
             )
         );
+
+        // array('id' => 2, 'field1' => 'value1','field2' => 'value1','field3' => 'value1'),
+        // array('id' => 3, 'field1' => 'value1','field2' => 'value1','field3' => 'value1')
 
         // If both of the use cases above are accounted for then there should not be very many things that we are going to struggle to handle.
 
@@ -619,6 +625,7 @@ class GridFormController extends CarbonApiController
             // end of bulkEntry code
 
             }
+
         }
 
     } // end of function
