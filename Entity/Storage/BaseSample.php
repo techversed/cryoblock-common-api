@@ -64,7 +64,7 @@ abstract class BaseSample extends BaseCryoblockEntity
     protected $catalog;
 
     /**
-     * Catalog id
+     * @var integer catalogId
      * @ORM\Column(name="catalog_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
