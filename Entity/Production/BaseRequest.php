@@ -74,7 +74,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     );
 
     /**
-     * @var integer $alias
+     * @var string $alias
      *
      * @ORM\Column(name="alias", type="string", length=300, nullable=true)
      * @Gedmo\Versioned
