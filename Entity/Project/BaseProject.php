@@ -29,7 +29,9 @@ abstract class BaseProject extends BaseCryoblockEntity
     */
     protected $validStatuses = array(
         'Ongoing',
-        'Completed'
+        'Unassigned',
+        'Completed',
+        'Terminated'
     );
 
     /**
