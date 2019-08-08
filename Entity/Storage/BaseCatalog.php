@@ -68,7 +68,7 @@ abstract class BaseCatalog extends BaseCryoblockEntity
     protected $parentCatalogs;
 
     /**
-     * @ORM\OneToMany(targetEntity="Carbon\ApiBundle\Entity\Storage\BaseSample", mappedBy="catalog")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\Sample", mappedBy="catalog")
      * @JMS\Groups({"default"})
      */
     protected $samples;
@@ -253,7 +253,7 @@ abstract class BaseCatalog extends BaseCryoblockEntity
     public function getSampleCount()
     {
 
-        $sampleCount = count($this->getSamples);
+        $sampleCount = count($this->getSamples());
 
         return $sampleCount;
     }
