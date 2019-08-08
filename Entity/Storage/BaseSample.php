@@ -264,6 +264,7 @@ abstract class BaseSample extends BaseCryoblockEntity
      */
     protected $lotEntityDetail;
 
+    // This should really be on Sample instead of base sample sicne it references something that is not in common VIOLATION
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\SampleTag", mappedBy="sample")
      * @JMS\Groups({"default"})
