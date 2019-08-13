@@ -11,6 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NotFoundHttpException;
 
+/*
+
+    VIOLATION - I am modifying the user entity here -- if we were doing this perfectly we would really only edit samples from this location
+
+
+*/
+
 class BaseSampleController extends CarbonApiController
 {
     /**
@@ -245,24 +252,33 @@ class BaseSampleController extends CarbonApiController
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 
-
     // VIOLATION -- This should really not be in common
+    // VIOLATION -- This should probably be on user since it is really updating a property which is stored for each user
     /**
-     * @Route("/storage/sample/{parentSampleId/user_clone", name="set_users_cloned_sample")
+     * @Route("/storage/sample/{parentSampleId}/user_clone", name="set_users_cloned_sample")
      * @Method("POST")
      * @Security("has_role('ROLE_USER')")
      *
      * @return Response
      */
-    public function setClonedSample(Request $request)
+    public function setClonedSample($parentSampleId)
     {
 
+        $user = $this->getUser();
+        $em = $this->getEntityManager();
+        $sampleRepo = $em->getRepository('AppBundle\Entity\Storage\Sample');
+        $parentSample = $sampleRepo->find($parentSampleId);
+        $user->setClonedSample($parentSample);
 
+        $em->flush();
+
+        return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 
     // VIOLATION -- This should really not be in common -- we should have a second table with more data
+    // VIOLATION -- THIS SHOULD PROBABLY BE ON USER ALSO
     /**
-     * @Route("/user/clonedSample", name="get_users_cloned_sample")
+     * @Route("/storage/sample/user_clone", name="get_users_cloned_sample")
      * @Method("GET")
      * @Security("has_role('ROLE_USER')")
      *
@@ -270,8 +286,8 @@ class BaseSampleController extends CarbonApiController
      */
     public function getClonedSample()
     {
-
-
+        $user = $this->getUser();
+        return $this->getJsonResponse($this->getSerializationHelper()->serialize($user->getClonedSample()));
     }
 
 }

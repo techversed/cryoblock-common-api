@@ -119,7 +119,7 @@ class User extends BaseUser
 // VIOLATION -- THIS SHOULD REALLY NOT BE HANDLED IN COMMON
     /**
      * @var integer ClonedSampleId
-     * @ORM\Column(name="cloned_sample_id" type="integer", nullable= true)
+     * @ORM\Column(name="cloned_sample_id", type="integer", nullable= true)
      * @JMS\Groups({"default"})
      */
     protected $clonedSampleId;
@@ -477,18 +477,6 @@ class User extends BaseUser
     public function setEnabled($enabled)
     {
         $this->enabled = $enabled;
-
-        return $this;
-    }
-
-    /**
-     * @param mixed $roles
-     *
-     * @return self
-     */
-    public function setRoles($roles)
-    {
-        $this->roles = $roles;
 
         return $this;
     }
