@@ -68,6 +68,12 @@ abstract class BaseCatalog extends BaseCryoblockEntity
     protected $parentCatalogs;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\Sample", mappedBy="catalog")
+     * @JMS\Groups({"default"})
+     */
+    protected $samples;
+
+    /**
      * Gets the value of name.
      *
      * @return string
@@ -236,6 +242,42 @@ abstract class BaseCatalog extends BaseCryoblockEntity
     public function setMergedInto($mergedInto)
     {
         $this->mergedInto = $mergedInto;
+
+        return $this;
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getSampleCount()
+    {
+
+        $sampleCount = count($this->getSamples());
+
+        return $sampleCount;
+    }
+
+    /**
+     * Gets the value of samples.
+     *
+     * @return mixed
+     */
+    public function getSamples()
+    {
+        return $this->samples;
+    }
+
+    /**
+     * Sets the value of samples.
+     *
+     * @param mixed $samples the samples
+     *
+     * @return self
+     */
+    public function setSamples($samples)
+    {
+        $this->samples = $samples;
 
         return $this;
     }
