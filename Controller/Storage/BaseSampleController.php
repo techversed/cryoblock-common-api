@@ -178,11 +178,13 @@ class BaseSampleController extends CarbonApiController
      */
     public function storageClone($parentSampleId)
     {
-        $sampleCloneMap = (json_decode($this->getRequest()->getContent(), true));
+
+        $sampleCloneMap = (json_decode($this->getRequest()->getContent(), true)); // add division to this also // if not given then assume it is unchanged
         $repo = $this->getEntityRepository();
         $parentSample = $repo->find($parentSampleId);
         $em = $this->getEntityManager();
 
+        // Called when the division is dimensionless
         if (array_key_exists('count', $sampleCloneMap)) {
 
             for ($i = 1; $i <= $sampleCloneMap['count']; $i++) {
@@ -209,6 +211,7 @@ class BaseSampleController extends CarbonApiController
 
             }
         }
+        // Called once for each past when the division has dimension
         else {
 
             foreach ($sampleCloneMap as $map) {
