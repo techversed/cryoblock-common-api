@@ -244,4 +244,34 @@ class BaseSampleController extends CarbonApiController
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
+
+
+    // VIOLATION -- This should really not be in common
+    /**
+     * @Route("/storage/sample/{parentSampleId/user_clone", name="set_users_cloned_sample")
+     * @Method("POST")
+     * @Security("has_role('ROLE_USER')")
+     *
+     * @return Response
+     */
+    public function setClonedSample(Request $request)
+    {
+
+
+    }
+
+    // VIOLATION -- This should really not be in common -- we should have a second table with more data
+    /**
+     * @Route("/user/clonedSample", name="get_users_cloned_sample")
+     * @Method("GET")
+     * @Security("has_role('ROLE_USER')")
+     *
+     * @return Response
+     */
+    public function getClonedSample()
+    {
+
+
+    }
+
 }

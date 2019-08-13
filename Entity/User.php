@@ -127,7 +127,7 @@ class User extends BaseUser
     /**
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Sample")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="cloned_smaple_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="cloned_sample_id", referencedColumnName="id")
      * })
      * @JMS\Groups({"default"})
      */

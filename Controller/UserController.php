@@ -289,4 +289,5 @@ class UserController extends CarbonApiController
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
+
 }
