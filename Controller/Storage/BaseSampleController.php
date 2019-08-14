@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /*
 
@@ -209,13 +210,17 @@ class BaseSampleController extends CarbonApiController
                 // CHANGE THIS
                 if(!$divisionRepository->canUserEdit($div, $this->getUser()))
                 {
-                    return new Response(sprintf('You do not have permission to edit the selected division.'), 403);
+                    $message = 'You do not have permission to edit the current division.';
+                    $headers = array('CB-DELETE-MESSAGE' => $message);
+                    throw new HttpException(403, $message, null, $headers);
                 }
 
                 // CHANGE THIS
                 if(!$divisionRepository->allowsSamplePlacement($div, $newSample))
                 {
-                    return new Response(sprintf('The Storage Container type or Sample type is not allowed in the selected division.'), 403);
+                    $message = 'The Storage Container type or Sample type is not allowed in the selected division.';
+                    $headers = array('CB-DELETE-MESSAGE' => $message);
+                    throw new HttpException(403, $message, null, $headers);
                 }
 
                 // Add a check to make sure that the cell is still available
@@ -256,13 +261,25 @@ class BaseSampleController extends CarbonApiController
                 // asdlfkjsdlfkj
 
                 // CHANGE THIS
-                if(!$divisionRepository->canUserEdit($div, $this->getUser())){
-                    return new Response(sprintf('You do not have permission to edit the selected division.'), 403);
+                if (!$divisionRepository->canUserEdit($div, $this->getUser())) {
+
+                    // return new Response(sprintf('You do not have permission to edit the selected division.'), 403);
+
+                    $message = 'You do not have permission to edit the current division.';
+                    $headers = array('CB-DELETE-MESSAGE' => $message);
+                    throw new HttpException(403, $message, null, $headers);
+
                 }
 
                 // CHANGE THIS
-                if(!$divisionRepository->allowsSamplePlacement($div, $newSample->getSampleType(), $newSample->getStorageContainer())){
-                    return new Response(sprintf('The Storage Container type or Sample type is not allowed in the selected division.'), 403);
+                if (!$divisionRepository->allowsSamplePlacement($div, $newSample->getSampleType(), $newSample->getStorageContainer())) {
+
+                    // return new Response(sprintf('The Storage Container type or Sample type is not allowed in the selected division.'), 403);
+
+                    $message = 'The Storage Container type or Sample type is not allowed in the selected division.';
+                    $headers = array('CB-DELETE-MESSAGE' => $message);
+                    throw new HttpException(403, $message, null, $headers);
+
                 }
 
                 // Add a check to make sure that the cell is still available
