@@ -174,6 +174,8 @@ class BaseSampleController extends CarbonApiController
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 
+
+    // Might also be  a good idea to do a check to see if the well is taken. It should not be taken since they would need to select it on the frontend.
     /**
      * Handles the HTTP POST request for cloning a sample
      *
@@ -185,10 +187,13 @@ class BaseSampleController extends CarbonApiController
     public function storageClone($parentSampleId)
     {
 
+
         $sampleCloneMap = (json_decode($this->getRequest()->getContent(), true));
         $repo = $this->getEntityRepository();
         $parentSample = $repo->find($parentSampleId);
         $em = $this->getEntityManager();
+
+
 
         $divisionRepository = $em->getRepository('AppBundle\Entity\Storage\Division');
 
@@ -200,6 +205,34 @@ class BaseSampleController extends CarbonApiController
                 $div = $divisionRepository->find($sampleCloneMap['divisionId']);
 
                 $newSample = clone $parentSample;
+
+                // CHANGE THIS
+                if(!$divisionRepository->canUserEdit($div, $this->getUser()))
+                {
+
+                    // return "can't do that shit";
+                    // die();
+                    return new Response(sprintf(
+                        'Expected 1 filtered resource to update but found %s',
+                        $gridResultCount
+                    ), 404);
+
+                }
+
+                // CHANGE THIS
+                if(!$divisionRepository->allowsSamplePlacement($div, $newSample))
+                {
+
+                    // return "can't do that shit";
+                    // die();
+
+                    return new Response(sprintf(
+                        'Expected 1 filtered resource to update but found %s',
+                        $gridResultCount
+                    ), 404);
+                }
+
+                // Add a check to make sure that the cell is still available
 
                 $em->detach($newSample);
                 $em->persist($newSample);
@@ -227,9 +260,40 @@ class BaseSampleController extends CarbonApiController
 
             foreach ($sampleCloneMap as $map) {
 
+                // Check user permissions
+                // Check sampletype and storage container permissions
+
                 $div = $divisionRepository->find($map['divisionId']);
 
                 $newSample = clone $parentSample;
+
+                // asdlfkjsdlfkj
+
+                // CHANGE THIS
+                if(!$divisionRepository->canUserEdit($div, $this->getUser())){
+
+                    // return "can't do that shit";
+
+                    return new Response(sprintf(
+                        'Expected 1 filtered resource to update but found %s',
+                        $gridResultCount
+                    ), 404);
+
+                }
+
+                // CHANGE THIS
+                if(!$divisionRepository->allowsSamplePlacement($div, $newSample->getSampleType(), $newSample->getStorageContainer())){
+
+                    // return "can't do that shit";
+
+                    return new Response(sprintf(
+                        'Expected 1 filtered resource to update but found %s',
+                        $gridResultCount
+                    ), 404);
+
+                }
+
+                // Add a check to make sure that the cell is still available
 
                 $em->detach($newSample);
                 $em->persist($newSample);
@@ -259,6 +323,8 @@ class BaseSampleController extends CarbonApiController
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 
+
+
     // VIOLATION -- This should really not be in common
     // VIOLATION -- This should probably be on user since it is really updating a property which is stored for each user
     /**
@@ -282,6 +348,8 @@ class BaseSampleController extends CarbonApiController
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 
+
+
     // VIOLATION -- This should really not be in common -- we should have a second table with more data
     // VIOLATION -- THIS SHOULD PROBABLY BE ON USER ALSO
     /**
@@ -297,5 +365,8 @@ class BaseSampleController extends CarbonApiController
         $data =$this->getSerializationHelper()->serialize(array('data'=>$user->getClonedSample()));
         return $this->getJsonResponse($data);
     }
+
+
+
 
 }
