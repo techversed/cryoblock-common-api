@@ -169,7 +169,6 @@ class BaseSampleController extends CarbonApiController
 
         }
 
-
         $this->getEntityManager()->flush();
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
@@ -186,15 +185,19 @@ class BaseSampleController extends CarbonApiController
     public function storageClone($parentSampleId)
     {
 
-        $sampleCloneMap = (json_decode($this->getRequest()->getContent(), true)); // add division to this also // if not given then assume it is unchanged
+        $sampleCloneMap = (json_decode($this->getRequest()->getContent(), true));
         $repo = $this->getEntityRepository();
         $parentSample = $repo->find($parentSampleId);
         $em = $this->getEntityManager();
+
+        $divisionRepository = $em->getRepository('AppBundle\Entity\Storage\Division');
 
         // Called when the division is dimensionless
         if (array_key_exists('count', $sampleCloneMap)) {
 
             for ($i = 1; $i <= $sampleCloneMap['count']; $i++) {
+
+                $div = $divisionRepository->find($sampleCloneMap['divisionId']);
 
                 $newSample = clone $parentSample;
 
@@ -209,6 +212,7 @@ class BaseSampleController extends CarbonApiController
                     $em->persist($projectSample);
                 }
 
+                $newSample->setDivision($div);
                 $newSample->setDivisionColumn(null);
                 $newSample->setDivisionRow(null);
                 $newSample->setCreatedBy($this->getUser());
@@ -223,6 +227,8 @@ class BaseSampleController extends CarbonApiController
 
             foreach ($sampleCloneMap as $map) {
 
+                $div = $divisionRepository->find($map['divisionId']);
+
                 $newSample = clone $parentSample;
 
                 $em->detach($newSample);
@@ -236,6 +242,7 @@ class BaseSampleController extends CarbonApiController
                     $em->persist($projectSample);
                 }
 
+                $newSample->setDivision($div);
                 $newSample->setDivisionColumn($map['divisionColumn']);
                 $newSample->setDivisionRow($map['divisionRow']);
                 $newSample->setCreatedBy($this->getUser());
@@ -287,7 +294,8 @@ class BaseSampleController extends CarbonApiController
     public function getClonedSample()
     {
         $user = $this->getUser();
-        return $this->getJsonResponse($this->getSerializationHelper()->serialize($user->getClonedSample()));
+        $data =$this->getSerializationHelper()->serialize(array('data'=>$user->getClonedSample()));
+        return $this->getJsonResponse($data);
     }
 
 }
