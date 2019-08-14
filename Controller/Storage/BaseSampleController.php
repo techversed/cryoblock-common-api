@@ -209,27 +209,13 @@ class BaseSampleController extends CarbonApiController
                 // CHANGE THIS
                 if(!$divisionRepository->canUserEdit($div, $this->getUser()))
                 {
-
-                    // return "can't do that shit";
-                    // die();
-                    return new Response(sprintf(
-                        'Expected 1 filtered resource to update but found %s',
-                        $gridResultCount
-                    ), 404);
-
+                    return new Response(sprintf('You do not have permission to edit the selected division.'), 403);
                 }
 
                 // CHANGE THIS
                 if(!$divisionRepository->allowsSamplePlacement($div, $newSample))
                 {
-
-                    // return "can't do that shit";
-                    // die();
-
-                    return new Response(sprintf(
-                        'Expected 1 filtered resource to update but found %s',
-                        $gridResultCount
-                    ), 404);
+                    return new Response(sprintf('The Storage Container type or Sample type is not allowed in the selected division.'), 403);
                 }
 
                 // Add a check to make sure that the cell is still available
@@ -271,26 +257,12 @@ class BaseSampleController extends CarbonApiController
 
                 // CHANGE THIS
                 if(!$divisionRepository->canUserEdit($div, $this->getUser())){
-
-                    // return "can't do that shit";
-
-                    return new Response(sprintf(
-                        'Expected 1 filtered resource to update but found %s',
-                        $gridResultCount
-                    ), 404);
-
+                    return new Response(sprintf('You do not have permission to edit the selected division.'), 403);
                 }
 
                 // CHANGE THIS
                 if(!$divisionRepository->allowsSamplePlacement($div, $newSample->getSampleType(), $newSample->getStorageContainer())){
-
-                    // return "can't do that shit";
-
-                    return new Response(sprintf(
-                        'Expected 1 filtered resource to update but found %s',
-                        $gridResultCount
-                    ), 404);
-
+                    return new Response(sprintf('The Storage Container type or Sample type is not allowed in the selected division.'), 403);
                 }
 
                 // Add a check to make sure that the cell is still available
@@ -323,8 +295,6 @@ class BaseSampleController extends CarbonApiController
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
 
-
-
     // VIOLATION -- This should really not be in common
     // VIOLATION -- This should probably be on user since it is really updating a property which is stored for each user
     /**
@@ -347,8 +317,6 @@ class BaseSampleController extends CarbonApiController
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
-
-
 
     // VIOLATION -- This should really not be in common -- we should have a second table with more data
     // VIOLATION -- THIS SHOULD PROBABLY BE ON USER ALSO
