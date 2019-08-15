@@ -22,10 +22,20 @@ class UserFormType extends CryoblockAbstractType
             ->add('enabled', 'checkbox')
             ->add('title', 'text')
             ->add('about', 'text')
+            ->add('sample', 'entity', array(
+                'class' => 'AppBundle:Storage\Sample',
+                'multiple' => false
+            ))
             ->add('groups', 'cryoblock_mtm', array(
                 'parent_object' => $builder->getForm()->getData(),
                 'accessor' => 'userGroups',
                 'child_accessor' => 'group'
+            ))
+        ;
+
+        $builder->get('sample')
+            ->addViewTransformer(new CryoblockOTOTransformer(
+                $this->em, 'AppBundle:Storage\Sample'
             ))
         ;
 

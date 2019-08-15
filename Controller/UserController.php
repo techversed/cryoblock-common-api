@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 /*
     One issue that I created in this file is that common really should not refer to 'ROLE_UNDERGRAD_STUDENT_WORKER' since this is specific to the crowelab user permissions setup. -- In the long term I think that it would be a good idea to implement a series ofa ccounts which do not have the full permissions of a regular user in case you want to share some of the data with collaborators -- you may want to have collaborator accounts.
 
+    VIOLATION - I placed the sample cloning in the sample controller due to the fact that other related functions were already stored there --- it is modifying a property located on user though so that is not proper
+
 
 */
 
@@ -289,4 +291,5 @@ class UserController extends CarbonApiController
 
         return $this->getJsonResponse(json_encode(array('success' => 'success')));
     }
+
 }
