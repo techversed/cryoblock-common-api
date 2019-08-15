@@ -216,7 +216,7 @@ class BaseSampleController extends CarbonApiController
                 }
 
                 // CHANGE THIS
-                if(!$divisionRepository->allowsSamplePlacement($div, $newSample))
+                if(!$divisionRepository->allowsSamplePlacement($div, $newSample->getSampleType(), $newSample->getStorageContainer()))
                 {
                     $message = 'The Storage Container type or Sample type is not allowed in the selected division.';
                     $headers = array('CB-DELETE-MESSAGE' => $message);

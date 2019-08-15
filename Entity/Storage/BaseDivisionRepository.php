@@ -282,8 +282,8 @@ class BaseDivisionRepository extends NestedTreeRepository
         $qb = $this->createQueryBuilder('d');
 
         $result = $qb
-            ->innerJoin('d.divisionSampleTypes', 'dst')
-            ->innerJoin('d.divisionStorageContainers', 'dsc')
+            ->leftJoin('d.divisionSampleTypes', 'dst')
+            ->leftJoin('d.divisionStorageContainers', 'dsc')
             ->andWhere('d.id = :divisionId')
             ->orWhere($qb->expr()->orX(
                 $qb->expr()->eq('dst.sampleTypeId', $sampleType->getId()),
@@ -298,15 +298,7 @@ class BaseDivisionRepository extends NestedTreeRepository
             ->getResult()
         ;
 
-        // $qb;
-        // ->setParameter('sampleTypeId', $sampleType->getId())
-        // ->setParameter('storageContainerId', $storageContainer->getId())
-        // $result = $qb->getQuery()->getResult();
-        // print_r($result);
-
-        echo count($result);
-
-        return count($result) == 1;
+        return count($result) >= 1;
 
     }
 }
