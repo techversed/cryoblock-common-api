@@ -361,7 +361,4 @@ class BaseSampleController extends CarbonApiController
         return $this->getJsonResponse($data);
     }
 
-
-
-
 }

@@ -285,11 +285,11 @@ class BaseDivisionRepository extends NestedTreeRepository
             ->innerJoin('d.divisionSampleTypes', 'dst')
             ->innerJoin('d.divisionStorageContainers', 'dsc')
             ->andWhere('d.id = :divisionId')
-            ->andWhere($qb->expr()->orX(
+            ->orWhere($qb->expr()->orX(
                 $qb->expr()->eq('dst.sampleTypeId', $sampleType->getId()),
                 $qb->expr()->eq('d.allowAllSampleTypes', 'true')
             ))
-            ->andWhere($qb->expr()->orX(
+            ->orWhere($qb->expr()->orX(
                 $qb->expr()->eq('dsc.storageContainerId', $storageContainer->getId()),
                 $qb->expr()->eq('d.allowAllStorageContainers', 'true')
             ))
@@ -298,14 +298,10 @@ class BaseDivisionRepository extends NestedTreeRepository
             ->getResult()
         ;
 
-
         // $qb;
-
         // ->setParameter('sampleTypeId', $sampleType->getId())
         // ->setParameter('storageContainerId', $storageContainer->getId())
-
         // $result = $qb->getQuery()->getResult();
-
         // print_r($result);
 
         echo count($result);
