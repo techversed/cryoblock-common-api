@@ -207,7 +207,7 @@ class BaseSampleController extends CarbonApiController
 
                 $newSample = clone $parentSample;
 
-                // CHANGE THIS
+                // Make sure that the requesting user is able to edit the given division
                 if(!$divisionRepository->canUserEdit($div, $this->getUser()))
                 {
                     $message = 'You do not have permission to edit the current division.';
@@ -215,15 +215,13 @@ class BaseSampleController extends CarbonApiController
                     throw new HttpException(403, $message, null, $headers);
                 }
 
-                // CHANGE THIS
+                // Make sure that the division acccepts the given sample type and storage container
                 if(!$divisionRepository->allowsSamplePlacement($div, $newSample->getSampleType(), $newSample->getStorageContainer()))
                 {
                     $message = 'The Storage Container type or Sample type is not allowed in the selected division.';
                     $headers = array('CB-DELETE-MESSAGE' => $message);
                     throw new HttpException(403, $message, null, $headers);
                 }
-
-                // Add a check to make sure that the cell is still available
 
                 $em->detach($newSample);
                 $em->persist($newSample);
@@ -251,38 +249,35 @@ class BaseSampleController extends CarbonApiController
 
             foreach ($sampleCloneMap as $map) {
 
-                // Check user permissions
-                // Check sampletype and storage container permissions
-
                 $div = $divisionRepository->find($map['divisionId']);
 
                 $newSample = clone $parentSample;
 
-                // asdlfkjsdlfkj
-
-                // CHANGE THIS
-                if (!$divisionRepository->canUserEdit($div, $this->getUser())) {
-
-                    // return new Response(sprintf('You do not have permission to edit the selected division.'), 403);
-
+                // Make sure that the user is able to edit the given division
+                if (!$divisionRepository->canUserEdit($div, $this->getUser()))
+                {
                     $message = 'You do not have permission to edit the current division.';
                     $headers = array('CB-DELETE-MESSAGE' => $message);
                     throw new HttpException(403, $message, null, $headers);
-
                 }
 
-                // CHANGE THIS
-                if (!$divisionRepository->allowsSamplePlacement($div, $newSample->getSampleType(), $newSample->getStorageContainer())) {
-
-                    // return new Response(sprintf('The Storage Container type or Sample type is not allowed in the selected division.'), 403);
-
+                // Make sure that the sample type and storage container are allowed in the selected division
+                if (!$divisionRepository->allowsSamplePlacement($div, $newSample->getSampleType(), $newSample->getStorageContainer()))
+                {
                     $message = 'The Storage Container type or Sample type is not allowed in the selected division.';
                     $headers = array('CB-DELETE-MESSAGE' => $message);
                     throw new HttpException(403, $message, null, $headers);
-
                 }
 
-                // Add a check to make sure that the cell is still available
+                $availableSlots = $divisionRepository->getAvailableCells($div);
+
+                if (!$availableSlots[$map['divisionRow']][$map['divisionColumn']]) {
+                    $message = 'One of the selected wells already has a sample in it please refresh and select new wells.';
+                    $headers = array('CB-DELETE-MESSAGE' => $message);
+                    throw new HttpException(403, $message, null, $headers);
+                }
+
+                // print_r($availableSlots);
 
                 $em->detach($newSample);
                 $em->persist($newSample);
