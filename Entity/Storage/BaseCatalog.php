@@ -69,7 +69,6 @@ abstract class BaseCatalog extends BaseCryoblockEntity
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\Sample", mappedBy="catalog")
-     * @JMS\Groups({"default"})
      */
     protected $samples;
 

@@ -99,6 +99,8 @@ abstract class BaseSample extends BaseCryoblockEntity
     protected $divisionId;
 
     /**
+     *
+     *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Division", inversedBy="samples")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="division_id", referencedColumnName="id")
@@ -137,7 +139,6 @@ abstract class BaseSample extends BaseCryoblockEntity
     protected $sampleType;
 
     /**
-     * Created by id
      * @ORM\Column(name="sample_type_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
@@ -155,7 +156,6 @@ abstract class BaseSample extends BaseCryoblockEntity
     protected $storageContainer;
 
     /**
-     * Created by id
      * @ORM\Column(name="storage_container_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
