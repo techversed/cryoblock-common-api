@@ -277,20 +277,38 @@ class BaseDivisionRepository extends NestedTreeRepository
     public function allowsSamplePlacement(Division $division, SampleType $sampleType, StorageContainer $storageContainer)
     {
 
+        // echo $division->getId();
+
         $qb = $this->createQueryBuilder('d');
 
         $result = $qb
             ->innerJoin('d.divisionSampleTypes', 'dst')
             ->innerJoin('d.divisionStorageContainers', 'dsc')
             ->andWhere('d.id = :divisionId')
-            ->andWhere('dst.sampleTypeId = :sampleTypeId')
-            ->andWhere('dsc.storageContainerId = :storageContainerId')
+            ->andWhere($qb->expr()->orX(
+                $qb->expr()->eq('dst.sampleTypeId', $sampleType->getId()),
+                $qb->expr()->eq('d.allowAllSampleTypes', 'true')
+            ))
+            ->andWhere($qb->expr()->orX(
+                $qb->expr()->eq('dsc.storageContainerId', $storageContainer->getId()),
+                $qb->expr()->eq('d.allowAllStorageContainers', 'true')
+            ))
             ->setParameter('divisionId', $division->getId())
-            ->setParameter('sampleTypeId', $sampleType->getId())
-            ->setParameter('storageContainerId', $storageContainer->getId())
             ->getQuery()
             ->getResult()
         ;
+
+
+        // $qb;
+
+        // ->setParameter('sampleTypeId', $sampleType->getId())
+        // ->setParameter('storageContainerId', $storageContainer->getId())
+
+        // $result = $qb->getQuery()->getResult();
+
+        // print_r($result);
+
+        echo count($result);
 
         return count($result) == 1;
 

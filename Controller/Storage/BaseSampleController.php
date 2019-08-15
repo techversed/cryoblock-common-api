@@ -327,6 +327,16 @@ class BaseSampleController extends CarbonApiController
         $user = $this->getUser();
         $em = $this->getEntityManager();
         $sampleRepo = $em->getRepository('AppBundle\Entity\Storage\Sample');
+
+        if ($parentSampleId == 0) {
+
+            $user->setClonedSample(null);
+            $em->flush();
+            return $this->getJsonResponse(json_encode(array('success' => 'success')));
+
+        }
+
+
         $parentSample = $sampleRepo->find($parentSampleId);
         $user->setClonedSample($parentSample);
 
