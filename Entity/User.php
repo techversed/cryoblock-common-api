@@ -105,7 +105,7 @@ class User extends BaseUser
      * @ORM\Column(name="created_at", type="datetime")
      * @JMS\Groups({"default"})
      */
-    private $createdAt;
+    protected $createdAt;
 
     /**
      * @var \DateTime $updated
@@ -114,7 +114,26 @@ class User extends BaseUser
      * @ORM\Column(name="updated_at", type="datetime")
      * @JMS\Groups({"default"})
      */
-    private $updatedAt;
+    protected $updatedAt;
+
+// VIOLATION -- THIS SHOULD REALLY NOT BE HANDLED IN COMMON
+    /**
+     * @var integer ClonedSampleId
+     * @ORM\Column(name="cloned_sample_id", type="integer", nullable= true)
+     * @JMS\Groups({"default"})
+     */
+    protected $clonedSampleId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Storage\Sample")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="cloned_sample_id", referencedColumnName="id")
+     * })
+     * @JMS\Groups({"default"})
+     */
+    protected $clonedSample;
+
+
 
     /**
      * @Gedmo\Versioned
@@ -333,4 +352,152 @@ class User extends BaseUser
         return $this;
     }
 
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserGroups()
+    {
+        return $this->userGroups;
+    }
+
+    /**
+     * @param mixed $userGroups
+     *
+     * @return self
+     */
+    public function setUserGroups($userGroups)
+    {
+        $this->userGroups = $userGroups;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
+     * @param mixed $username
+     *
+     * @return self
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param mixed $email
+     *
+     * @return self
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @return integer ClonedSampleId
+     */
+    public function getClonedSampleId()
+    {
+        return $this->clonedSampleId;
+    }
+
+    /**
+     * @param integer ClonedSampleId $clonedSampleId
+     *
+     * @return self
+     */
+    public function setClonedSampleId($clonedSampleId)
+    {
+        $this->clonedSampleId = $clonedSampleId;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClonedSample()
+    {
+        return $this->clonedSample;
+    }
+
+    /**
+     * @param mixed $clonedSample
+     *
+     * @return self
+     */
+    public function setClonedSample($clonedSample)
+    {
+        $this->clonedSample = $clonedSample;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param mixed $enabled
+     *
+     * @return self
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * @param mixed $groups
+     *
+     * @return self
+     */
+    public function setGroups($groups)
+    {
+        $this->groups = $groups;
+
+        return $this;
+    }
 }

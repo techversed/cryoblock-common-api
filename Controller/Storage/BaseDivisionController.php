@@ -146,6 +146,21 @@ abstract class BaseDivisionController extends CarbonApiController
         return $this->getJsonResponse($data);
     }
 
+
+    /**
+     * Handles the HTTP get request for the division entity
+     *
+     * @Route("/storage/division-search", name="division_search_get")
+     * @Method("GET")
+     *
+     * @return Response
+     */
+    public function searchGet(){
+
+        return parent::handleGet();
+
+    }
+
     /**
      * Handles the HTTP get request for the division entity
      *
