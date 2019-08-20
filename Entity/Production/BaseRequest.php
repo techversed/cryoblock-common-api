@@ -17,23 +17,12 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
 
         Important note -- All requests must have an object called requestProjects which is a one to many using a linker table which is specific to that implmentation of this abstract class --
 
-
-         * JMS\VirtualProperty()
-         * JMS\Groups({"default"})
-        public function getProjectString()
-        {
-            $projectNames = [];
-            if ($this->projectRequests && (is_array($this->projectRequests) || is_object($this->projectRequests))) {
-                foreach ($this->projectRequests as $requestProject) {
-                    $projectNames[] = $requestProject->getProject()->getName();
-                }
-                return implode(", ", $projectNames);
-            }
-        }
-
-
     */
 
+
+// True if this is a request for work false if it is a record of work that has been done
+
+    // Abstract classes
     abstract public function getRequestProjects();
     abstract public function setRequestProjects($requestProjects);
     abstract public function getProjectString();
@@ -42,12 +31,13 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     abstract public function getOutputSamples();
     abstract public function setOutputSamples($outputSamples);
 
-    /*
-    transient
-    */
+    // Transient
     public $projects;
     public $samples;
+    public $inSamples;
+    public $outSamples;
 
+    // Constants
     const STATUS_PENDING = 'Pending';
     const STATUS_PENDING_PIPELINE = 'Pending-Pipeline';
     const STATUS_PROCESSING = 'Processing';
@@ -71,6 +61,9 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
         self::STATUS_FAILED
     );
 
+    // protected $request = true; // Implment this later
+
+// Persisted In Database
     /**
      * @var string $alias
      *
@@ -125,10 +118,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      */
     protected $pipelineStep;
 
-    // Transient;
-    public $inSamples;
-    public $outSamples;
-
+// Getters and setters
     /**
      * Gets the value of alias.
      *
