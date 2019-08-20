@@ -61,7 +61,12 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
         self::STATUS_FAILED
     );
 
-    // protected $request = true; // Implment this later
+    /**
+     * @ORM\Column(name="is_request", nullable=false, type="boolean")
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $isRequest = true; // Implment this later
 
 // Persisted In Database
     /**
@@ -359,6 +364,93 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     public function setOutSample($outSample)
     {
         $this->outSample = $outSample;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of inSamples.
+     *
+     * @return mixed
+     */
+    public function getInSamples()
+    {
+        return $this->inSamples;
+    }
+
+    /**
+     * Sets the value of inSamples.
+     *
+     * @param mixed $inSamples the in samples
+     *
+     * @return self
+     */
+    public function setInSamples($inSamples)
+    {
+        $this->inSamples = $inSamples;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of outSamples.
+     *
+     * @return mixed
+     */
+    public function getOutSamples()
+    {
+        return $this->outSamples;
+    }
+
+    /**
+     * Sets the value of outSamples.
+     *
+     * @param mixed $outSamples the out samples
+     *
+     * @return self
+     */
+    public function setOutSamples($outSamples)
+    {
+        $this->outSamples = $outSamples;
+
+        return $this;
+    }
+
+    /**
+     * Sets the Valid statuses.
+     *
+     * @param array $validStatuses the valid statuses
+     *
+     * @return self
+     */
+    public function setValidStatuses(array $validStatuses)
+    {
+        $this->validStatuses = $validStatuses;
+
+        return $this;
+    }
+
+
+    /**
+     * Gets the value of isRequest.
+     *
+     * @return mixed
+     */
+    public function getIsRequest()
+    {
+        return $this->isRequest;
+    }
+
+    /**
+     * Sets the value of isRequest.
+     *
+     * @param mixed $isRequest the is request
+     *
+     * @return self
+     */
+    public function setIsRequest($isRequest)
+    {
+        $this->isRequest = $isRequest;
 
         return $this;
     }
