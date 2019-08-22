@@ -6,6 +6,7 @@ use Carbon\ApiBundle\Form\Type\CryoblockAbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Carbon\ApiBundle\Form\DataTransformer\CryoblockOTOTransformer;
 
 class UserFormType extends CryoblockAbstractType
 {
