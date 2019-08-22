@@ -12,6 +12,11 @@ class UserFormType extends CryoblockAbstractType
 {
     private $class;
 
+    public function __construct(EntityManager $em)
+    {
+        $this->em = $em;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
