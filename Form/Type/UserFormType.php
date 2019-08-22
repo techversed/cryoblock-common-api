@@ -33,7 +33,7 @@ class UserFormType extends CryoblockAbstractType
             ))
         ;
 
-        $builder->get('sample')
+        $builder->get('clonedSample')
             ->addViewTransformer(new CryoblockOTOTransformer(
                 $this->em, 'AppBundle:Storage\Sample'
             ))
