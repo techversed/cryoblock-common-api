@@ -22,7 +22,7 @@ class UserFormType extends CryoblockAbstractType
             ->add('enabled', 'checkbox')
             ->add('title', 'text')
             ->add('about', 'text')
-            ->add('sample', 'entity', array(
+            ->add('clonedSample', 'entity', array(
                 'class' => 'AppBundle:Storage\Sample',
                 'multiple' => false
             ))
