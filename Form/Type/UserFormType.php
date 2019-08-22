@@ -3,13 +3,20 @@
 namespace Carbon\ApiBundle\Form\Type;
 
 use Carbon\ApiBundle\Form\Type\CryoblockAbstractType;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Carbon\ApiBundle\Form\DataTransformer\CryoblockOTOTransformer;
 
 class UserFormType extends CryoblockAbstractType
 {
     private $class;
+
+    public function __construct(EntityManager $em)
+    {
+        $this->em = $em;
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -22,7 +29,7 @@ class UserFormType extends CryoblockAbstractType
             ->add('enabled', 'checkbox')
             ->add('title', 'text')
             ->add('about', 'text')
-            ->add('sample', 'entity', array(
+            ->add('clonedSample', 'entity', array(
                 'class' => 'AppBundle:Storage\Sample',
                 'multiple' => false
             ))
@@ -33,7 +40,7 @@ class UserFormType extends CryoblockAbstractType
             ))
         ;
 
-        $builder->get('sample')
+        $builder->get('clonedSample')
             ->addViewTransformer(new CryoblockOTOTransformer(
                 $this->em, 'AppBundle:Storage\Sample'
             ))

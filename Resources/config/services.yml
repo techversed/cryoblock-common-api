@@ -47,6 +47,7 @@ services:
 
     carbon_api.form.type.user:
         class: Carbon\ApiBundle\Form\Type\UserFormType
+        arguments: ["@doctrine.orm.default_entity_manager"]
         tags:
             - { name: form.type, alias: user }
 
