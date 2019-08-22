@@ -3,6 +3,7 @@
 namespace Carbon\ApiBundle\Form\Type;
 
 use Carbon\ApiBundle\Form\Type\CryoblockAbstractType;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
