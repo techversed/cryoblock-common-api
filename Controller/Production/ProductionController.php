@@ -12,8 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-// VIOLATIONS -- There are violations in this file -- There should not be anything refering directly to things in the AppBundle becuase those are all implemenation dependant.
-
 class ProductionController extends CarbonApiController
 {
     /**
@@ -40,6 +38,8 @@ class ProductionController extends CarbonApiController
             return $this->getInputGridformTemplateResponse();
         }
 
+        return $this->handleError();
+
    }
 
    /**
@@ -65,6 +65,15 @@ class ProductionController extends CarbonApiController
         if ($outputTemplateType === 'GRIDFORM') {
             return $this->getOutputGridformTemplateResponse();
         }
+
+        return $this->handleError();
+
+    }
+
+    protected function handleError()
+    {
+
+        return $this->getJsonResponse($this->getSerializationHelper()->serialize(array('violations' => array(array("Your request did not contain a template type")))), 400);
 
     }
 
@@ -103,228 +112,48 @@ class ProductionController extends CarbonApiController
 
         // $sampleTypeMapping = $importer->getMapping();
 
-
         // Build the columns header list
         $gridFormResponse['headers'] = $importer->getGridFormColumnHeaders();
 
-
-
-
         // Build this list of initial values and send them back
+        $gridFormResponse['content'] = array();
 
-
-
+        // If defaults are provided
+        foreach ($outputSampleDefaults as $osd) {
+            $gridFormResponse['content'][] = $osd;
+        }
 
         $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
         $response = $this->getJsonResponse($serialized);
-
         return $response;
     }
+
+
 
    private function getInputGridformTemplateResponse()
     {
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
 
-        $fileName = 'Request ' . $data['id'] . ' Input Samples Template.xls';
-
-        $objPHPExcel = new \PHPExcel();
-
         $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
         $prodRequestInputSamples = $prodRequest->getInputSamples();
-        $prodRequestInputSample = $prodRequestInputSamples[0]->getSample();
         $importer = $this->container->get('sample.importer');
-        $sampleTypeMapping = $importer->getMapping($prodRequestInputSample->getSampleType());
-        $sampleTypeMapping = array_merge(array(
-            'Id' => array(
-                'prop' => 'id',
-                'bindTo' => 'id',
-                'errorProp' => array('id'),
-            )
-        ), $sampleTypeMapping);
 
-        $currentSample = 0;
+        // fetch the things
 
-        $aRange = range('A', 'Z');
-        $current = 0;
-        foreach ($sampleTypeMapping as $label => $column) {
+        $gridFormResponse = array();
 
-            $objPHPExcel->getActiveSheet()->getColumnDimension($aRange[$current])->setWidth(15);
-            $cell = $objPHPExcel->getActiveSheet()->getCell($aRange[$current] . '1');
-            $cell->setValue($label);
-            $style = $objPHPExcel->getActiveSheet()->getStyle($aRange[$current] . '1');
-            $style->getFont()->setBold(true);
+        $gridFormResponse['headers'] = $importer->getGridFormColumnHeaders();
 
-            $current++;
-        }
 
-        $currentSample = 1;
-        $protectedLabels = array(
-            'Id',
-            'Sample Type',
-            'Catalog',
-            'Lot',
-            'Division',
-            'Division Row',
-            'Division Column',
-        );
+        $gridFormResponse['content'] = $prodRequestInputSamples;
 
-        $storageContainers = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\StorageContainer')->findAll();
 
-        $storageContainerNames = array();
-        foreach ($storageContainers as $storageContainer) {
-            $storageContainerNames[] = $storageContainer->getName();
-        }
-
-        $storageContainerNames = implode(', ', $storageContainerNames);
-        $concentrationUnits = implode(', ', array(
-            'mg/mL',
-            'ng/uL',
-            'Molar',
-            'cells/mL',
-            'cells/uL'
-        ));
-
-        $statuses = implode(', ', array(
-            'Available',
-            'Depleted',
-            'Destroyed',
-            'Shipped',
-            'Incoming',
-        ));
-
-        foreach ($prodRequestInputSamples as $prodRequestInputSample) {
-
-            $current = 0;
-
-            $serializedInputSample = json_decode($this->getSerializationHelper()->serialize($prodRequestInputSample->getSample(), array('template')), true);
-
-            $data = new Dot($serializedInputSample);
-
-            foreach ($sampleTypeMapping as $label => $column) {
-
-                $num = $currentSample + 1;
-                $cell = $aRange[$current] . $num;
-
-                $style = $objPHPExcel->getActiveSheet()->getStyle($cell);
-
-                if (in_array($label, $protectedLabels)) {
-
-                    $style->applyFromArray(array(
-                        'fill' => array(
-                            'type' => \PHPExcel_Style_Fill::FILL_SOLID,
-                            'color' => array('rgb' => 'fce7c2')
-                        )
-                    ));
-
-                    $style
-                        ->getProtection()
-                        ->setLocked(
-                            \PHPExcel_Style_Protection::PROTECTION_PROTECTED
-                        )
-                    ;
-
-                } else {
-
-                    $objPHPExcel->getActiveSheet()
-                    ->getStyle($cell)
-                    ->getProtection()
-                    ->setLocked(
-                        \PHPExcel_Style_Protection::PROTECTION_UNPROTECTED
-                    );
-
-                }
-
-                if ($label == 'Storage Container') {
-
-                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
-                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
-                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                    $objValidation->setAllowBlank(false);
-                    $objValidation->setShowInputMessage(true);
-                    $objValidation->setShowErrorMessage(true);
-                    $objValidation->setShowDropDown(true);
-                    $objValidation->setErrorTitle('Input error');
-                    $objValidation->setError('Value is not in list.');
-                    $objValidation->setPromptTitle('Pick from list');
-                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                    $objValidation->setFormula1('"'.$storageContainerNames.'"');
-
-                }
-
-                if ($label == 'Concentration Units') {
-
-                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
-                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
-                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                    $objValidation->setAllowBlank(false);
-                    $objValidation->setShowInputMessage(true);
-                    $objValidation->setShowErrorMessage(true);
-                    $objValidation->setShowDropDown(true);
-                    $objValidation->setErrorTitle('Input error');
-                    $objValidation->setError('Value is not in list.');
-                    $objValidation->setPromptTitle('Pick from list');
-                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                    $objValidation->setFormula1('"' . $concentrationUnits . '"');
-
-                }
-
-                if ($label == 'Status') {
-                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
-                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
-                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                    $objValidation->setAllowBlank(false);
-                    $objValidation->setShowInputMessage(true);
-                    $objValidation->setShowErrorMessage(true);
-                    $objValidation->setShowDropDown(true);
-                    $objValidation->setErrorTitle('Input error');
-                    $objValidation->setError('Value is not in list.');
-                    $objValidation->setPromptTitle('Pick from list');
-                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                    $objValidation->setFormula1('"' . $statuses . '"');
-
-                }
-
-                if (array_key_exists('mtm', $column) && $column['mtm']) {
-                    $itemIds = array();
-                    foreach ($data->get($column['prop']) as $item) {
-                        $itemIds[] = $item[$column['bindTo']];
-                    }
-                    if (count($itemIds)) {
-                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue(implode(',', $itemIds));
-                    }
-                } else {
-                    $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($data->get($column['bindTo']));
-                }
-
-                $current++;
-            }
-
-            $currentSample++;
-
-        }
-
-        $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setInsertRows(true);
-        $objPHPExcel->getActiveSheet()->getProtection()->setFormatCells(true);
-
-        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
-        $objPHPExcel->setActiveSheetIndex(0);
-
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-
-        $response = new Response();
-        $response->headers->set('Content-Type', 'application/vnd.ms-excel');
-        $response->headers->set('Content-Disposition', 'attachment;filename=test.xlsx');
-
-        ob_start();
-        $objWriter->save('php://output');
-        $content = ob_get_contents();
-        ob_end_clean();
-        $response->setContent($content);
+        $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
+        $response = $this->getJsonResponse($serialized);
 
         return $response;
+
     }
 
    // End of testing portion
