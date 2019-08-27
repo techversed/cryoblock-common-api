@@ -145,9 +145,7 @@ class ProductionController extends CarbonApiController
 
         $gridFormResponse['headers'] = $importer->getGridFormColumnHeaders();
 
-
         $gridFormResponse['content'] = $prodRequestInputSamples;
-
 
         $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
         $response = $this->getJsonResponse($serialized);

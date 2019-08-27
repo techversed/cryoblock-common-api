@@ -67,6 +67,8 @@ class EntityDetail extends BaseCryoblockEntity
     protected $objectUrl;
 
     /**
+    * @var string
+    *
     * @ORM\Column(name="auto_watch", type="boolean", nullable=true)
     * @JMS\Groups({"default"})
     *
@@ -80,6 +82,14 @@ class EntityDetail extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      */
     protected $srefName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="importer_class", type="string", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $importerClass;
 
     protected $entityDetailId = 51;
 

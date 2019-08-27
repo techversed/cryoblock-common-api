@@ -15,8 +15,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /*
 
     VIOLATION - I am modifying the user entity here -- if we were doing this perfectly we would really only edit samples from this location
-
-
 */
 
 class BaseSampleController extends CarbonApiController
