@@ -62,7 +62,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     );
 
     /**
-     * @ORM\Column(name="is_request", nullable=false, type="boolean")
+     * @ORM\Column(name="is_request", nullable=true, type="boolean")
      * @JMS\Groups({"default"})
      * @Gedmo\Versioned
      */
