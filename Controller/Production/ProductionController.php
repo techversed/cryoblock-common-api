@@ -125,6 +125,7 @@ class ProductionController extends CarbonApiController
 
         $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
         $response = $this->getJsonResponse($serialized);
+
         return $response;
     }
 
