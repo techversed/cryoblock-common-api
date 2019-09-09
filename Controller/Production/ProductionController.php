@@ -82,10 +82,13 @@ class ProductionController extends CarbonApiController
    // Testing portion
    private function getOutputGridformTemplateResponse()
     {
+        $em = $this->getEntityManager();
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
         $totalOutputSamples = $data['totalOutputSamples'];
         $outputSampleDefaults = $data['outputSampleDefaults'];
+
+        $entDetRepo = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail');
 
         $gridFormResponse = array();
 
@@ -110,9 +113,6 @@ class ProductionController extends CarbonApiController
 
         $importer = $this->container->get('sample.importer'); // This is going to change to grab a genetic importer at some point
 
-
-        // $sampleTypeMapping = $importer->getMapping();
-
         // Build the columns header list
         $headers = $importer->getGridFormColumnHeaders();
         $gridFormResponse['headers'] = $headers;
@@ -124,15 +124,63 @@ class ProductionController extends CarbonApiController
         // If defaults are provided
         foreach ($outputSampleDefaults as $osd) {
 
-            foreach ($osd as $key, $value){
+            // Loop over the resultset
+            foreach ($osd as $key => $value){
+
+                $meta = $headers[$key];
+
+                if ($meta['type'] == 'relation') { // if array key exists would add robustness
+
+                    $entDet = $entDetRepo->find($meta['entityDetailId']); // if array key exists would add robustness
+
+                    // If the object that is passed is a string instead of a list of properties then we need to look it up
+                    if (!is_array($value)) {
+
+                        echo $value;
+                        $specificRepo = $em->getRepository($entDet->getObjectClassName());
+                        $found =  $specificRepo->findBy(array('name' => $value));
+                        // $target and $donor are currently passed as ids instead of as names...
+
+                        if (!$found){
+
+                            $classname = $entDet->getObjectClassName();
+                            $found = new $classname();
+                            $found->setName($value);
+
+                        }
+
+                        $osd[$key] = $found;
+
+                    }
 
 
-                if ([$osd]) {
+                        // Fetch the object
+                        // If not exists
+                            //$objectClassName = $entDet->getObjectClassName();
+
+                        // array[...] = result "...";
+
 
                 }
-                else {
-                    $gridFormResponse['content'][] = $osd;
-                }
+
+                // If it is a relation
+                    //get the repository
+                    // Check if something with the name already exists -- if so return it instead of the other thing
+                    // If not then create a new object and return it
+
+
+
+
+                // ASDFASDFASDF
+
+                // if ([$osd]) {
+
+                // }
+                // else {
+
+                //     $gridFormResponse['content'][] = $osd;
+
+                // }
 
             }
 
@@ -144,10 +192,9 @@ class ProductionController extends CarbonApiController
         return $response;
     }
 
-
-
    private function getInputGridformTemplateResponse()
     {
+        $em = $this->getEntityManager();
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
 

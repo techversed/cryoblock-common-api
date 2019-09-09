@@ -285,4 +285,28 @@ class EntityDetail extends BaseCryoblockEntity
     {
         return $this->inNotifications;
     }
+
+    /**
+     * Gets the value of importerClass.
+     *
+     * @return string
+     */
+    public function getImporterClass()
+    {
+        return $this->importerClass;
+    }
+
+    /**
+     * Sets the value of importerClass.
+     *
+     * @param string $importerClass the importer class
+     *
+     * @return self
+     */
+    public function setImporterClass($importerClass)
+    {
+        $this->importerClass = $importerClass;
+
+        return $this;
+    }
 }
