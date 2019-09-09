@@ -70,6 +70,7 @@ class ProductionController extends CarbonApiController
 
     }
 
+
     protected function handleError()
     {
 
@@ -77,8 +78,8 @@ class ProductionController extends CarbonApiController
 
     }
 
+    // grid form should be altered to return the catalog instead of just the catalog name
    // Testing portion
-
    private function getOutputGridformTemplateResponse()
     {
         $request = $this->getRequest();
@@ -113,14 +114,28 @@ class ProductionController extends CarbonApiController
         // $sampleTypeMapping = $importer->getMapping();
 
         // Build the columns header list
-        $gridFormResponse['headers'] = $importer->getGridFormColumnHeaders();
+        $headers = $importer->getGridFormColumnHeaders();
+        $gridFormResponse['headers'] = $headers;
 
         // Build this list of initial values and send them back
         $gridFormResponse['content'] = array();
 
+        // Check if it is for a relation -- if it is then we need to return an object instead of a string
         // If defaults are provided
         foreach ($outputSampleDefaults as $osd) {
-            $gridFormResponse['content'][] = $osd;
+
+            foreach ($osd as $key, $value){
+
+
+                if ([$osd]) {
+
+                }
+                else {
+                    $gridFormResponse['content'][] = $osd;
+                }
+
+            }
+
         }
 
         $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
