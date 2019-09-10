@@ -123,6 +123,7 @@ class ProductionController extends CarbonApiController
         // Check if it is for a relation -- if it is then we need to return an object instead of a string
         // If defaults are provided
         foreach ($outputSampleDefaults as $osd) {
+            $gridFormResponse[] = $osd;
 
             // Loop over the resultset
             foreach ($osd as $key => $value){
@@ -136,9 +137,9 @@ class ProductionController extends CarbonApiController
                     // If the object that is passed is a string instead of a list of properties then we need to look it up
                     if (!is_array($value)) {
 
-                        echo $value;
+                        // echo $value;
                         $specificRepo = $em->getRepository($entDet->getObjectClassName());
-                        $found =  $specificRepo->findBy(array('name' => $value));
+                        $found =  $specificRepo->findBy(array($meta['searchProp'] => $value));
                         // $target and $donor are currently passed as ids instead of as names...
 
                         if (!$found){
@@ -149,7 +150,8 @@ class ProductionController extends CarbonApiController
 
                         }
 
-                        $osd[$key] = $found;
+                        // $osd[$key] = $found;
+                        // $gridFormResponse[] = $osd;
 
                     }
 
