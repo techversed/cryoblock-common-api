@@ -123,9 +123,10 @@ class ProductionController extends CarbonApiController
         // Check if it is for a relation -- if it is then we need to return an object instead of a string
         // If defaults are provided
         foreach ($outputSampleDefaults as $osd) {
-            $gridFormResponse[] = $osd;
 
+            // $gridFormResponse[] = $osd;
             // Loop over the resultset
+
             foreach ($osd as $key => $value){
 
                 $meta = $headers[$key];
@@ -150,41 +151,15 @@ class ProductionController extends CarbonApiController
 
                         }
 
-                        // $osd[$key] = $found;
-                        // $gridFormResponse[] = $osd;
+                        $osd[$key] = $found;
 
                     }
 
-
-                        // Fetch the object
-                        // If not exists
-                            //$objectClassName = $entDet->getObjectClassName();
-
-                        // array[...] = result "...";
-
-
                 }
 
-                // If it is a relation
-                    //get the repository
-                    // Check if something with the name already exists -- if so return it instead of the other thing
-                    // If not then create a new object and return it
-
-
-
-
-                // ASDFASDFASDF
-
-                // if ([$osd]) {
-
-                // }
-                // else {
-
-                //     $gridFormResponse['content'][] = $osd;
-
-                // }
-
             }
+
+            $gridFormResponse['content'][] = $osd;
 
         }
 
@@ -192,6 +167,7 @@ class ProductionController extends CarbonApiController
         $response = $this->getJsonResponse($serialized);
 
         return $response;
+
     }
 
    private function getInputGridformTemplateResponse()
