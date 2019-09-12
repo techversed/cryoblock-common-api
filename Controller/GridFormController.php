@@ -10,6 +10,11 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Carbon\ApiBundle\Controller\CarbonApiController;
 
+/*
+
+    Gonna redo this from scratch
+
+*/
 
 /*
     We would like for grid forms to be powerful enough to create and update objects in the same action -- as a result we are going to need to make it so that
@@ -69,9 +74,6 @@ LIST OF OTHER CHANGES THAT ARE GOING TO BE NEEDED IN ORDER FOR THIS TO ALL WORK 
         // This is not going to work yet
 
 */
-
-
-
 
 class GridFormController extends CarbonApiController
 {

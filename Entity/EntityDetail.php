@@ -67,6 +67,8 @@ class EntityDetail extends BaseCryoblockEntity
     protected $objectUrl;
 
     /**
+    * @var string
+    *
     * @ORM\Column(name="auto_watch", type="boolean", nullable=true)
     * @JMS\Groups({"default"})
     *
@@ -80,6 +82,14 @@ class EntityDetail extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      */
     protected $srefName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="importer_class", type="string", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $importerClass;
 
     protected $entityDetailId = 51;
 
@@ -274,5 +284,29 @@ class EntityDetail extends BaseCryoblockEntity
     public function getInNotifications()
     {
         return $this->inNotifications;
+    }
+
+    /**
+     * Gets the value of importerClass.
+     *
+     * @return string
+     */
+    public function getImporterClass()
+    {
+        return $this->importerClass;
+    }
+
+    /**
+     * Sets the value of importerClass.
+     *
+     * @param string $importerClass the importer class
+     *
+     * @return self
+     */
+    public function setImporterClass($importerClass)
+    {
+        $this->importerClass = $importerClass;
+
+        return $this;
     }
 }

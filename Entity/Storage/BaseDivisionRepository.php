@@ -21,6 +21,10 @@ use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 
 class BaseDivisionRepository extends NestedTreeRepository
 {
+    /*
+
+
+    */
     public function findMatchedDivisionsWithDimension(SampleType $sampleType, StorageContainer $storageContainer)
     {
         $qb = $this->createQueryBuilder('d');
@@ -38,6 +42,11 @@ class BaseDivisionRepository extends NestedTreeRepository
         return $qb->getQuery()->getResult();
     }
 
+    /*
+
+
+
+    */
     public function findMatchedDimensionlessDivisions(SampleType $sampleType, StorageContainer $storageContainer)
     {
         $qb = $this->createQueryBuilder('d');
@@ -56,6 +65,10 @@ class BaseDivisionRepository extends NestedTreeRepository
     }
 
 
+    /*
+
+
+    */
     // Changes needed here.
     // We are also ordering by percentfull? what about matches?
     public function buildMatchQuery($sampleTypeId, $storageContainerId, User $user)
@@ -108,6 +121,11 @@ class BaseDivisionRepository extends NestedTreeRepository
         return $qb;
     }
 
+    /*
+
+
+
+    */
     public function getAvailableCells(Division $division)
     {
         $width = $division->getWidth();
@@ -142,6 +160,13 @@ class BaseDivisionRepository extends NestedTreeRepository
         return $emptyLocations;
     }
 
+    /*
+        Determines if a user can view a given division
+
+        Takes a division object and a user object
+        Returns a boolean which is true in the event that the supplied user is able to edit the division and false if they are not able to
+
+    */
     public function canUserView(Division $division, User $user)
     {
         if ($division->getIsPublicEdit()) {
@@ -194,6 +219,14 @@ class BaseDivisionRepository extends NestedTreeRepository
         return count($result) == 1;
     }
 
+    /*
+
+        checks if a user can edit a given division
+
+        takes a division and a user as arguments
+        returns a boolean which is true in the event that they can edit and false in the event that they cannot edit
+
+    */
     public function canUserEdit(Division $division, User $user)
     {
         if ($division->getIsPublicEdit()) {
@@ -237,4 +270,40 @@ class BaseDivisionRepository extends NestedTreeRepository
 
         return count($result) == 1;
     }
+
+    /*
+        Checks to see if a sample of a given sampletype in a given storage container can be placed in a given division
+    */
+    public function allowsSamplePlacement(Division $division, SampleType $sampleType, StorageContainer $storageContainer)
+    {
+
+        // echo $division->getId();
+
+        $qb = $this->createQueryBuilder('d');
+
+        $result = $qb
+            ->leftJoin('d.divisionSampleTypes', 'dst')
+            ->leftJoin('d.divisionStorageContainers', 'dsc')
+            ->andWhere('d.id = :divisionId')
+            ->andWhere($qb->expr()->orX(
+                $qb->expr()->eq('dst.sampleTypeId', $sampleType->getId()),
+                $qb->expr()->eq('d.allowAllSampleTypes', 'true')
+            ))
+            ->andWhere($qb->expr()->orX(
+                $qb->expr()->eq('dsc.storageContainerId', $storageContainer->getId()),
+                $qb->expr()->eq('d.allowAllStorageContainers', 'true')
+            ))
+            ->setParameter('divisionId', $division->getId())
+            ->getQuery()
+            ->getResult()
+        ;
+
+        return count($result) >= 1;
+
+    }
+
+
+
+
+
 }

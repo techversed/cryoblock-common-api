@@ -38,6 +38,14 @@ class CryoblockMailer
 
     public function send($subject, $template, $to, $params = array(), $from = null, $groups = array())
     {
+
+        if( getenv('mailer_disabled') == true)
+        {
+
+            return;
+
+        }
+
         $content = $this->getTemplatingEngine()->render($template, $params);
 
         $fromArray = [];

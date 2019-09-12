@@ -12,8 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-// VIOLATIONS -- There are violations in this file -- There should not be anything refering directly to things in the AppBundle becuase those are all implemenation dependant.
-
 class ProductionController extends CarbonApiController
 {
     /**
@@ -35,9 +33,16 @@ class ProductionController extends CarbonApiController
         if ($inputTemplateType === 'EXCEL') {
             return $this->getInputExcelTemplateResponse();
         }
+
+        if ($inputTemplateType === 'GRIDFORM') {
+            return $this->getInputGridformTemplateResponse();
+        }
+
+        return $this->handleError();
+
    }
 
-    /**
+   /**
      * @Route("/production/download-output-template", name="production_output_template_download")
      * @Method("POST")
      *
@@ -57,7 +62,140 @@ class ProductionController extends CarbonApiController
             return $this->getOutputExcelTemplateResponse();
         }
 
+        if ($outputTemplateType === 'GRIDFORM') {
+            return $this->getOutputGridformTemplateResponse();
+        }
+
+        return $this->handleError();
+
     }
+
+
+    protected function handleError()
+    {
+
+        return $this->getJsonResponse($this->getSerializationHelper()->serialize(array('violations' => array(array("Your request did not contain a template type")))), 400);
+
+    }
+
+    // grid form should be altered to return the catalog instead of just the catalog name
+   // Testing portion
+   private function getOutputGridformTemplateResponse()
+    {
+        $em = $this->getEntityManager();
+        $request = $this->getRequest();
+        $data = json_decode($request->getContent(), true);
+        $totalOutputSamples = $data['totalOutputSamples'];
+        $outputSampleDefaults = $data['outputSampleDefaults'];
+
+        $entDetRepo = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail');
+
+        $gridFormResponse = array();
+
+        if ($outputSampleDefaults == null) {
+            $outputSampleDefaults = [];
+        }
+
+        // If only one default is provided then take the count and clone it $totalOutputSamples times
+        if (!$this->isMultiDimArray($outputSampleDefaults)) {
+            $temp = array();
+            for ($i =0; $i < $totalOutputSamples; $i++) {
+                $temp[] = $outputSampleDefaults;
+            }
+            $outputSampleDefaults = $temp;
+        }
+
+        if (array_key_exists('outputSampleType', $data)) {
+            $outputSampleTypeId = $data['outputSampleType']['id'];
+        } else {
+            $outputSampleTypeId = 1;
+        }
+
+        $importer = $this->container->get('sample.importer'); // This is going to change to grab a genetic importer at some point
+
+        // Build the columns header list
+        $headers = $importer->getGridFormColumnHeaders();
+        $gridFormResponse['headers'] = $headers;
+
+        // Build this list of initial values and send them back
+        $gridFormResponse['content'] = array();
+
+        // Check if it is for a relation -- if it is then we need to return an object instead of a string
+        // If defaults are provided
+        foreach ($outputSampleDefaults as $osd) {
+
+            // $gridFormResponse[] = $osd;
+            // Loop over the resultset
+
+            foreach ($osd as $key => $value){
+
+                $meta = $headers[$key];
+
+                if ($meta['type'] == 'relation') { // if array key exists would add robustness
+
+                    $entDet = $entDetRepo->find($meta['entityDetailId']); // if array key exists would add robustness
+
+                    // If the object that is passed is a string instead of a list of properties then we need to look it up
+                    if (!is_array($value)) {
+
+                        // echo $value;
+                        $specificRepo = $em->getRepository($entDet->getObjectClassName());
+                        $found =  $specificRepo->findBy(array($meta['searchProp'] => $value));
+                        // $target and $donor are currently passed as ids instead of as names...
+
+                        if (!$found){
+
+                            $classname = $entDet->getObjectClassName();
+                            $found = new $classname();
+                            $found->setName($value);
+
+                        }
+
+                        $osd[$key] = $found;
+
+                    }
+
+                }
+
+            }
+
+            $gridFormResponse['content'][] = $osd;
+
+        }
+
+        $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
+        $response = $this->getJsonResponse($serialized);
+
+        return $response;
+
+    }
+
+   private function getInputGridformTemplateResponse()
+    {
+        $em = $this->getEntityManager();
+        $request = $this->getRequest();
+        $data = json_decode($request->getContent(), true);
+
+        $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
+        $prodRequestInputSamples = $prodRequest->getInputSamples();
+        $importer = $this->container->get('sample.importer');
+
+        // fetch the things
+
+        $gridFormResponse = array();
+
+        $gridFormResponse['headers'] = $importer->getGridFormColumnHeaders();
+
+        $gridFormResponse['content'] = $prodRequestInputSamples;
+
+        $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
+        $response = $this->getJsonResponse($serialized);
+
+        return $response;
+
+    }
+
+   // End of testing portion
 
     /**
      * @Route("/production/complete", name="production_complete")
