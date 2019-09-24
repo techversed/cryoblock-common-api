@@ -7,6 +7,9 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
+
+// This is not being handled in the ideal way -- We are going to have to handle target name decisions both here and in the gridform parsing code if we do things this way.
+
 class CryoblockSampleCatalogTransformer implements DataTransformerInterface
 {
     private $manager;
@@ -42,9 +45,13 @@ class CryoblockSampleCatalogTransformer implements DataTransformerInterface
     {
         if (is_array($objArray)) {
 
+            // Not certain that we want to handle this here
+            // SEARCH FOR NEW AT FRONT OF EXPRESSION -- if it is there then we handle it.
+
             $obj = $this->em->getRepository($this->entityClass)
                 ->find($objArray['id'])
             ;
+
 
             if (NULL === $obj) {
                 throw new TransformationFailedException(sprintf(

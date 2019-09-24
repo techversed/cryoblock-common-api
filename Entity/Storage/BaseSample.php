@@ -219,6 +219,7 @@ abstract class BaseSample extends BaseCryoblockEntity
      */
     protected $mass;
 
+    // Should really set the depth on this.
     /**
     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
     * @JMS\Groups({"template"})
