@@ -124,28 +124,48 @@ class BaseWorkingSetController extends CarbonApiController
     /**
     * Handles the HTTP POST request to add a sample to a workingset
     *
-    * @Route("/storage/working-set-remove-id/{uid}/{sid}", name="working_set_remove_post_id")
-    * @Method("DELETE")
+    * @Route("/storage/working-set-remove-id/{uid}", name="working_set_remove_post_id")
+    * @Method("PUT")
     *
     * @return Response
     */
-    public function handleDeleteNoForm($uid, $sid)
+    public function handleDeleteNoForm($uid)
     {
 
         $em = $this->getEntityManager();
-
         $workingSet = $this->getEntityManager()->getRepository('AppBundle\Entity\Storage\WorkingSet');
-        $wset = $workingSet->findBy(array('userId' => $uid, 'sampleId' => $sid));
 
-        if(count($wset) > 0 ){
+        $request = $this->getRequest()->getContent();
 
-            foreach($wset as $workingEntity){
-                $em->remove($workingEntity);
+        $num = 0;
+
+        foreach (json_decode($request, true) as $object) {
+
+            foreach($object as $obj){
+
+                // echo $obj['id'];
+                $wset = $workingSet->findBy(array('userId' => $uid, 'sampleId' => $obj['id']));
+
+                if(count($wset) > 0 ){
+
+                    foreach($wset as $workingEntity){
+                        $num += 1;
+                        $em->remove($workingEntity);
+                    }
+
+                }
+
             }
+
+        }
+
+        if($num > 0){
 
             $em->flush();
             $res = new Response('worked', 200);
-            return $res;
+            return parent::handleMTMGet("user", $uid);
+            // return $res;
+
         }
 
         $res = new Response('Path expects a workingset entry to exist with the given params.', 401);
