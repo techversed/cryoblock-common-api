@@ -10,8 +10,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /** @ORM\MappedSuperclass */
-class BaseWorkingSet
+abstract class BaseWorkingSet
 {
+
     /**
      * @var \DateTime $updated
      *
@@ -38,14 +39,12 @@ class BaseWorkingSet
      */
     protected $createdBy;
 
-
     /**
      * Created by id
      * @ORM\Column(name="user_id", type="integer", nullable=false)
      * @JMS\Groups({"default"})
      */
     protected $userId;
-
 
     /**
      * @var User $createdBy
@@ -56,7 +55,6 @@ class BaseWorkingSet
      */
     protected $user;
 
-
     /**
      * @var Sample $sample
      *
@@ -66,7 +64,7 @@ class BaseWorkingSet
      * @JMS\Groups({"default"})
      */
     protected $sample;
-                                                                        //Carbon\Searchable(name="catalog", join=true, searchProp="name", joinProp="catalogId", subAlias="ct")
+
     /**
      * Sample id
      * @ORM\Column(name="sample_id", type="integer", nullable=false)
