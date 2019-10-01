@@ -144,6 +144,13 @@ if (array_key_exists('outputSampleType', $data)) {
 // Need to work on stripping this down a little bit more to get it all working
     private function getOutputExcelTemplateResponse($gridContents, $importer)
     {
+        // Testing
+
+        $data = array('id'=>1);
+
+        // End Test
+
+
         $totalOutputSamples = count($gridContents);
         $isUpdate = array_key_exists('id', $data);
 
@@ -179,7 +186,7 @@ if (array_key_exists('outputSampleType', $data)) {
 
         $currentSample = 1;
 
-        $protectedLabels = $isUpdate ? getUpdateProtectedLabels() : array();
+        $protectedLabels = $isUpdate ? $importer->getUpdateProtectedLabels() : array();
 
         $currentOutputSampleIndex = 0;
 
@@ -296,6 +303,7 @@ if (array_key_exists('outputSampleType', $data)) {
 
                 // }
 
+
                 $current++;
             }
 
@@ -341,6 +349,7 @@ if (array_key_exists('outputSampleType', $data)) {
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
         $outputTemplateType = $data['outputTemplateType'];
+        $entities = $data['entities'];
 
         $em = $this->getEntityManager();
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($entDetId);
@@ -350,6 +359,10 @@ if (array_key_exists('outputSampleType', $data)) {
 
 
         // Testing portion
+        $gridContents = array();
+
+        return $this->getOutputExcelTemplateResponse($gridContents, $importer);
+
 
         // $response = new Response();
         // return $response;
