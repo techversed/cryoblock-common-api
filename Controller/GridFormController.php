@@ -397,7 +397,6 @@ if (array_key_exists('outputSampleType', $data)) {
     protected function readExcel($requestContent, $importer)
     {
 
-
     }
 
     protected function returnExcel()
