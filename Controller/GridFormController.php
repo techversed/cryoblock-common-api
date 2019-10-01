@@ -77,6 +77,7 @@ LIST OF OTHER CHANGES THAT ARE GOING TO BE NEEDED IN ORDER FOR THIS TO ALL WORK 
 
 class GridFormController extends CarbonApiController
 {
+    // public function __construct(
 
 // New Version of this -- this is really just going to be a repackaged sample import controller.
 
@@ -154,24 +155,27 @@ if (array_key_exists('outputSampleType', $data)) {
         // $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->find($outputSampleTypeId);
 
         // $importer = $this->container->get('sample.importer');
-        $sampleTypeMapping = $importer->getMapping(); //This does not need an argument... ? ? ?
-        $mapping = $importer->getSampleGridFormColumnMap()
+        // $sampleTypeMapping = $importer->getMapping(); //This does not need an argument... ? ? ?
+        $mapping = $importer->getSampleGridFormColumnMap();
 
         $currentSample = 0;
 
         $aRange = range('A', 'Z');
         $current = 0;
 
-        foreach ($sampleTypeMapping as $label => &$column) {
+        // foreach ($sampleTypeMapping as $label => $column) {
+        foreach ($mapping as $label => $column) {
             $objPHPExcel->getActiveSheet()->getColumnDimension($aRange[$current])->setWidth(15);
             $cell = $objPHPExcel->getActiveSheet()->getCell($aRange[$current] . '1');
-            $cell->setValue($label);
+            // $cell->setValue($label);
+            $cell->setValue($column['name']);
             $style = $objPHPExcel->getActiveSheet()->getStyle($aRange[$current] . '1');
             $style->getFont()->setBold(true);
 
             $current++;
         }
-        unset($column); //Dear god why?
+
+        // unset($column); //Dear god why?
 
         $currentSample = 1;
 
@@ -182,7 +186,9 @@ if (array_key_exists('outputSampleType', $data)) {
         while ($currentOutputSampleIndex < $totalOutputSamples) {
 
             $current = 0;
-            foreach ($sampleTypeMapping as $label => $column) {
+            //instead of using sampleTypeMapping lets use somethign else
+            // foreach ($sampleTypeMapping as $label => $column) {
+            foreach ($mapping as $label => $column) {
 
                 $num = $currentSample + 1;
                 $cell = $aRange[$current] . $num;
@@ -216,99 +222,79 @@ if (array_key_exists('outputSampleType', $data)) {
 
                 }
 
-// This section is all going to be replaced with something that is more generic -- handle it once with all of the tags
-/*
-                if ($label == 'Storage Container') {
+                if($column['type'] == 'dropdown') {
 
                     $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
                     $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
                     $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                    $objValidation->setAllowBlank(false);
-                    $objValidation->setShowInputMessage(true);
-                    $objValidation->setShowErrorMessage(true);
-                    $objValidation->setShowDropDown(true);
-                    $objValidation->setErrorTitle('Input error');
-                    $objValidation->setError('Value is not in list.');
-                    $objValidation->setPromptTitle('Pick from list');
-                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
                     $objValidation->setFormula1('"'.$storageContainerNames.'"');
 
-                }
+                    if(isset($column['errorTitle'])) {
 
-                if ($label == 'Concentration Units') {
 
-                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
-                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
-                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                    $objValidation->setAllowBlank(false);
-                    $objValidation->setShowInputMessage(true);
-                    $objValidation->setShowErrorMessage(true);
-                    $objValidation->setShowDropDown(true);
-                    $objValidation->setErrorTitle('Input error');
-                    $objValidation->setError('Value is not in list.');
-                    $objValidation->setPromptTitle('Pick from list');
-                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                    $objValidation->setFormula1('"' . $concentrationUnits . '"');
-
-                }
-
-                if ($label == 'Volume Units') {
-
-                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
-                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
-                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                    $objValidation->setAllowBlank(false);
-                    $objValidation->setShowInputMessage(true);
-                    $objValidation->setShowErrorMessage(true);
-                    $objValidation->setShowDropDown(true);
-                    $objValidation->setErrorTitle('Input error');
-                    $objValidation->setError('Value is not in list.');
-                    $objValidation->setPromptTitle('Pick from list');
-                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                    $objValidation->setFormula1('"' . $volumeUnits . '"');
-
-                }
-
-                if ($label == 'Status') {
-                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
-                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
-                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                    $objValidation->setAllowBlank(false);
-                    $objValidation->setShowInputMessage(true);
-                    $objValidation->setShowErrorMessage(true);
-                    $objValidation->setShowDropDown(true);
-                    $objValidation->setErrorTitle('Input error');
-                    $objValidation->setError('Value is not in list.');
-                    $objValidation->setPromptTitle('Pick from list');
-                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                    $objValidation->setFormula1('"' . $statuses . '"');
-
-                }
-*/
-
-                // This section should be replaced.
-                if (array_key_exists($column['prop'], $outputSampleDefaults[$currentOutputSampleIndex])) {
-                    if (is_array($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']])) {
-                        $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
-                        $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
-                        $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                        $objValidation->setAllowBlank(false);
-                        $objValidation->setShowInputMessage(true);
-                        $objValidation->setShowErrorMessage(true);
-                        $objValidation->setShowDropDown(true);
                         $objValidation->setErrorTitle('Input error');
-                        $objValidation->setError('Value is not in list.');
-                        $objValidation->setPromptTitle('Pick from list');
-                        $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                        $objValidation->setFormula1('"' . implode(', ', $outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]) . '"');
-                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']][0]);
-                    } else {
+                        $objValidation->setShowErrorMessage(true);
+                    }
+                    if(isset($column['error'])) {
 
-                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]);
+                        $objValidation->setShowErrorMessage(true);
+                        $objValidation->setError('Value is not in list.');
 
                     }
+                    if(isset($column['promptitle'])) {
 
+                        $objValidation->setShowDropDown(true);
+                        $objValidation->setShowInputMessage(true);
+                        $objValidation->setPromptTitle('Pick from list');
+
+                    }
+                    if(isset($column['prompt'])) {
+
+                        $objValidation->setShowInputMessage(true);
+                        $objValidation->setShowDropDown(true);
+                        $objValidation->setPrompt('Please pick a value from the drop-down list.');
+
+                    }
+                    if(isset($column['allowBlank'])) {
+                        $objValidation->setAllowBlank(false);
+                    }
+
+                    if(isset($column['acceptedValues'])) {
+                        $objValidation->setFormula1('"' . $column['acceptedValues']. '"');
+                    }
                 }
+
+
+
+// This section is all going to be replaced with something that is more generic -- handle it once with all of the tags
+
+
+                // This section should be replaced.
+
+                // This is going to have to be modified to work with what we are using
+
+                // if (array_key_exists($column['prop'], $outputSampleDefaults[$currentOutputSampleIndex])) {
+                //     if (is_array($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']])) {
+                //         $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
+                //         $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
+                //         $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
+                //         $objValidation->setAllowBlank(false);
+                //         $objValidation->setShowInputMessage(true);
+                //         $objValidation->setShowErrorMessage(true);
+                //         $objValidation->setShowDropDown(true);
+                //         $objValidation->setErrorTitle('Input error');
+                //         $objValidation->setError('Value is not in list.');
+                //         $objValidation->setPromptTitle('Pick from list');
+                //         $objValidation->setPrompt('Please pick a value from the drop-down list.');
+                //         $objValidation->setFormula1('"' . implode(', ', $outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]) . '"');
+                //         $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']][0]);
+                //     } else {
+
+                //         $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]);
+
+                //     }
+
+                // }
 
                 $current++;
             }
@@ -350,8 +336,10 @@ if (array_key_exists('outputSampleType', $data)) {
      */
     public function downloadTemplateAction($entDetId)
     {
+
+
         $request = $this->getRequest();
-        $request = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
         $outputTemplateType = $data['outputTemplateType'];
 
         $em = $this->getEntityManager();
@@ -360,7 +348,11 @@ if (array_key_exists('outputSampleType', $data)) {
         $importerClass = $entDet->getImporterClass();
         $importer = $this->container->get($importerClass);
 
-        return $response;
+
+        // Testing portion
+
+        // $response = new Response();
+        // return $response;
     }
 
     /**
