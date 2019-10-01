@@ -82,6 +82,7 @@ class GridFormController extends CarbonApiController
 
 
 // This is going to return the entities in the form which is requested
+// Finish this up later
 
     // public function downloadOutputTemplateAction()
     // {
@@ -176,37 +177,8 @@ if (array_key_exists('outputSampleType', $data)) {
 
         $protectedLabels = $isUpdate ? getUpdateProtectedLabels() : array();
 
-        $storageContainers = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\StorageContainer')->findAll();
-
-        $storageContainerNames = array();
-
-        foreach ($storageContainers as $storageContainer) {
-            $storageContainerNames[] = $storageContainer->getName();
-        }
-
-        // $storageContainerNames = implode(', ', $storageContainerNames);
-        // $concentrationUnits = implode(', ', array(
-        //     'mg/mL',
-        //     'ng/uL',
-        //     'Molar',
-        //     'cells/mL',
-        //     'cells/uL',
-        // ));
-
-        // $volumeUnits = implode(', ', array(
-        //     'mL',
-        //     'uL'
-        // ));
-
-        // $statuses = implode(', ', array(
-        //     'Available',
-        //     'Depleted',
-        //     'Destroyed',
-        //     'Shipped',
-        //     'Incoming',
-        // ));
-
         $currentOutputSampleIndex = 0;
+
         while ($currentOutputSampleIndex < $totalOutputSamples) {
 
             $current = 0;
@@ -244,6 +216,8 @@ if (array_key_exists('outputSampleType', $data)) {
 
                 }
 
+// This section is all going to be replaced with something that is more generic -- handle it once with all of the tags
+/*
                 if ($label == 'Storage Container') {
 
                     $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
@@ -310,6 +284,9 @@ if (array_key_exists('outputSampleType', $data)) {
                     $objValidation->setFormula1('"' . $statuses . '"');
 
                 }
+*/
+
+                // This section should be replaced.
                 if (array_key_exists($column['prop'], $outputSampleDefaults[$currentOutputSampleIndex])) {
                     if (is_array($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']])) {
                         $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
@@ -427,7 +404,12 @@ if (array_key_exists('outputSampleType', $data)) {
     {
     }
 
-    protected function validateGridForm($form)
+    protected function validateGridForm($grodform)
+    {
+
+    }
+
+    protected function commitChanges($gridform)
     {
 
     }
