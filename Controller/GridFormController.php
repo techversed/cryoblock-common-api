@@ -12,152 +12,156 @@ use Carbon\ApiBundle\Controller\CarbonApiController;
 
 /*
 
-
     The standard means of storage is just going to a an array of objects -- can choose to persist them or not -- it really makes no difference
-
-*/
-
-/*
-
-    Gonna redo this from scratch
-
-*/
-
-/*
-    We would like for grid forms to be powerful enough to create and update objects in the same action -- as a result we are going to need to make it so that
-
-    At the current point in time we are not making it so that anything can be sent to these routes without a user being logged in first -- we have built code to make it so that users that are not logged in yet are assumed to be the utilities-services user.
-
-    This class is going to replace the sample import controller and portion of the production controller.
-
-    This is going to have a validate action which is going to run the data that was provided through the validators in the importer class
-
-    This is going to have a complete class which commits the requested action to the database.
-
-*/
-
-/*
-NOTES:
-
-
-LIST OF OTHER CHANGES THAT ARE GOING TO BE NEEDED IN ORDER FOR THIS TO ALL WORK OUT.
-    Importers may need additioanl properties
-    Everything that you would like to update with this is going to need to have its own importer created
-    Entity detail needs to have the name of the form that needs to be grabbed.
-    Entity detail is going to need to have the importer stored for each type of element that is allowed to be imported with this mechanism
-    May need to have multiple different functions for bulk import -- not sure at this time if it makes more sense for us to have separate importers for bulk and linker updates or if it makes sense to add new functions to the importer depending upon which action you are attempting to make
-    Entity detail should be expanded to have update, create, delete permissions roles on it -- since we are going to try to make something generic that is going to work with all type of entities it is going to be absolutely essential for us to have a mechanism to set this for individual entity types instead of setting a standard in the controller.
-
-
-*/
-
-//JUNK notes area
-
-/*
-
-        // Need to quickly validate that it would be possible to do bulk updates of non-nested data using this method...
-            // Lets start out by assuming that we are going to need to use this in order to perform bulk updates on samples... what needs to be added?
-            // We would also need to add a property at the top level asking if it is a mtm update or if it is a bulk update of a single type of entity.
-
-
-        // possible values for the 'updateType' key.
-            // mtmParent -- used when the user is trying to adjust the properties on a parent and would like to add metadata to a linker table entry (something that would not be possible using the regular formtype setup
-            // bulkEntity -- If there is no parent object and you would like to use the gridform essentially as a regular bulk (like the excel upload) then this can be specified.
-
-        // This complete action is going to function in basically the same way that production controller operates...
-
-
-        // foreach($entities as $entity)
-        // {
-
-        //     // Here are all of the things
-
-        // }
-
-        // $requestObjectFormData = $data['requestObject'];
-        // $requestFormType = $data['requestFormType'];
-        // $prodRequest = $em->getRepository($data['entity'])->find($data['id']);
-
-        // This is not going to work yet
 
 */
 
 class GridFormController extends CarbonApiController
 {
-    // public function __construct(
 
-// New Version of this -- this is really just going to be a repackaged sample import controller.
+    /**
+     * @Route("/storage/sample-import/save", name="sample_import_save")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function saveAction()
+    {
+        $request = $this->getRequest();
+        $data = json_decode($request->getContent(), true);
+        $catalogData = $data['catalogData'];
 
+        $em = $this->getEntityManager();
 
-// This is going to return the entities in the form which is requested
-// Finish this up later
+        $samples = $data['entities'];
 
-    // public function downloadOutputTemplateAction()
-    // {
-    //     $request = $this->getRequest();
-    //     $data = json_decode($request->getContent(), true);
-    //     $outputTemplateType = $data['outputTemplateType'];
+        $sampleIds = array();
+        $createdSamples = array();
 
-    //     if ($outputTemplateType === 'CSV') {
-    //         return $this->getCSVOutputTemplateResponse();
-    //     }
+        // Check if new catalogs need to be created
+            // If new catalogs are created edit the sample entries to contain the new names
 
-    //     if ($outputTemplateType === 'EXCEL') {
-    //         return $this->getOutputExcelTemplateResponse();
-    //     }
+        foreach ($samples as $sample) {
 
-    //     if ($outputTemplateType === 'GRIDFORM') {
-    //         return $this->getOutputGridformTemplateResponse();
-    //     }
+            if (array_key_exists('id', $sample)) {
+                $entity = $em->getRepository('AppBundle:Storage\Sample')->find($sample['id']);
+                $newlyCreated = false;
+            } else {
+                $entity = new Sample();
+                $newlyCreated = true;
+            }
 
-    //     return $this->handleError();
+            $form = $this->createForm('sample', $entity);
+            $form->submit($sample);
 
-    // }
+            if (!$form->isValid()) {
 
+                return $this->getFormErrorResponse($form);
 
-    // Stuff that we are going to handle when creating a default form for all content which is going to be held in a gridform
-    /*
+            }
 
-    // $request = $this->getRequest();
-    // $data = json_decode($request->getContent(), true);
-    // $totalOutputSamples = $data['totalOutputSamples'];
-    // $outputSampleDefaults = $data['outputSampleDefaults'];
+            if ($newlyCreated == true){
+                $em->persist($entity);
+            }
 
-    // if ($outputSampleDefaults == null ) {
-        // $outputSampleDefaults = [];
-    // }
+            if (!array_key_exists('id', $sample)) {
+                $sampleIds[] = $entity->getId();
+                $createdSamples[] = $entity;
+            }
 
-    if (!$this->isMultiDimArray($outputSampleDefaults)) {
-        $temp = array();
-        for ($i =0; $i < $totalOutputSamples; $i++) {
-            $temp[] = $outputSampleDefaults;
         }
-        $outputSampleDefaults = $temp;
-    }
+
+        //THIS SUCKS
+        /*
+
+            Need to write a generic way of handling this
 
         */
 
-    // Trash
-    /*
+        // if ($catalogData && !$catalogData['hasExistingCatalog'] && $catalogData['totalInputCatalogs'] > 1) {
 
-if (array_key_exists('outputSampleType', $data)) {
-            $outputSampleTypeId = $data['outputSampleType']['id'];
-        } else {
-            $outputSampleTypeId = 1;
-        }
+        //     $catalog = $em->getRepository('AppBundle:Storage\Catalog')->findOneByName($catalogData['catalogName']);
 
-    */
+        //     if (!$catalog) {
+        //         throw new EntityNotFoundException(sprintf('Catalog not found with name %s', $catalogData['catalogName']));
+        //     }
 
-// Need to work on stripping this down a little bit more to get it all working
+        //     foreach ($catalogData['catalogIds'] as $childCatalogId) {
+
+        //         $childCatalog = $em->getRepository('AppBundle:Storage\Catalog')->find($childCatalogId);
+
+        //         if (!$childCatalog) {
+        //             throw new EntityNotFoundException(sprintf('Child catalog not found with id %s', $childCatalogId));
+        //         }
+
+        //         $parentCatalog = new ParentCatalog();
+        //         $parentCatalog->setParentCatalog($catalog);
+        //         $parentCatalog->setChildCatalog($childCatalog);
+        //         $em->persist($parentCatalog);
+
+        //     }
+
+        // }
+
+        $em->flush();
+
+        $responseData = $this->getSerializationHelper()->serialize(array(
+            'sampleIds' => $sampleIds,
+            'samples' => $createdSamples,
+        ));
+
+        return $this->getJsonResponse($responseData);
+    }
+
+
+    /**
+     * @Route("/grid-form/download/{entDetId}", name="grid_form_download")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function downloadTemplateAction($entDetId)
+    {
+
+        $request = $this->getRequest();
+        $data = json_decode($request->getContent(), true);
+        $outputTemplateType = $data['outputTemplateType'];
+        $entities = $data['entities'];
+
+        $em = $this->getEntityManager();
+        $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($entDetId);
+
+        $importerClass = $entDet->getImporterClass();
+        $importer = $this->container->get($importerClass);
+
+        $gridContents = array();
+
+        return $this->getOutputExcelTemplateResponse($gridContents, $importer);
+
+        // $response = new Response();
+        // return $response;
+    }
+
+    /**
+     * @Route("/grid-form/validate/{entDetId}", name="grid_form_validate")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function validateTemplate($entDetId)
+    {
+
+    }
+
+
     private function getOutputExcelTemplateResponse($gridContents, $importer)
     {
-        // Testing
 
-        $path = '\AppBundle\Entity\Storage\Sample';
+        $path = '\\' +  'AppBundle\Entity\Storage\Sample';
 
-        // $test = new $path;
-        // $test->setId(1);
-        // echo $test->getId();
+        $test = new $path;
+        $test->setId(1);
+        echo $test->getId();
 
         // $test = new \AppBundle\Entity\Storage\Sample;
 
@@ -351,48 +355,6 @@ if (array_key_exists('outputSampleType', $data)) {
         return $response;
     }
 
-    /**
-     * @Route("/grid-form/download/{entDetId}", name="grid_form_download")
-     * @Method("POST")
-     *
-     * @return Response
-     */
-    public function downloadTemplateAction($entDetId)
-    {
-
-
-        $request = $this->getRequest();
-        $data = json_decode($request->getContent(), true);
-        $outputTemplateType = $data['outputTemplateType'];
-        $entities = $data['entities'];
-
-        $em = $this->getEntityManager();
-        $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($entDetId);
-
-        $importerClass = $entDet->getImporterClass();
-        $importer = $this->container->get($importerClass);
-
-
-        // Testing portion
-        $gridContents = array();
-
-        return $this->getOutputExcelTemplateResponse($gridContents, $importer);
-
-
-        // $response = new Response();
-        // return $response;
-    }
-
-    /**
-     * @Route("/grid-form/validate/{entDetId}", name="grid_form_validate")
-     * @Method("POST")
-     *
-     * @return Response
-     */
-    public function validateTemplate($entDetId)
-    {
-
-    }
 
     protected function readExcel($requestContent, $importer)
     {
@@ -421,6 +383,7 @@ if (array_key_exists('outputSampleType', $data)) {
 
     protected function returnGridForm()
     {
+
     }
 
     protected function validateGridForm($grodform)
@@ -433,4 +396,4 @@ if (array_key_exists('outputSampleType', $data)) {
 
     }
 
-} // end of class
+}
