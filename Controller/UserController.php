@@ -13,6 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /*
     One issue that I created in this file is that common really should not refer to 'ROLE_UNDERGRAD_STUDENT_WORKER' since this is specific to the crowelab user permissions setup. -- In the long term I think that it would be a good idea to implement a series ofa ccounts which do not have the full permissions of a regular user in case you want to share some of the data with collaborators -- you may want to have collaborator accounts.
@@ -278,7 +279,7 @@ class UserController extends CarbonApiController
             $encoder = $encoder_service->getEncoder($userToChange);
             $encoded_pass = $encoder->encodePassword($currentPassword, $userToChange->getSalt());
 
-            if ($encoded_pass != $user->getPassword()) {
+            if ($encoded_pass != $userToChange->getPassword()) {
                 throw new AccessDeniedHttpException("Password does not match password on record");
             }
         }
