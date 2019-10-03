@@ -120,7 +120,45 @@ class UserObjectNotificationController extends CarbonApiController
         );
 
         return $this->getJsonResponse(json_encode($res));
+    }
 
+    /**
+     * @Route("/cryoblock/user-object-notification/dismiss-watche-requests", name="user_object_notification_dismiss_all_post")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function getUserWatchedAction()
+    {
+
+        $em = parent::getEntityManager();
+        $objNotRep = parent::getEntityRepository();
+
+        $notifications = $objNotRep->findBy(array( 'user' => $this->getUser()));
+
+        $entReps = array();
+
+        $selectedNotifications = array();
+
+        foreach ($notifications as $notification) {
+
+            $entityDetail = $notification->getLinkedEntityDetail();
+            $objectClassName = $entityDetail->getObjectClassName();
+
+            if (!$entityDetail->getInNotifications() || $notification->getDismissed()) {
+                continue;
+            }
+
+            $notification->setDismissed(true);
+
+        }
+
+        $em->flush();
+
+        $data = array('success' => 'success');
+        return $this->getJsonResponse(json_encode($data));
 
     }
+
+
 }
