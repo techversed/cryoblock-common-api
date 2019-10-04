@@ -35,6 +35,11 @@ class User extends BaseUser
     protected $id;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectEditor", mappedBy="user")
+     */
+    protected $userProjects;
+
+    /**
      * @ORM\OneToMany(targetEntity="Carbon\ApiBundle\Entity\UserGroup", mappedBy="user")
      */
     protected $userGroups;
@@ -133,15 +138,11 @@ class User extends BaseUser
      */
     protected $clonedSample;
 
-
-
     /**
      * @Gedmo\Versioned
      */
     protected $enabled;
-
     protected $roles = array();
-
     public $groups;
 
     public function __construct()
@@ -500,4 +501,30 @@ class User extends BaseUser
 
         return $this;
     }
+
+
+    /**
+     * Gets the value of userProjects.
+     *
+     * @return mixed
+     */
+    public function getUserProjects()
+    {
+        return $this->userProjects;
+    }
+
+    /**
+     * Sets the value of userProjects.
+     *
+     * @param mixed $userProjects the user projects
+     *
+     * @return self
+     */
+    public function setUserProjects($userProjects)
+    {
+        $this->userProjects = $userProjects;
+
+        return $this;
+    }
+
 }
