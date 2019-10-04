@@ -31,6 +31,7 @@ class UserObjectNotificationFormType extends CryoblockAbstractType
                 'property' => 'user_id',
                 'multiple' => false
             ))
+            ->add('dismissed', 'checkbox')
             ->add('onCreate', 'checkbox')
             ->add('onUpdate', 'checkbox')
             ->add('onDelete', 'checkbox')

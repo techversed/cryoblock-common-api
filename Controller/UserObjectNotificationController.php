@@ -128,7 +128,7 @@ class UserObjectNotificationController extends CarbonApiController
      *
      * @return Response
      */
-    public function getUserWatchedAction()
+    public function dismissAllNotifications()
     {
 
         $em = parent::getEntityManager();

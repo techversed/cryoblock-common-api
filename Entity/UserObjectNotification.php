@@ -94,7 +94,7 @@ class UserObjectNotification extends BaseCryoblockEntity
 // This is not kept in the database since we are linking to a number of different
     /**
      * @JMS\Groups({"default", "notifications"})
-     * @JMS\MaxDepth(2)
+     * @JMS\MaxDepth(4)
      */
     protected $entity;
 
