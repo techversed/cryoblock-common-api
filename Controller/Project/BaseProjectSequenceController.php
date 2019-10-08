@@ -12,7 +12,7 @@ class BaseProjectSequenceController extends CarbonApiController
     /**
      * @var string The namespace of the resource entity
      */
-    const RESOURCE_ENTITY = "AppBundle\Entity\Project\ProjectSequence";
+    const RESOURCE_ENTITY = "AppBundle\Entity\Project\ProjectAntibodySequence";
 
     protected $resourceLinkMap = array(
         'project' => array(
