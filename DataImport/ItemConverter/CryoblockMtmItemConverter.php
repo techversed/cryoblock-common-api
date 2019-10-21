@@ -1,5 +1,7 @@
 <?php
 
+// This file does not appear to be needed. We are using the mtm formtype instead of using this
+
 namespace Carbon\ApiBundle\DataImport\ItemConverter;
 
 use AppBundle\Entity\Storage\SampleTag;
