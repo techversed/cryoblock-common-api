@@ -38,6 +38,9 @@ class CatalogListener
 
         // When we create a catalog
         // target is not no base sample so this is going to be a bit of a problem
+
+        // This cannot stay in common
+
         $newCatalogSamples = array();
 
         foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
@@ -52,6 +55,7 @@ class CatalogListener
                 }
 
             }
+            // Add in a sequence thing here
 
         }
 
