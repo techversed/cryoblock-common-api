@@ -8,6 +8,8 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
 use Symfony\Bridge\Monolog\Logger;
+use Carbon\ApiBundle\Entity\Storage\Sequence\BaseSequence;
+use Carbon\ApiBundle\Entity\Storage\BaseSample;
 
 /*
     VIOLATION
@@ -15,9 +17,6 @@ use Symfony\Bridge\Monolog\Logger;
     This should not explicitly move antibody sequences over to the new catalog like this because many implementaitons of this software may not have antibody sequences.
 
     This violation would be fixed by adding additional properties to entity detail which determine whether or not the new entities should be moved over when a catalog is ranamed...
-
-
-
 
 */
 
@@ -41,25 +40,67 @@ class CatalogListener
 
         // This cannot stay in common
 
-        $newCatalogSamples = array();
+        $newCatalogTargets = array();
 
         foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
+            // Change this to basesample
             if ($entity instanceof Sample) {
 
-                if (in_array($entity->getTarget(), $newCatalogSamples[$entity->getCatalog()->getId()])) {
-
-                    //
-
-
+                if (!in_array($entity->getTarget(), $newCatalogSamples)) {
+                    $newCatalogTargets[$entity->getCatalog()->getId()] = $entity->getTarget();
                 }
 
             }
+
             // Add in a sequence thing here
+            // if ($entity instanceof BaseSequence) {
+
+                // if (in_array($entity->getTarget(), $newCatalogSamples[$entity->getCatalog()->getId()])) {
+
+
+                // }
+
+            // }
+
 
         }
 
+        $catIncrementMax = array();
+
         foreach($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
+
+            if ($entity instanceof Catalog) {
+                $explodedCat = explode("+", $entity->getName());
+
+                if (strtoupper($explodedCat[0]) == "TARGET") {
+
+                    if ( count($newCatalogTargets[$entiy->getId()]) == 1) {
+
+                        $target = $newCatalogTargets[$entiy->getId()[0];
+
+                        if ((string)((int)$explodedCat[1]) == $explodedCat[1]){
+
+                            $add = (int)$explodedCat[1];
+
+                            $abb = $target->getAbbreviation();
+                            $currentMax = $target->getMaxIdUsed();
+
+                            $entity->setName($abb.'-'.(string)($currentMax + $add));
+
+                            $catIncrementMax[$target->getId()] = ($catIncrementMax[$target->getId()] < $add) ? $add : $catIncrementMax[$target->getId()];
+                            $uow->recomputeSingleEntityChangeset($metadataCatalog, $entity);
+
+                        }
+
+                    }
+
+                }
+            }
+
+        }
+
+        foreach ($catIncrementMax as $key => $value) {
 
 
         }

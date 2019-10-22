@@ -31,6 +31,14 @@ use Carbon\ApiBundle\Entity\BaseCryoblockEntity;
 abstract class BaseSequence extends BaseCryoblockEntity
 {
 
+    abstract protected function getCatalog();
+    abstract protected function setCatalog($catalog);
+
+    // abstract protected function
+    // abstract protected function
+
+    // abstract protected
+
     //This function should be implemented to control who has access to view the given sequence. If you do not want to control access to sequences set it to "return true" regardless of what happens
     //If the edit and view permissions should be the same set one function to call the other and return its value
 
