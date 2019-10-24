@@ -20,6 +20,14 @@ use Carbon\ApiBundle\Entity\Storage\BaseSample;
 
 */
 
+/*
+    We mgiht need to pass int he reques tstack instead of doing it this way --- race conditions and whatnot
+
+    May need to introduce some form of locking here
+
+
+*/
+
 class CatalogListener
 {
     public function onFlush(OnFlushEventArgs $args)
@@ -41,69 +49,115 @@ class CatalogListener
         // This cannot stay in common
 
         $newCatalogTargets = array();
+        $newCatalogs = array();
 
         foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
             // Change this to basesample
             if ($entity instanceof Sample) {
 
-                if (!in_array($entity->getTarget(), $newCatalogSamples)) {
-                    $newCatalogTargets[$entity->getCatalog()->getId()] = $entity->getTarget();
-                }
+                $explodedCat = explode("+", $entity->getCatalog()->getName());
 
-            }
+                if ($explodedCat[0] == "TARGET"){
 
-            // Add in a sequence thing here
-            // if ($entity instanceof BaseSequence) {
+                    $catId = $entity->getCatalog()->getId();
 
-                // if (in_array($entity->getTarget(), $newCatalogSamples[$entity->getCatalog()->getId()])) {
+                    if (!in_array($catId, $newCatalogs)) {
 
-
-                // }
-
-            // }
-
-
-        }
-
-        $catIncrementMax = array();
-
-        foreach($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
-
-            if ($entity instanceof Catalog) {
-                $explodedCat = explode("+", $entity->getName());
-
-                if (strtoupper($explodedCat[0]) == "TARGET") {
-
-                    if ( count($newCatalogTargets[$entiy->getId()]) == 1) {
-
-                        $target = $newCatalogTargets[$entiy->getId()[0];
-
-                        if ((string)((int)$explodedCat[1]) == $explodedCat[1]){
-
-                            $add = (int)$explodedCat[1];
-
-                            $abb = $target->getAbbreviation();
-                            $currentMax = $target->getMaxIdUsed();
-
-                            $entity->setName($abb.'-'.(string)($currentMax + $add));
-
-                            $catIncrementMax[$target->getId()] = ($catIncrementMax[$target->getId()] < $add) ? $add : $catIncrementMax[$target->getId()];
-                            $uow->recomputeSingleEntityChangeset($metadataCatalog, $entity);
-
-                        }
+                        $newCatalogs[] = $catId;
 
                     }
 
+                    if (!array_key_exists($entity->getCatalog()->getId(), $newCatalogTargets)) {
+
+                        $newCatalogTargets = array();
+
+                    }
+
+                    $newCatalogTargets[$entity->getCatalog()->getId()][] = $entity->getTarget();
                 }
+
             }
 
-        }
-
-        foreach ($catIncrementMax as $key => $value) {
-
+            // Should be added for sequences also
+            // Add in a sequence thing here
 
         }
+
+        foreach ($newCatalogs as $nc) {
+
+            //
+            // $nc->setName()
+            $mod = (int) explode("+", $nc->getName())[1];
+
+            foreach (){
+
+
+
+
+            }
+
+
+        }
+
+
+
+
+
+
+        // foreach ($uow->getScheduledEntityInsertions() as $entity) {
+        //     if ($entity instanceof Catalog) {
+
+        //         $entity->setName("testing");
+
+        //     }
+        // }
+
+        // $catIncrementMax = array();
+
+        // foreach($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
+
+        //     if ($entity instanceof Catalog) {
+        //         $explodedCat = explode("+", $entity->getName());
+
+        //         if (strtoupper($explodedCat[0]) == "TARGET") {
+
+
+        //             if (count($newCatalogTargets[$entity->getId()]) == 1) {
+        //             // if (isset($newCatalogTargets[$entity->getId()]) && count($newCatalogTargets[$entity->getId()]) == 1) {
+
+        //                 $target = $newCatalogTargets[$entity->getId()][0];
+
+        //                 if ((string)((int)$explodedCat[1]) == $explodedCat[1]){
+
+        //                     $add = (int)$explodedCat[1];
+
+        //                     $abb = $target->getAbbreviation();
+        //                     $currentMax = $target->getMaxIdUsed() ? $target->getMaxIdUsed() : 1;
+
+        //                     $entity->setName($abb.'-'.(string)($currentMax + $add));
+
+        //                     $catIncrementMax[$target->getId()] = ($catIncrementMax[$target->getId()] < $add) ? $add : $catIncrementMax[$target->getId()];
+        //                     $uow->recomputeSingleEntityChangeset($metadataCatalog, $entity);
+
+        //                 }
+
+        //             }
+
+        //         }
+        //     }
+
+        // }
+
+        // foreach ($catIncrementMax as $key => $value) {
+
+        //     $target = $targetRepo->find($key);
+
+        //     $target->setMaxIdUsed($target->getMaxIdUsed() + $value);
+
+        //     $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
+
+        // }
 
         // End of the catalog autonaming portion
 
