@@ -103,7 +103,7 @@ class CatalogListener
             $numericalTerm = $target->getMaxIdUsed() ? $target->getMaxIdUsed() + $mod : 1 + $mod;
 
             if (isset($targetIncrementAmount[$target->getId()])) {
-                $targetIncrementAmount[$target->getId()] =  $targetIncrementAmount[$target->getId()] < $numericalTerm ? $targetIncrementAmount[$target->getId()] : $numericalTerm;
+                $targetIncrementAmount[$target->getId()] = $numericalTerm < $targetIncrementAmount[$target->getId()] ? $targetIncrementAmount[$target->getId()] : $numericalTerm;
             }
             else {
                 $targetIncrementAmount[$target->getId()] = $numericalTerm;
@@ -197,7 +197,11 @@ class CatalogListener
         foreach ($targetIncrementAmount as $key => $value) {
 
             $target = $targetRepo->find($key);
+            // $target->setMaxIdUsed($value);
+
             $target->setMaxIdUsed($value);
+            // $target->setName($value);
+
             $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
 
         }
