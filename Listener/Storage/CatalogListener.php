@@ -67,7 +67,7 @@ class CatalogListener
                 // $target = $entity->getTarget();
                 // $target->setMaxIdUsed($target->getMaxIdUsed());
 
-                $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
+                // $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
 
                 $explodedCat = explode("+", $entity->getCatalog()->getName());
 
@@ -219,9 +219,18 @@ class CatalogListener
             // die();
             // echo "running";
 
-            $target = $targetRepo->find($key);
-            $target->setMaxIdUsed($value);
+            // echo "$key" . $key;
+
+            $target = $targetRepo->find(182);
+            // $target->setMaxIdUsed(999);
+            $target->setName(999);
             $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
+            // echo $target->getMaxIdUsed();
+
+            // $uow->computeChangeSet($metadataTarget, $target);
+            // $changeset = $uow->getEntityChangeSet($target);
+            // print_r($changeset);
+            // die();
 
             // $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
 
