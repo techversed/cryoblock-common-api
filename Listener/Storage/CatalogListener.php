@@ -25,11 +25,15 @@ use Carbon\ApiBundle\Entity\Storage\BaseSample;
 
     May need to introduce some form of locking here
 
+    VIOLATION -- this stuff that deals directly with samples should not be this listener in common.
+
+    THIS SHOULD REALLY NOT BE IN COMMON...
 
 */
 
 class CatalogListener
 {
+
     public function onFlush(OnFlushEventArgs $args)
     {
         $em = $args->getEntityManager();
@@ -43,6 +47,7 @@ class CatalogListener
         // Catalog auto naming
         $metadataCatalog = $em->getClassMetadata('AppBundle\Entity\Storage\Catalog');
         $metadataTarget = $em->getClassMetadata('AppBundle\Entity\Storage\Target');
+        $metadataSample = $em->getClassMetadata('AppBundle\Entity\Storage\Sample');
 
         // When we create a catalog
         // target is not no base sample so this is going to be a bit of a problem
@@ -51,11 +56,18 @@ class CatalogListener
 
         $newCatalogTargets = array();
         $newCatalogs = array();
+        $newCatObjects = array();
+        $targetIncrementAmount = array();
 
         foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
             // Change this to basesample
             if ($entity instanceof Sample) {
+
+                // $target = $entity->getTarget();
+                // $target->setMaxIdUsed($target->getMaxIdUsed());
+
+                $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
 
                 $explodedCat = explode("+", $entity->getCatalog()->getName());
 
@@ -66,6 +78,7 @@ class CatalogListener
                     if (!in_array($catId, $newCatalogs)) {
 
                         $newCatalogs[] = $catId;
+                        $newCatalogObjects[] = $entity->getCatalog();
 
                     }
 
@@ -87,21 +100,34 @@ class CatalogListener
 
         foreach ($newCatalogs as $nc) {
 
-            //
-            // $nc->setName()
             $cat = $catalogRepo->find($nc);
             $mod = (int) explode("+", $cat->getName())[1];
 
             $target = $targetRepo->find($newCatalogTargets[$nc][0]);
-            $numericalTerm = $target->getMaxIdUsed() ? $target->getMaxIdUsed : 1;
-            $abbreviationTerm = $target->getAbbreviation();
+            // echo $target->getMaxIdUsed() ? true : 1+$mod;
+            // echo $target->getMaxIdUsed() ? true : $cat->getName();
+            // die();
+            $numericalTerm = $target->getMaxIdUsed() ? $target->getMaxIdUsed() + $mod : 1 + $mod;
 
+            if (isset($targetIncrementAmount[$target->getId()])) {
+                $targetIncrementAmount[$target->getId()] =  $targetIncrementAmount[$target->getId()] < $numericalTerm ? $targetIncrementAmount[$target->getId()] : $numericalTerm;
+            }
+            else {
+                $targetIncrementAmount[$target->getId()] = $numericalTerm;
+            }
+
+            $abbreviationTerm = $target->getAbbreviation();
             $cat->setName($abbreviationTerm . "-". (string)$numericalTerm);
 
             $uow->recomputeSingleEntityChangeset($metadataCatalog, $cat);
 
         }
 
+
+        // Add another listener that makes it so that samples that are going to be placed into a catalog with a name collision  will get placed into the catalog
+
+        // This array will store a list of ids and the catalogs [key] and the catalog that they should be merged into [value]
+        $catalogFromTo = array();
         foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
             if ($entity instanceof Catalog) {
@@ -120,12 +146,13 @@ class CatalogListener
 
                 }
 
+                // This call does not work if the catalog is renamed by the earlier thing
                 $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sample s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
                 $numUpdated = $query->execute();
 
 
-// This will have to be sorted out using entity detail -- there would have to be a column for whether or not an entity should be moved to a new catalog when the catalog is ranamed
-//VIOLATION -- Antibody sequence is not in common --- we will need to find a way to make this more abstract...
+                // This will have to be sorted out using entity detail -- there would have to be a column for whether or not an entity should be moved to a new catalog when the catalog is ranamed
+                //VIOLATION -- Antibody sequence is not in common --- we will need to find a way to make this more abstract...
                 $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sequence\Antibody\AntibodySequence s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
                 $numUpdated = $query->execute();
 
@@ -140,8 +167,12 @@ class CatalogListener
 
                 $now = new \DateTime('now');
 
+                $minIdCat = $catalogRepo->find($minId);
                 foreach($catIdList as $idEntry){
                     if($idEntry == $minId) continue;
+
+                    $catalogFromTo[$idEntry] = $minIdCat;
+                    // echo "doing things";
 
                     $ent = $catalogRepo->find($idEntry);
                     $ent->setName($ent->getId()."->".$minId);
@@ -151,5 +182,68 @@ class CatalogListener
 
             }
         }
+
+        $catalogIdList = array();
+
+        foreach ($catalogFromTo as $key => $value) {
+
+            // echo "things";
+            $catalogIdList[] = $key;
+
+        }
+
+        // print_r($catalogIdList);
+        // die();
+
+        foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
+
+            if ($entity instanceof Sample) {
+
+                    if (isset($catalogFromTo[$entity->getCatalog()->getId()])) {
+                        $entity->setCatalog($catalogFromTo[$entity->getCatalog()->getId()]);
+                        $uow->recomputeSingleEntityChangeset($metadataSample, $entity);
+                    }
+
+            }
+        }
+
+        // Update targets
+        foreach ($targetIncrementAmount as $key => $value) {
+
+
+
+            // $target
+            // echo "testing";
+            // die();
+            // echo $value;
+            // die();
+            // echo "running";
+
+            $target = $targetRepo->find($key);
+            $target->setMaxIdUsed($value);
+            $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
+
+            // $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
+
+
+
+            // $uow->scheduleForUpdate($target, $changeMap);
+            // $uow->computeChangeSet($metadataTarget, $target);
+
+
+            // $uow->scheduleForUpdate($target);
+            // $uow->scheduleExtraUpdate($target, $changeMap);
+            // $uow->scheduleForUpdate($target);
+            // $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
+            // $uow->scheduleExtraUpdate($target, (array) $metadataTarget);
+
+
+
+
+            // $changeMap = array("maxIdUsed", [1,2]);
+            // $uow->scheduleExtraUpdate($target, array("maxIdUsed" => array(1,2)) );
+
+        }
+
     }
 }
