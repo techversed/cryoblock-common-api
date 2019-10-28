@@ -38,6 +38,7 @@ class CatalogListener
         $uow = $em->getUnitOfWork();
         $catalogRepo = $em->getRepository('AppBundle\Entity\Storage\Catalog');
         $sampleRepo = $em->getRepository('AppBundle\Entity\Storage\Sample');
+        $targetRepo = $em->getRepository('AppBundle\Entity\Storage\Target');
 
         // Catalog auto naming
         $metadataCatalog = $em->getClassMetadata('AppBundle\Entity\Storage\Catalog');
@@ -88,80 +89,19 @@ class CatalogListener
 
             //
             // $nc->setName()
-            $mod = (int) explode("+", $nc->getName())[1];
+            $cat = $catalogRepo->find($nc);
+            $mod = (int) explode("+", $cat->getName())[1];
 
-            foreach (){
+            $target = $targetRepo->find($newCatalogTargets[$nc][0]);
+            $numericalTerm = $target->getMaxIdUsed() ? $target->getMaxIdUsed : 1;
+            $abbreviationTerm = $target->getAbbreviation();
 
+            $cat->setName($abbreviationTerm . "-". (string)$numericalTerm);
 
-
-
-            }
-
+            $uow->recomputeSingleEntityChangeset($metadataCatalog, $cat);
 
         }
 
-
-
-
-
-
-        // foreach ($uow->getScheduledEntityInsertions() as $entity) {
-        //     if ($entity instanceof Catalog) {
-
-        //         $entity->setName("testing");
-
-        //     }
-        // }
-
-        // $catIncrementMax = array();
-
-        // foreach($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
-
-        //     if ($entity instanceof Catalog) {
-        //         $explodedCat = explode("+", $entity->getName());
-
-        //         if (strtoupper($explodedCat[0]) == "TARGET") {
-
-
-        //             if (count($newCatalogTargets[$entity->getId()]) == 1) {
-        //             // if (isset($newCatalogTargets[$entity->getId()]) && count($newCatalogTargets[$entity->getId()]) == 1) {
-
-        //                 $target = $newCatalogTargets[$entity->getId()][0];
-
-        //                 if ((string)((int)$explodedCat[1]) == $explodedCat[1]){
-
-        //                     $add = (int)$explodedCat[1];
-
-        //                     $abb = $target->getAbbreviation();
-        //                     $currentMax = $target->getMaxIdUsed() ? $target->getMaxIdUsed() : 1;
-
-        //                     $entity->setName($abb.'-'.(string)($currentMax + $add));
-
-        //                     $catIncrementMax[$target->getId()] = ($catIncrementMax[$target->getId()] < $add) ? $add : $catIncrementMax[$target->getId()];
-        //                     $uow->recomputeSingleEntityChangeset($metadataCatalog, $entity);
-
-        //                 }
-
-        //             }
-
-        //         }
-        //     }
-
-        // }
-
-        // foreach ($catIncrementMax as $key => $value) {
-
-        //     $target = $targetRepo->find($key);
-
-        //     $target->setMaxIdUsed($target->getMaxIdUsed() + $value);
-
-        //     $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
-
-        // }
-
-        // End of the catalog autonaming portion
-
-        // When updating a catalog to have the same name as an existing catalog it will delete the catalog and move all of its stuff to the new one
         foreach ($uow->getScheduledEntityUpdates() as $keyEntity => $entity) {
 
             if ($entity instanceof Catalog) {
@@ -213,51 +153,3 @@ class CatalogListener
         }
     }
 }
-
-// This is going to get dropped back into place after we finish creating the samples list
-/*
-
-if ($entity instanceof Catalog) {
-
-                echo "found a catalog";
-                echo count($entity->getSamples());
-
-                $explodedCat = explode("+", $entity->getName());
-
-                if (strtoupper($explodedCat[0]) == "TARGET") {
-
-                    $targets = array();
-
-
-                    // echo count($entity->getSamples());
-
-                    // die();
-
-                    // foreach ($entity->getSamples() as $key => $sample) {
-
-                        // if ($sample->getTarget() && !in_array($sample->getTarget(), $targets)) {
-                            // $targets[] = $sample->getTarget();
-                        // }
-
-                    // }
-
-                    // if (count($targets) == 1) {
-
-                        // $newName = $target->getAbbreviation() . "-" . $target->getMaxIdUsed();
-
-                        $newName = "ballz2";
-                        $entity->setName($newName);
-                        $uow->recomputeSingleEntityChangeset($metadataCatalog, $entity);
-
-                    // }
-                    // else {
-
-                        // foreach ($targets as $target) {
-
-
-                        // }
-
-                    // }
-                }
-            }
-*/
