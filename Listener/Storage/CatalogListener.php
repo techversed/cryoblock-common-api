@@ -64,11 +64,6 @@ class CatalogListener
             // Change this to basesample
             if ($entity instanceof Sample) {
 
-                // $target = $entity->getTarget();
-                // $target->setMaxIdUsed($target->getMaxIdUsed());
-
-                // $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
-
                 $explodedCat = explode("+", $entity->getCatalog()->getName());
 
                 if ($explodedCat[0] == "TARGET"){
@@ -104,9 +99,7 @@ class CatalogListener
             $mod = (int) explode("+", $cat->getName())[1];
 
             $target = $targetRepo->find($newCatalogTargets[$nc][0]);
-            // echo $target->getMaxIdUsed() ? true : 1+$mod;
-            // echo $target->getMaxIdUsed() ? true : $cat->getName();
-            // die();
+
             $numericalTerm = $target->getMaxIdUsed() ? $target->getMaxIdUsed() + $mod : 1 + $mod;
 
             if (isset($targetIncrementAmount[$target->getId()])) {
@@ -172,12 +165,10 @@ class CatalogListener
                     if($idEntry == $minId) continue;
 
                     $catalogFromTo[$idEntry] = $minIdCat;
-                    // echo "doing things";
 
                     $ent = $catalogRepo->find($idEntry);
                     $ent->setName($ent->getId()."->".$minId);
                     $ent->setMergedInto($catalogRepo->find($minId));
-                    // $ent->setDeletedAt($now);
                 }
 
             }
@@ -187,13 +178,9 @@ class CatalogListener
 
         foreach ($catalogFromTo as $key => $value) {
 
-            // echo "things";
             $catalogIdList[] = $key;
 
         }
-
-        // print_r($catalogIdList);
-        // die();
 
         foreach ($uow->getScheduledEntityInsertions() as $keyEntity => $entity) {
 
@@ -207,50 +194,11 @@ class CatalogListener
             }
         }
 
-        // Update targets
         foreach ($targetIncrementAmount as $key => $value) {
 
-
-
-            // $target
-            // echo "testing";
-            // die();
-            // echo $value;
-            // die();
-            // echo "running";
-
-            // echo "$key" . $key;
-
-            $target = $targetRepo->find(182);
-            // $target->setMaxIdUsed(999);
-            $target->setName(999);
+            $target = $targetRepo->find($key);
+            $target->setMaxIdUsed($value);
             $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
-            // echo $target->getMaxIdUsed();
-
-            // $uow->computeChangeSet($metadataTarget, $target);
-            // $changeset = $uow->getEntityChangeSet($target);
-            // print_r($changeset);
-            // die();
-
-            // $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
-
-
-
-            // $uow->scheduleForUpdate($target, $changeMap);
-            // $uow->computeChangeSet($metadataTarget, $target);
-
-
-            // $uow->scheduleForUpdate($target);
-            // $uow->scheduleExtraUpdate($target, $changeMap);
-            // $uow->scheduleForUpdate($target);
-            // $uow->recomputeSingleEntityChangeset($metadataTarget, $target);
-            // $uow->scheduleExtraUpdate($target, (array) $metadataTarget);
-
-
-
-
-            // $changeMap = array("maxIdUsed", [1,2]);
-            // $uow->scheduleExtraUpdate($target, array("maxIdUsed" => array(1,2)) );
 
         }
 
