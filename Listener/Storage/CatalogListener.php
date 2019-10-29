@@ -100,7 +100,7 @@ class CatalogListener
 
             $target = $targetRepo->find($newCatalogTargets[$nc][0]);
 
-            $numericalTerm = $target->getMaxIdUsed() ? $target->getMaxIdUsed() + $mod : 1 + $mod;
+            $numericalTerm = $target->getMaxIdUsed() ? $target->getMaxIdUsed() + $mod : 0 + $mod;
 
             if (isset($targetIncrementAmount[$target->getId()])) {
                 $targetIncrementAmount[$target->getId()] = $numericalTerm < $targetIncrementAmount[$target->getId()] ? $targetIncrementAmount[$target->getId()] : $numericalTerm;
