@@ -161,8 +161,9 @@ class CatalogListener
                 $now = new \DateTime('now');
 
                 $minIdCat = $catalogRepo->find($minId);
-                foreach($catIdList as $idEntry){
-                    if($idEntry == $minId) continue;
+
+                foreach ($catIdList as $idEntry) {
+                    if ($idEntry == $minId) continue;
 
                     $catalogFromTo[$idEntry] = $minIdCat;
 
