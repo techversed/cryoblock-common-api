@@ -80,6 +80,7 @@ class UserObjectNotificationController extends CarbonApiController
         $em = parent::getEntityManager();
         $objNotRep = parent::getEntityRepository();
 
+
         $notifications = $objNotRep->findBy(array( 'user' => $this->getUser()));
 
         $entReps = array();
@@ -106,7 +107,57 @@ class UserObjectNotificationController extends CarbonApiController
 
         }
 
+        $data = $this->getSerializationHelper()->serialize($selectedNotifications);
 
+        $res = array(
+            'page' => 1,
+            'perPage' => count($selectedNotifications),
+            'hasNextPage' => false,
+            'unpaginatedTotal' => count($selectedNotifications),
+            'paginatedTotal' => count($selectedNotifications),
+            'data' => json_decode($data)
+        );
+
+        return $this->getJsonResponse(json_encode($res));
+    }
+
+    /**
+     * @Route("/cryoblock/profile-object-notification/watched-requests/{id}", name="profile_object_notification_watching_get")
+     * @Method("GET")
+     *
+     * @return Response
+     */
+    public function getProfileWatchedAction($id)
+    {
+
+        $em = parent::getEntityManager();
+        $objNotRep = parent::getEntityRepository();
+
+        $notifications = $objNotRep->findBy(array( 'userId' => $id));
+
+        $entReps = array();
+
+        $selectedNotifications = array();
+
+        foreach ($notifications as $notification) {
+
+            $entityDetail = $notification->getLinkedEntityDetail();
+            $objectClassName = $entityDetail->getObjectClassName();
+
+            if (!$entityDetail->getInNotifications() || $notification->getDismissed()) {
+                continue;
+            }
+
+            if (!array_key_exists($objectClassName, $entReps)) {
+                $entReps[$objectClassName] = $em->getRepository($objectClassName);
+            }
+
+            if ($notification->getEntityId() != null) {
+                $notification->setEntity($entReps[$objectClassName]->find($notification->getEntityId()));
+                $selectedNotifications[] = $notification;
+            }
+
+        }
 
         $data = $this->getSerializationHelper()->serialize($selectedNotifications);
 
