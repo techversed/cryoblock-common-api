@@ -1083,4 +1083,44 @@ abstract class BaseDivision extends BaseCryoblockEntity
         }
         return "";
     }
+
+        /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getDivisionEditorString()
+    {
+        $divisionEditorNames = [];
+
+        if ($this->divisionEditors && (is_array($this->divisionEditors) || is_object($this->divisionEditors))) {
+
+            foreach ($this->divisionEditors as $divisionEditor) {
+
+                $divisionEditorNames[] = $divisionEditor->getUser()->getFullName();
+
+            }
+
+            return implode(", ", $divisionEditorNames);
+        }
+    }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getDivisionGroupEditorString()
+    {
+        $divisionEditorGroupNames = [];
+
+        if ($this->divisionGroupEditors && (is_array($this->divisionGroupEditors) || is_object($this->divisionGroupEditors))) {
+
+            foreach ($this->divisionGroupEditors as $divisionGroupEditor) {
+
+                $divisionEditorGroupNames[] = $divisionGroupEditor->getGroup()->getName();
+
+            }
+
+            return implode(", ", $divisionEditorGroupNames);
+        }
+    }
 }

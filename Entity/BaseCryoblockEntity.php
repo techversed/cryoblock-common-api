@@ -31,6 +31,7 @@ abstract class BaseCryoblockEntity
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
      * @ORM\JoinColumn(name="created_by_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
+     * @Carbon\Searchable(name="createdBy", join=true, searchProp="firstName", joinProp="createdById", subAlias="u")
      */
     protected $createdBy;
 
