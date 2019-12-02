@@ -211,13 +211,7 @@ class Dot implements ArrayAccess
             return isset($array[$key]);
         }
 
-        try {
-            return array_key_exists($key, $array);
-        }
-        catch (Exception $e) {
-            return false;
-        }
-            
+        return array_key_exists($key, $array);
     }
 
     /**
