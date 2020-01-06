@@ -42,6 +42,10 @@ abstract class BaseDivisionController extends CarbonApiController
     // In order to get around this problem while maintaining the performance characteristics of the original I had to sidestep the serialization helper so that I could use a custom serialization context ...
     // The use of the custom context to limit serialization made it so that I could raise the max depth on children to where it could serialize children -> divisionviewers -> user -> avatar attachment and other similar cases with access governors
 
+
+
+
+    // This route may not be needed anymore since we are not loading the search grid every single time.
     /**
      * Handles the HTTP get request for the division entity
      *
