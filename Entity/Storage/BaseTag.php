@@ -98,25 +98,49 @@ abstract class BaseTag extends BaseCryoblockEntity
     }
 
     /**
-     * Gets the value of tagSamples.
+     * Gets the value of sampleTags.
      *
      * @return mixed
      */
-    public function getTagSamples()
+    public function getSampleTags()
     {
-        return $this->tagSamples;
+        return $this->sampleTags;
     }
 
     /**
-     * Sets the value of tagSamples.
+     * Sets the value of sampleTags.
      *
-     * @param mixed $tagSamples the tag samples
+     * @param mixed $sampleTags the sample tags
      *
      * @return self
      */
-    public function setTagSamples($tagSamples)
+    public function setSampleTags($sampleTags)
     {
-        $this->tagSamples = $tagSamples;
+        $this->sampleTags = $sampleTags;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of samples.
+     *
+     * @return mixed
+     */
+    public function getSamples()
+    {
+        return $this->samples;
+    }
+
+    /**
+     * Sets the value of samples.
+     *
+     * @param mixed $samples the samples
+     *
+     * @return self
+     */
+    public function setSamples($samples)
+    {
+        $this->samples = $samples;
 
         return $this;
     }
