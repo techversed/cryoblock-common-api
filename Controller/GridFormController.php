@@ -9,6 +9,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Carbon\ApiBundle\Controller\CarbonApiController;
+use Carbon\ApiBundle\Serializer\Dot;
+use Ddeboer\DataImport\ValueConverter\StringToObjectConverter;
 
 /*
 
@@ -18,6 +20,42 @@ use Carbon\ApiBundle\Controller\CarbonApiController;
 
 class GridFormController extends CarbonApiController
 {
+
+
+
+
+    /**
+     * @Route("/grid-form/get-column-definitions/{entDetId}", name="grid_form_get_column_definitions")
+     * @Method("GET")
+     *
+     * @return Response
+     */
+    public function getColumnDefinitions($entDetId)
+    {
+
+        $em = $this->getEntityManager();
+        $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($entDetId);
+
+        if ($entDet == null ) {
+            throw new \LogicException('The specified entity detail entry does not exist.');
+        }
+
+        $importerClass = $entDet->getImporterClass();
+
+        if ($importerClass == null ) {
+            throw new \LogicException('The importer class service is not set for the specified entity detail entry.');
+        }
+
+        $importer = $this->container->get($importerClass);
+
+
+
+
+
+
+
+    }
+
 
     /**
      * @Route("/storage/sample-import/save", name="sample_import_save")
@@ -71,38 +109,6 @@ class GridFormController extends CarbonApiController
 
         }
 
-        //THIS SUCKS
-        /*
-
-            Need to write a generic way of handling this
-
-        */
-
-        // if ($catalogData && !$catalogData['hasExistingCatalog'] && $catalogData['totalInputCatalogs'] > 1) {
-
-        //     $catalog = $em->getRepository('AppBundle:Storage\Catalog')->findOneByName($catalogData['catalogName']);
-
-        //     if (!$catalog) {
-        //         throw new EntityNotFoundException(sprintf('Catalog not found with name %s', $catalogData['catalogName']));
-        //     }
-
-        //     foreach ($catalogData['catalogIds'] as $childCatalogId) {
-
-        //         $childCatalog = $em->getRepository('AppBundle:Storage\Catalog')->find($childCatalogId);
-
-        //         if (!$childCatalog) {
-        //             throw new EntityNotFoundException(sprintf('Child catalog not found with id %s', $childCatalogId));
-        //         }
-
-        //         $parentCatalog = new ParentCatalog();
-        //         $parentCatalog->setParentCatalog($catalog);
-        //         $parentCatalog->setChildCatalog($childCatalog);
-        //         $em->persist($parentCatalog);
-
-        //     }
-
-        // }
-
         $em->flush();
 
         $responseData = $this->getSerializationHelper()->serialize(array(
@@ -138,8 +144,6 @@ class GridFormController extends CarbonApiController
 
         return $this->getOutputExcelTemplateResponse($gridContents, $importer);
 
-        // $response = new Response();
-        // return $response;
     }
 
     /**
@@ -289,39 +293,6 @@ class GridFormController extends CarbonApiController
                         $objValidation->setFormula1('"' . $column['acceptedValues']. '"');
                     }
                 }
-
-
-
-// This section is all going to be replaced with something that is more generic -- handle it once with all of the tags
-
-
-                // This section should be replaced.
-
-                // This is going to have to be modified to work with what we are using
-
-                // if (array_key_exists($column['prop'], $outputSampleDefaults[$currentOutputSampleIndex])) {
-                //     if (is_array($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']])) {
-                //         $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
-                //         $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
-                //         $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
-                //         $objValidation->setAllowBlank(false);
-                //         $objValidation->setShowInputMessage(true);
-                //         $objValidation->setShowErrorMessage(true);
-                //         $objValidation->setShowDropDown(true);
-                //         $objValidation->setErrorTitle('Input error');
-                //         $objValidation->setError('Value is not in list.');
-                //         $objValidation->setPromptTitle('Pick from list');
-                //         $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                //         $objValidation->setFormula1('"' . implode(', ', $outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]) . '"');
-                //         $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']][0]);
-                //     } else {
-
-                //         $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]);
-
-                //     }
-
-                // }
-
 
                 $current++;
             }
