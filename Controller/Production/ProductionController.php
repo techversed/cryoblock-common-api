@@ -78,8 +78,6 @@ class ProductionController extends CarbonApiController
 
     }
 
-    // grid form should be altered to return the catalog instead of just the catalog name
-   // Testing portion
    private function getOutputGridformTemplateResponse()
     {
         $em = $this->getEntityManager();
@@ -113,7 +111,6 @@ class ProductionController extends CarbonApiController
 
         $importer = $this->container->get('sample.importer'); // This is going to change to grab a genetic importer at some point
 
-        // Build the columns header list
         $headers = $importer->getGridFormColumnHeaders();
         $gridFormResponse['headers'] = $headers;
 
@@ -135,13 +132,10 @@ class ProductionController extends CarbonApiController
 
                     $entDet = $entDetRepo->find($meta['entityDetailId']); // if array key exists would add robustness
 
-                    // If the object that is passed is a string instead of a list of properties then we need to look it up
                     if (!is_array($value)) {
 
-                        // echo $value;
                         $specificRepo = $em->getRepository($entDet->getObjectClassName());
                         $found =  $specificRepo->findBy(array($meta['searchProp'] => $value));
-                        // $target and $donor are currently passed as ids instead of as names...
 
                         if (!$found){
 

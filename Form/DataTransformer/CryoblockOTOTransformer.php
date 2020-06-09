@@ -43,9 +43,7 @@ class CryoblockOTOTransformer implements DataTransformerInterface
             return;
         }
 
-        $obj = $this->em->getRepository($this->entityClass)
-            ->find($objArray['id'])
-        ;
+        $obj = $this->em->getRepository($this->entityClass)->find($objArray['id']);
 
         if (NULL === $obj) {
             throw new TransformationFailedException(sprintf(
