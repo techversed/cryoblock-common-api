@@ -60,6 +60,7 @@ abstract class BaseSample extends BaseCryoblockEntity
      * @Gedmo\Versioned
      * @Carbon\Searchable(name="catalog", join=true, searchProp="name", joinProp="catalogId", subAlias="ct")
      * @JMS\Groups({"default"})
+     * @JMS\MaxDepth(2)
      */
     protected $catalog;
 
@@ -218,9 +219,10 @@ abstract class BaseSample extends BaseCryoblockEntity
      */
     protected $mass;
 
+    // Should really set the depth on this.
     /**
     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectSample", mappedBy="sample")
-    * @JMS\Groups({"template"})
+    * @JMS\Groups({"template", "default"})
     */
     protected $projectSamples;
 
@@ -245,6 +247,7 @@ abstract class BaseSample extends BaseCryoblockEntity
      */
     protected $lotId;
 
+    // Don't really need to keep this in the database -- It could probably live in its current location
     /**
      * @var int $lotEntityDetailId
      * @ORM\Column(name="lot_entity_detail_id", type="integer", nullable=true)
@@ -270,6 +273,16 @@ abstract class BaseSample extends BaseCryoblockEntity
      * @JMS\Groups({"default"})
      */
     protected $sampleTags;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\WorkingSet", mappedBy="sample")
+     * @JMS\Groups({"default"})
+     */
+    protected $workingSets;
+
+
+    // Transient
+    public $sets;
 
     /**
      * @JMS\Groups({"default"})
@@ -521,7 +534,13 @@ abstract class BaseSample extends BaseCryoblockEntity
 
     public function setStatus($status)
     {
+
+        if (!in_array($status, $this->validStatuses)) {
+            throw new \InvalidArgumentException(sprintf('%s is not a valid status', $status));
+        }
+
         $this->status = $status;
+        return $this;
     }
 
     /**
@@ -719,24 +738,44 @@ abstract class BaseSample extends BaseCryoblockEntity
         return $this->storageContainerId;
     }
 
+    /**
+     * @return mixed Concentration
+     *
+     */
     public function getConcentration()
     {
         return $this->concentration;
     }
 
+    /**
+     *
+     * @return self
+     */
     public function setConcentration($concentration)
     {
+        // Why was this done this way? won't the normal style of a setter work?
         $this->concentration = $concentration == $this->concentration ? $this->concentration : $concentration;
+
+        return $this;
     }
 
+    /**
+     * @return mixed ConcentrationUnits
+     *
+     */
     public function getConcentrationUnits()
     {
         return $this->concentrationUnits;
     }
 
+    /**
+     * @param mixed $concentrationUnits
+     * @return self
+     */
     public function setConcentrationUnits($concentrationUnits)
     {
         $this->concentrationUnits = $concentrationUnits;
+        return $this;
     }
 
     /**
@@ -1127,6 +1166,28 @@ abstract class BaseSample extends BaseCryoblockEntity
     public function setLotEntityDetailId($lotEntityDetailId)
     {
         $this->lotEntityDetailId = $lotEntityDetailId;
+    }
+
+    /**
+     * Gets the value of workingSets.
+     *
+     * @return mixed
+     */
+    public function getWorkingSets()
+    {
+        return $this->workingSets;
+    }
+
+    /**
+     * Sets the value of workingSets.
+     *
+     * @param mixed $workingSets the working sets
+     *
+     * @return self
+     */
+    public function setWorkingSets($workingSets)
+    {
+        $this->workingSets = $workingSets;
 
         return $this;
     }
@@ -1147,6 +1208,29 @@ abstract class BaseSample extends BaseCryoblockEntity
     public function setLotEntityDetail($lotEntityDetail)
     {
         $this->lotEntityDetail = $lotEntityDetail;
+    }
+
+
+    /**
+     * Gets the value of sets.
+     *
+     * @return mixed
+     */
+    public function getSets()
+    {
+        return $this->sets;
+    }
+
+    /**
+     * Sets the value of sets.
+     *
+     * @param mixed $sets the sets
+     *
+     * @return self
+     */
+    public function setSets($sets)
+    {
+        $this->sets = $sets;
 
         return $this;
     }

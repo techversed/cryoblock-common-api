@@ -15,7 +15,7 @@ abstract class BaseTag extends BaseCryoblockEntity
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255)
+     * @ORM\Column(name="name", type="string", length=255, unique=true)
      * @JMS\Groups({"default"})
      * @Carbon\Searchable(name="name")
      * @Gedmo\Versioned

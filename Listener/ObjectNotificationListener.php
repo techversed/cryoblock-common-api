@@ -113,7 +113,7 @@ class ObjectNotificationListener
 
             $creatingUserObjectNotification = new UserObjectNotification();
             $creatingUserObjectNotification->setEntityId($entity->getId());
-            $creatingUserObjectNotification->setEntityDetail($entDet);
+            $creatingUserObjectNotification->setLinkedEntityDetail($entDet);
             $creatingUserObjectNotification->setUser($creatingUser);
             $creatingUserObjectNotification->setOnUpdate(true);
             $creatingUserObjectNotification->setOnDelete(true);
@@ -125,13 +125,13 @@ class ObjectNotificationListener
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
-                'entityDetailId' => $entDetId
+                'linkedEntityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
@@ -139,8 +139,8 @@ class ObjectNotificationListener
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
             $groups[] = $onCreateGroup->getName();
-            $url = $groupObjectNotification->getEntityDetail()->getObjectUrl();
-            $objectDescription = $groupObjectNotification->getEntityDetail()->getObjectDescription();
+            $url = $groupObjectNotification->getLinkedEntityDetail()->getObjectUrl();
+            $objectDescription = $groupObjectNotification->getLinkedEntityDetail()->getObjectDescription();
         }
 
         $to = array();
@@ -153,8 +153,8 @@ class ObjectNotificationListener
                     }
                 }
 
-                $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
-                $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
+                $url = $userObjectNotification->getLinkedEntityDetail()->getObjectUrl();
+                $objectDescription = $userObjectNotification->getLinkedEntityDetail()->getObjectDescription();
             }
         }
 
@@ -242,20 +242,20 @@ class ObjectNotificationListener
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
-                'entityDetailId' => $entDetId
+                'linkedEntityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
 
         $watchingUserNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => $entity->getId(),
             ))
         ;
@@ -263,8 +263,8 @@ class ObjectNotificationListener
         $groups = array();
         if ($groupObjectNotification && $onUpdateGroup = $groupObjectNotification->getOnUpdateGroup()) {
             $groups[] = $onUpdateGroup->getName();
-            $url = $groupObjectNotification->getEntityDetail()->getObjectUrl();
-            $objectDescription = $groupObjectNotification->getEntityDetail()->getObjectDescription();
+            $url = $groupObjectNotification->getLinkedEntityDetail()->getObjectUrl();
+            $objectDescription = $groupObjectNotification->getLinkedEntityDetail()->getObjectDescription();
         }
 
         $to = array();
@@ -277,8 +277,8 @@ class ObjectNotificationListener
                     }
                 }
 
-                $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
-                $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
+                $url = $userObjectNotification->getLinkedEntityDetail()->getObjectUrl();
+                $objectDescription = $userObjectNotification->getLinkedEntityDetail()->getObjectDescription();
 
             }
         }
@@ -292,8 +292,8 @@ class ObjectNotificationListener
                     }
                 }
 
-                $url = $watchingUserNotification->getEntityDetail()->getObjectUrl();
-                $objectDescription = $watchingUserNotification->getEntityDetail()->getObjectDescription();
+                $url = $watchingUserNotification->getLinkedEntityDetail()->getObjectUrl();
+                $objectDescription = $watchingUserNotification->getLinkedEntityDetail()->getObjectDescription();
 
             }
         }
@@ -396,20 +396,20 @@ class ObjectNotificationListener
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
-                'entityDetailId' => $entDetId
+                'linkedEntityDetailId' => $entDetId
             ))
         ;
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => null
             ))
         ;
 
         $watchingUserNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
-                'entityDetailId' => $entDetId,
+                'linkedEntityDetailId' => $entDetId,
                 'entityId' => $entity->getId(),
             ))
         ;
@@ -417,8 +417,8 @@ class ObjectNotificationListener
         $groups = array();
         if ($groupObjectNotification && $onDeleteGroup = $groupObjectNotification->getOnDeleteGroup()) {
             $groups[] = $onDeleteGroup->getName();
-            $url = $groupObjectNotification->getEntityDetail()->getObjectUrl();
-            $objectDescription = $groupObjectNotification->getEntityDetail()->getObjectDescription();
+            $url = $groupObjectNotification->getLinkedEntityDetail()->getObjectUrl();
+            $objectDescription = $groupObjectNotification->getLinkedEntityDetail()->getObjectDescription();
         }
 
         $to = array();
@@ -431,8 +431,8 @@ class ObjectNotificationListener
                     }
                 }
 
-                $url = $userObjectNotification->getEntityDetail()->getObjectUrl();
-                $objectDescription = $userObjectNotification->getEntityDetail()->getObjectDescription();
+                $url = $userObjectNotification->getLinkedEntityDetail()->getObjectUrl();
+                $objectDescription = $userObjectNotification->getLinkedEntityDetail()->getObjectDescription();
             }
         }
 
@@ -447,8 +447,8 @@ class ObjectNotificationListener
                 }
 
                 // This does not need to be set with every iteration of the loop
-                $url = $watchingUserNotification->getEntityDetail()->getObjectUrl();
-                $objectDescription = $watchingUserNotification->getEntityDetail()->getObjectDescription();
+                $url = $watchingUserNotification->getLinkedEntityDetail()->getObjectUrl();
+                $objectDescription = $watchingUserNotification->getLinkedEntityDetail()->getObjectDescription();
             }
         }
 
