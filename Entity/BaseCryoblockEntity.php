@@ -51,6 +51,7 @@ abstract class BaseCryoblockEntity
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
      * @ORM\JoinColumn(name="updated_by_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
+     * @JMS\MaxDepth(1)
      */
     protected $updatedBy;
 
@@ -68,6 +69,7 @@ abstract class BaseCryoblockEntity
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", options={"default": 0})
      * @JMS\Groups({"default"})
+     * @JMS\MaxDepth(1)
      */
     protected $createdAt;
 
