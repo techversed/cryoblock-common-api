@@ -33,6 +33,15 @@ class EntityDetail extends BaseCryoblockEntity
      */
     protected $id;
 
+    // Should this type of entity be displayed in the UserObjectNotificationsPane
+    /**
+     * @var boolean inNotifications
+     *
+     * @ORM\Column(name="in_notifications", type="boolean", nullable=false, options={"default": false})
+     * @JMS\Groups({"default"})
+     */
+    protected $inNotifications = false;
+
     /**
      * @var string
      *
@@ -58,6 +67,8 @@ class EntityDetail extends BaseCryoblockEntity
     protected $objectUrl;
 
     /**
+    * @var string
+    *
     * @ORM\Column(name="auto_watch", type="boolean", nullable=true)
     * @JMS\Groups({"default"})
     *
@@ -72,7 +83,15 @@ class EntityDetail extends BaseCryoblockEntity
      */
     protected $srefName;
 
-    protected $entityDetailId = -1;
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="importer_class", type="string", nullable=true)
+     * @JMS\Groups({"default"})
+     */
+    protected $importerClass;
+
+    protected $entityDetailId = 51;
 
     /**
      * Gets the value of EntityDetailId
@@ -223,6 +242,70 @@ class EntityDetail extends BaseCryoblockEntity
     public function setSrefName($srefName)
     {
         $this->srefName = $srefName;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean inNotifications
+     */
+    public function isInNotifications()
+    {
+        return $this->inNotifications;
+    }
+
+    /**
+     * @param boolean inNotifications $inNotifications
+     *
+     * @return self
+     */
+    public function setInNotifications($inNotifications)
+    {
+        $this->inNotifications = $inNotifications;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $entityDetailId
+     *
+     * @return self
+     */
+    public function setEntityDetailId($entityDetailId)
+    {
+        $this->entityDetailId = $entityDetailId;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean isNotifications
+     */
+    public function getInNotifications()
+    {
+        return $this->inNotifications;
+    }
+
+    /**
+     * Gets the value of importerClass.
+     *
+     * @return string
+     */
+    public function getImporterClass()
+    {
+        return $this->importerClass;
+    }
+
+    /**
+     * Sets the value of importerClass.
+     *
+     * @param string $importerClass the importer class
+     *
+     * @return self
+     */
+    public function setImporterClass($importerClass)
+    {
+        $this->importerClass = $importerClass;
 
         return $this;
     }

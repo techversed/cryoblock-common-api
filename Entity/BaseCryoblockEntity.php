@@ -36,7 +36,7 @@ abstract class BaseCryoblockEntity
     protected $createdBy;
 
     /**
-     * Created by id
+     * @var Integer $createdById
      * @ORM\Column(name="created_by_id", type="integer", nullable=false)
      */
     protected $createdById;
@@ -51,12 +51,11 @@ abstract class BaseCryoblockEntity
      * @ORM\ManyToOne(targetEntity="Carbon\ApiBundle\Entity\User")
      * @ORM\JoinColumn(name="updated_by_id", referencedColumnName="id")
      * @JMS\Groups({"default"})
-     * @JMS\MaxDepth(1)
      */
     protected $updatedBy;
 
     /**
-     * Created by id
+     * @var Integer $updatedById
      * @ORM\Column(name="updated_by_id", type="integer", nullable=false)
      */
     protected $updatedById;
@@ -64,17 +63,16 @@ abstract class BaseCryoblockEntity
     // * @JMS\Groups({"default"})
 
     /**
-     * @var \DateTime $created
+     * @var \DateTime $createdAt
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", options={"default": 0})
      * @JMS\Groups({"default"})
-     * @JMS\MaxDepth(1)
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime $updated
+     * @var \DateTime $updatedAt
      *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", options={"default": 0})

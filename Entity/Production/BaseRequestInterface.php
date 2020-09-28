@@ -13,4 +13,11 @@ interface BaseRequestInterface
     public function setOutputSamples($outputSamples);
 
     public function getAliasPrefix();
+
+    public function getRequestProjects();
+
+    public function setRequestProjects($requestProjects);
+
+    public function getProjectString();
+
 }

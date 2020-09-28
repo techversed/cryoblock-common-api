@@ -32,7 +32,7 @@ class BaseStorageContainerController extends CarbonApiController
      *
      * @Route("/storage/storage-container", name="storage_container_post")
      * @Method("POST")
-     * @return [type] [description]
+     * @return Response
      */
     public function handlePost()
     {

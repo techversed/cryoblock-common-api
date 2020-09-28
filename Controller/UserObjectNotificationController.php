@@ -9,6 +9,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NotFoundHttpException;
+use Carbon\ApiBundle\Entity\Production\BaseRequest;
+use JMS\Serializer\SerializationContext;
 
 class UserObjectNotificationController extends CarbonApiController
 {
@@ -67,30 +69,147 @@ class UserObjectNotificationController extends CarbonApiController
     }
 
     /**
-     * @Route("/cryoblock/user-object-notification/user/{userId}", name="user_object_notification_watching_get")
+     * @Route("/cryoblock/user-object-notification/watched-requests", name="user_object_notification_watching_get")
      * @Method("GET")
      *
      * @return Response
      */
-    public function getUserWatchedAction($userId)
+    public function getUserWatchedAction()
     {
-        $query = 'SELECT * from cryoblock.user_object_notification WHERE user_id = :user_id AND entity_id is NOT NULL';
-        $stmt = $this->getEntityManager()->getConnection()->prepare($query);
-        $stmt->execute(array(
-            'user_id' => $userId
-        ));
 
-        $results = $stmt->fetchAll();
+        $em = parent::getEntityManager();
+        $objNotRep = parent::getEntityRepository();
 
-        $watchedObjects = [];
 
-        foreach ($results as $result) {
+        $notifications = $objNotRep->findBy(array( 'user' => $this->getUser()));
 
-            $route = $result->getEntityDetail->getObjectUrl();
+        $entReps = array();
 
-            $watchedObjects[] = $route + '/' + $result['entity_id'];
+        $selectedNotifications = array();
+
+        foreach ($notifications as $notification) {
+
+            $entityDetail = $notification->getLinkedEntityDetail();
+            $objectClassName = $entityDetail->getObjectClassName();
+
+            if (!$entityDetail->getInNotifications() || $notification->getDismissed()) {
+                continue;
+            }
+
+            if (!array_key_exists($objectClassName, $entReps)) {
+                $entReps[$objectClassName] = $em->getRepository($objectClassName);
+            }
+
+            if ($notification->getEntityId() != null) {
+                $notification->setEntity($entReps[$objectClassName]->find($notification->getEntityId()));
+                $selectedNotifications[] = $notification;
+            }
+
         }
 
-        // return parent::handleGet();
+        $data = $this->getSerializationHelper()->serialize($selectedNotifications);
+
+        $res = array(
+            'page' => 1,
+            'perPage' => count($selectedNotifications),
+            'hasNextPage' => false,
+            'unpaginatedTotal' => count($selectedNotifications),
+            'paginatedTotal' => count($selectedNotifications),
+            'data' => json_decode($data)
+        );
+
+        return $this->getJsonResponse(json_encode($res));
     }
+
+    /**
+     * @Route("/cryoblock/profile-object-notification/watched-requests/{id}", name="profile_object_notification_watching_get")
+     * @Method("GET")
+     *
+     * @return Response
+     */
+    public function getProfileWatchedAction($id)
+    {
+
+        $em = parent::getEntityManager();
+        $objNotRep = parent::getEntityRepository();
+
+        $notifications = $objNotRep->findBy(array( 'userId' => $id));
+
+        $entReps = array();
+
+        $selectedNotifications = array();
+
+        foreach ($notifications as $notification) {
+
+            $entityDetail = $notification->getLinkedEntityDetail();
+            $objectClassName = $entityDetail->getObjectClassName();
+
+            if (!$entityDetail->getInNotifications() || $notification->getDismissed()) {
+                continue;
+            }
+
+            if (!array_key_exists($objectClassName, $entReps)) {
+                $entReps[$objectClassName] = $em->getRepository($objectClassName);
+            }
+
+            if ($notification->getEntityId() != null) {
+                $notification->setEntity($entReps[$objectClassName]->find($notification->getEntityId()));
+                $selectedNotifications[] = $notification;
+            }
+
+        }
+
+        $data = $this->getSerializationHelper()->serialize($selectedNotifications);
+
+        $res = array(
+            'page' => 1,
+            'perPage' => count($selectedNotifications),
+            'hasNextPage' => false,
+            'unpaginatedTotal' => count($selectedNotifications),
+            'paginatedTotal' => count($selectedNotifications),
+            'data' => json_decode($data)
+        );
+
+        return $this->getJsonResponse(json_encode($res));
+    }
+
+    /**
+     * @Route("/cryoblock/user-object-notification/dismiss-watche-requests", name="user_object_notification_dismiss_all_post")
+     * @Method("POST")
+     *
+     * @return Response
+     */
+    public function dismissAllNotifications()
+    {
+
+        $em = parent::getEntityManager();
+        $objNotRep = parent::getEntityRepository();
+
+        $notifications = $objNotRep->findBy(array( 'user' => $this->getUser()));
+
+        $entReps = array();
+
+        $selectedNotifications = array();
+
+        foreach ($notifications as $notification) {
+
+            $entityDetail = $notification->getLinkedEntityDetail();
+            $objectClassName = $entityDetail->getObjectClassName();
+
+            if (!$entityDetail->getInNotifications() || $notification->getDismissed()) {
+                continue;
+            }
+
+            $notification->setDismissed(true);
+
+        }
+
+        $em->flush();
+
+        $data = array('success' => 'success');
+        return $this->getJsonResponse(json_encode($data));
+
+    }
+
+
 }

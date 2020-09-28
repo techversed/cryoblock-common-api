@@ -14,28 +14,15 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
 {
 
     /*
+
         Important note -- All requests must have an object called requestProjects which is a one to many using a linker table which is specific to that implmentation of this abstract class --
 
-
-         * JMS\VirtualProperty()
-         * JMS\Groups({"default"})
-        public function getProjectString()
-        {
-            $projectNames = [];
-            if ($this->projectRequests && (is_array($this->projectRequests) || is_object($this->projectRequests))) {
-                foreach ($this->projectRequests as $requestProject) {
-                    $projectNames[] = $requestProject->getProject()->getName();
-                }
-                return implode(", ", $projectNames);
-            }
-        }
-
-
     */
 
-    /*
-    * @ORM\OneToMany(targetEntity="AppBundle\Entity\Project\ProjectRequest", mappedBy="request")
-    */
+
+// True if this is a request for work false if it is a record of work that has been done
+
+    // Abstract classes
     abstract public function getRequestProjects();
     abstract public function setRequestProjects($requestProjects);
     abstract public function getProjectString();
@@ -44,12 +31,13 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     abstract public function getOutputSamples();
     abstract public function setOutputSamples($outputSamples);
 
-    /*
-    transient
-    */
+    // Transient
     public $projects;
     public $samples;
+    public $inSamples;
+    public $outSamples;
 
+    // Constants
     const STATUS_PENDING = 'Pending';
     const STATUS_PENDING_PIPELINE = 'Pending-Pipeline';
     const STATUS_PROCESSING = 'Processing';
@@ -74,11 +62,19 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     );
 
     /**
+     * @ORM\Column(name="is_request", nullable=true, type="boolean")
+     * @JMS\Groups({"default"})
+     * @Gedmo\Versioned
+     */
+    protected $isRequest = true; // Implment this later
+
+// Persisted In Database
+    /**
      * @var string $alias
      *
      * @ORM\Column(name="alias", type="string", length=300, nullable=true)
      * @Gedmo\Versioned
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "baseRequest"})
      * @Carbon\Searchable(name="alias")
      */
     protected $alias;
@@ -87,7 +83,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      * @var string $status
      *
      * @ORM\Column(name="status", type="string", nullable=false)
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "baseRequest"})
      * @Gedmo\Versioned
      */
     protected $status;
@@ -97,7 +93,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      *
      * @ORM\Column(name="name", type="string", length=300)
      * @Gedmo\Versioned
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "baseRequest"})
      * @Carbon\Searchable(name="name")
      * @Assert\NotBlank()
      */
@@ -108,7 +104,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      *
      * @ORM\Column(name="description", type="text")
      * @Gedmo\Versioned
-     * @JMS\Groups({"default"})
+     * @JMS\Groups({"default", "baseRequest"})
      * @Carbon\Searchable(name="description")
      * @Assert\NotBlank()
      */
@@ -127,10 +123,7 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
      */
     protected $pipelineStep;
 
-    // Transient;
-    public $inSamples;
-    public $outSamples;
-
+// Getters and setters
     /**
      * Gets the value of alias.
      *
@@ -371,6 +364,93 @@ abstract class BaseRequest extends BaseCryoblockEntity Implements BaseRequestInt
     public function setOutSample($outSample)
     {
         $this->outSample = $outSample;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of inSamples.
+     *
+     * @return mixed
+     */
+    public function getInSamples()
+    {
+        return $this->inSamples;
+    }
+
+    /**
+     * Sets the value of inSamples.
+     *
+     * @param mixed $inSamples the in samples
+     *
+     * @return self
+     */
+    public function setInSamples($inSamples)
+    {
+        $this->inSamples = $inSamples;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of outSamples.
+     *
+     * @return mixed
+     */
+    public function getOutSamples()
+    {
+        return $this->outSamples;
+    }
+
+    /**
+     * Sets the value of outSamples.
+     *
+     * @param mixed $outSamples the out samples
+     *
+     * @return self
+     */
+    public function setOutSamples($outSamples)
+    {
+        $this->outSamples = $outSamples;
+
+        return $this;
+    }
+
+    /**
+     * Sets the Valid statuses.
+     *
+     * @param array $validStatuses the valid statuses
+     *
+     * @return self
+     */
+    public function setValidStatuses(array $validStatuses)
+    {
+        $this->validStatuses = $validStatuses;
+
+        return $this;
+    }
+
+
+    /**
+     * Gets the value of isRequest.
+     *
+     * @return mixed
+     */
+    public function getIsRequest()
+    {
+        return $this->isRequest;
+    }
+
+    /**
+     * Sets the value of isRequest.
+     *
+     * @param mixed $isRequest the is request
+     *
+     * @return self
+     */
+    public function setIsRequest($isRequest)
+    {
+        $this->isRequest = $isRequest;
 
         return $this;
     }

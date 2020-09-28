@@ -51,6 +51,74 @@ abstract class CarbonApiController extends Controller
      *
      * @return Symfony\Component\HttpFoundation\Response response with serialized objects
      */
+    protected function handleMTMGetWithMetaData($type, $id)
+    {
+        $this->checkPermission('GET');
+
+        if (!defined('static::RESOURCE_ENTITY')) {
+            throw new \LogicException('No resource entity is defined. Did you add the RESOURCE_ENTITY const to your resource controller?');
+        }
+
+        if (isset($this->resourceLinkMap) === FALSE) {
+            throw new \LogicException("Property resourceLinkMap must be defined for many to many get");
+        }
+
+        $selectable = (bool) $this->getRequest()->get('cSelectable');
+
+        $map = $this->resourceLinkMap[$type];
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $sub = $this->getEntityManager()->createQueryBuilder();
+
+        $alias = 'a';
+        $subAlias = 'b';
+
+        if ($selectable) {
+
+            echo "This is not implemented yet -- handleMTMGetWithMetaData"; // It would be a really good idea to finish this up at some point -- in order to get this release out it is not an option to finish it now
+            $qb->select(array($alias))->from($map['returnedEntity'], $alias);
+
+            $sub->select($subAlias);
+            $sub->from(static::RESOURCE_ENTITY, $subAlias);
+            $sub->andWhere(sprintf('%s.%s = %s', $subAlias, $map['whereColumn'], $id));
+            $sub->andWhere(sprintf('%s.%s = %s.id', $subAlias, $map['joinColumn'], $alias));
+
+            $qb->andWhere($qb->expr()->not($qb->expr()->exists($sub->getDQL())));
+
+
+        } else {
+
+            // echo "test";
+            $qb->select(array($subAlias))
+                ->from(static::RESOURCE_ENTITY, $subAlias)
+                ->innerJoin($map['returnedEntity'], $alias, Join::WITH, sprintf('%s.%s = %s.id', $subAlias, $map['joinColumn'], $alias))
+                ->where(sprintf('%s.%s = :whereId', $subAlias, $map['whereColumn']))
+                ->setParameter('whereId', $id)
+            ;
+            // $qb->select(array($alias))
+            //     ->from($map['returnedEntity'], $alias)
+            //     ->innerJoin(static::RESOURCE_ENTITY, $subAlias, Join::WITH, sprintf('%s.%s = %s.id', $subAlias, $map['joinColumn'], $alias))
+            //     ->where(sprintf('%s.%s = :whereId', $subAlias, $map['whereColumn']))
+            //     ->setParameter('whereId', $id)
+            // ;
+
+        }
+
+        $results = $this->getGrid()->handleQueryFilters($qb, $alias, $map['returnedEntity']);
+
+        $serialized = $this->getSerializationHelper()->serialize($results);
+
+        return $this->getJsonResponse($serialized);
+    }
+
+    /**
+     * Handle the HTTP GET for a many to many linker object resource
+     *
+     * @param  $type string
+     * @param  $id   int
+     *
+     * @return Symfony\Component\HttpFoundation\Response response with serialized objects
+     */
     protected function handleMTMGet($type, $id)
     {
         $this->checkPermission('GET');
@@ -67,7 +135,7 @@ abstract class CarbonApiController extends Controller
 
         $map = $this->resourceLinkMap[$type];
 
-        $qb = $this->getEntityManager()->createQueryBuilder()   ;
+        $qb = $this->getEntityManager()->createQueryBuilder();
         $sub = $this->getEntityManager()->createQueryBuilder();
 
         $alias = 'a';
@@ -102,6 +170,8 @@ abstract class CarbonApiController extends Controller
 
         return $this->getJsonResponse($serialized);
     }
+
+
 
     /**
      * Default post handling for resource creation
