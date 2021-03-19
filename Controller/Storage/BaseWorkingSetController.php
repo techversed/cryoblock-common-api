@@ -159,14 +159,14 @@ class BaseWorkingSetController extends CarbonApiController
 
         }
 
-        if($num > 0){
+        // if($num > 0){
 
             $em->flush();
             $res = new Response('worked', 200);
             return parent::handleMTMGet("user", $uid);
             // return $res;
 
-        }
+        // }
 
         $res = new Response('Path expects a workingset entry to exist with the given params.', 401);
         return $res;
