@@ -249,7 +249,6 @@ abstract class BaseSample extends BaseCryoblockEntity
     protected $lotId;
 
     // I don't think that I ended up finishing this up.
-    // Don't really need to keep this in the database -- It could probably live in its current location
     /**
      * @var int $lotEntityDetailId
      * @ORM\Column(name="lot_entity_detail_id", type="integer", nullable=true)
