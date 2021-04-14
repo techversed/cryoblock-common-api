@@ -49,10 +49,6 @@ class UserObjectNotificationController extends CarbonApiController
 
         $request = $this->getRequest();
         $requestData = json_decode($request->getContent(), true);
-//
-//         $this->get('logger')->info("Req: " . print_r($request->getContent(), true));
-//         $this->get('logger')->info("Req?!?!?!: " . print_r(gettype($request->getContent()), true));
-//         $this->get('logger')->info("Req2222: " . print_r($requestData['entityDetail']['id'], true));
 
         if (($contentType = $request->getContentType()) !== 'json') {
             return new Response(sprintf(
@@ -67,7 +63,7 @@ class UserObjectNotificationController extends CarbonApiController
         if (!defined('static::FORM_TYPE')) {
             throw new \LogicException('No form type specified. Did you add the FORM_TYPE const to your resource controller?');
         }
-//
+
         $form = $this->createForm(static::FORM_TYPE, $entity);
 
         $form->submit($requestData);
@@ -75,10 +71,7 @@ class UserObjectNotificationController extends CarbonApiController
         if (!$form->isValid()) {
             return $this->getFormErrorResponse($form);
         }
-//
-//         $this->get('logger')->info("Information: " . print_r($entity->getId(), true));
-//         $this->get('logger')->info("Information: " . print_r($entity->getId(), true));
-//         if($requestData['onCreate'])
+
         $newEntity = new UserObjectNotification();
 
         if(array_key_exists('onCreate', $requestData)) {
@@ -91,17 +84,16 @@ class UserObjectNotificationController extends CarbonApiController
             $newEntity->setOnDelete(true);
         }
 
-//         $this->get('logger')->info("MoreInfoShootme: " . print_r($this->getUser(), true));
-//         $this->get('logger')->info("MoreInfoShootme: " . serialize());
-
         $newEntity->setUser($this->getUser());
-        $newEntity->setEntityDetailId(-1);
-//         $newEntity->setEntityDetailId(-1);
-        $newEntity->setLinkedEntityDetail($this->getEntityManager()->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($requestData['entityDetail']['id']));
-        $newEntity->setLinkedEntityDetailId($requestData['entityDetail']['id']);
 
-        $this->get('logger')->info("Information: " . $newEntity->getLinkedEntityDetailId());
-        $this->get('logger')->info("MoreInfoShootme: " . $newEntity->getOnUpdate());
+        if(array_key_exists('entityDetail', $requestData)) {
+            $newEntity->setEntityId(-1);
+            $newEntity->setLinkedEntityDetail($this->getEntityManager()->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($requestData['entityDetail']['id']));
+            $newEntity->setLinkedEntityDetailId($requestData['entityDetail']['id']);
+        } else {
+            $newEntity->setEntityId($requestData['entityId']);
+            $newEntity->setLinkedEntityDetail($this->getEntityManager()->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($requestData['linkedEntityDetail']['id']));
+        }
 
         $this->getEntityManager()->persist($newEntity);
         $this->getEntityManager()->flush();
