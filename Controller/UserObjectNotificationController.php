@@ -87,7 +87,6 @@ class UserObjectNotificationController extends CarbonApiController
         $newEntity->setUser($this->getUser());
 
         if(array_key_exists('entityDetail', $requestData)) {
-            $newEntity->setEntityId(-1);
             $newEntity->setLinkedEntityDetail($this->getEntityManager()->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($requestData['entityDetail']['id']));
             $newEntity->setLinkedEntityDetailId($requestData['entityDetail']['id']);
         } else {
