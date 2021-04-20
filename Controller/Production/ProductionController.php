@@ -12,8 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-// VIOLATIONS -- There are violations in this file -- There should not be anything refering directly to things in the AppBundle becuase those are all implemenation dependant.
-
 class ProductionController extends CarbonApiController
 {
     /**
@@ -35,9 +33,16 @@ class ProductionController extends CarbonApiController
         if ($inputTemplateType === 'EXCEL') {
             return $this->getInputExcelTemplateResponse();
         }
+
+        if ($inputTemplateType === 'GRIDFORM') {
+            return $this->getInputGridformTemplateResponse();
+        }
+
+        return $this->handleError();
+
    }
 
-    /**
+   /**
      * @Route("/production/download-output-template", name="production_output_template_download")
      * @Method("POST")
      *
@@ -57,7 +62,134 @@ class ProductionController extends CarbonApiController
             return $this->getOutputExcelTemplateResponse();
         }
 
+        if ($outputTemplateType === 'GRIDFORM') {
+            return $this->getOutputGridformTemplateResponse();
+        }
+
+        return $this->handleError();
+
     }
+
+
+    protected function handleError()
+    {
+
+        return $this->getJsonResponse($this->getSerializationHelper()->serialize(array('violations' => array(array("Your request did not contain a template type")))), 400);
+
+    }
+
+   private function getOutputGridformTemplateResponse()
+    {
+        $em = $this->getEntityManager();
+        $request = $this->getRequest();
+        $data = json_decode($request->getContent(), true);
+        $totalOutputSamples = $data['totalOutputSamples'];
+        $outputSampleDefaults = $data['outputSampleDefaults'];
+
+        $entDetRepo = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail');
+
+        $gridFormResponse = array();
+
+        if ($outputSampleDefaults == null) {
+            $outputSampleDefaults = [];
+        }
+
+        // If only one default is provided then take the count and clone it $totalOutputSamples times
+        if (!$this->isMultiDimArray($outputSampleDefaults)) {
+            $temp = array();
+            for ($i =0; $i < $totalOutputSamples; $i++) {
+                $temp[] = $outputSampleDefaults;
+            }
+            $outputSampleDefaults = $temp;
+        }
+
+        if (array_key_exists('outputSampleType', $data)) {
+            $outputSampleTypeId = $data['outputSampleType']['id'];
+        } else {
+            $outputSampleTypeId = 1;
+        }
+
+        $importer = $this->container->get('sample.importer'); // This is going to change to grab a genetic importer at some point
+
+        $headers = $importer->getGridFormColumnHeaders();
+        $gridFormResponse['headers'] = $headers;
+
+        // Build this list of initial values and send them back
+        $gridFormResponse['content'] = array();
+
+        // Check if it is for a relation -- if it is then we need to return an object instead of a string
+        // If defaults are provided
+        foreach ($outputSampleDefaults as $osd) {
+
+            // $gridFormResponse[] = $osd;
+            // Loop over the resultset
+
+            foreach ($osd as $key => $value){
+
+                $meta = $headers[$key];
+
+                if ($meta['type'] == 'relation') { // if array key exists would add robustness
+
+                    $entDet = $entDetRepo->find($meta['entityDetailId']); // if array key exists would add robustness
+
+                    if (!is_array($value)) {
+
+                        $specificRepo = $em->getRepository($entDet->getObjectClassName());
+                        $found =  $specificRepo->findBy(array($meta['searchProp'] => $value));
+
+                        if (!$found){
+
+                            $classname = $entDet->getObjectClassName();
+                            $found = new $classname();
+                            $found->setName($value);
+
+                        }
+
+                        $osd[$key] = $found;
+
+                    }
+
+                }
+
+            }
+
+            $gridFormResponse['content'][] = $osd;
+
+        }
+
+        $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
+        $response = $this->getJsonResponse($serialized);
+
+        return $response;
+
+    }
+
+   private function getInputGridformTemplateResponse()
+    {
+        $em = $this->getEntityManager();
+        $request = $this->getRequest();
+        $data = json_decode($request->getContent(), true);
+
+        $prodRequest = $this->getEntityManager()->getRepository($data['entity'])->find($data['id']);
+        $prodRequestInputSamples = $prodRequest->getInputSamples();
+        $importer = $this->container->get('sample.importer');
+
+        // fetch the things
+
+        $gridFormResponse = array();
+
+        $gridFormResponse['headers'] = $importer->getGridFormColumnHeaders();
+
+        $gridFormResponse['content'] = $prodRequestInputSamples;
+
+        $serialized = $this->getSerializationHelper()->serialize($gridFormResponse);
+        $response = $this->getJsonResponse($serialized);
+
+        return $response;
+
+    }
+
+   // End of testing portion
 
     /**
      * @Route("/production/complete", name="production_complete")
@@ -221,6 +353,7 @@ class ProductionController extends CarbonApiController
         foreach ($storageContainers as $storageContainer) {
             $storageContainerNames[] = $storageContainer->getName();
         }
+
         $storageContainerNames = implode(', ', $storageContainerNames);
         $concentrationUnits = implode(', ', array(
             'mg/mL',
@@ -417,6 +550,19 @@ class ProductionController extends CarbonApiController
         return $response;
     }
 
+
+    //check to see if something is a multidimensional array... The objects that we were getting from the front end were unfortunately passing the is_arry check regardless of whether they were objects or arrays of objects...
+    protected function isMultiDimArray($arr)
+    {
+        foreach ($arr as $a)
+        {
+            if (is_array($a)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private function getOutputExcelTemplateResponse()
     {
         $request = $this->getRequest();
@@ -428,12 +574,19 @@ class ProductionController extends CarbonApiController
             $outputSampleDefaults = [];
         }
 
+        if (!$this->isMultiDimArray($outputSampleDefaults)) {
+            $temp = array();
+            for ($i =0; $i < $totalOutputSamples; $i++) {
+                $temp[] = $outputSampleDefaults;
+            }
+            $outputSampleDefaults = $temp;
+        }
+
         if (array_key_exists('id', $data)) {
             $fileName = 'Request ' . $data['id'] . ' Output Samples Template.xls';
         } else {
             $fileName = 'Sample Import Template.xls';
         }
-
 
         $objPHPExcel = new \PHPExcel();
 
@@ -446,16 +599,14 @@ class ProductionController extends CarbonApiController
         $sampleType = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->find($outputSampleTypeId);
 
         $importer = $this->container->get('sample.importer');
-        $sampleTypeMapping = $importer->getMapping($sampleType);
+        $sampleTypeMapping = $importer->getMapping($sampleType); //This does not need an argument... ? ? ?
 
         $currentSample = 0;
 
         $aRange = range('A', 'Z');
         $current = 0;
 
-        // $enumMap = [];
         foreach ($sampleTypeMapping as $label => &$column) {
-
             $objPHPExcel->getActiveSheet()->getColumnDimension($aRange[$current])->setWidth(15);
             $cell = $objPHPExcel->getActiveSheet()->getCell($aRange[$current] . '1');
             $cell->setValue($label);
@@ -464,6 +615,7 @@ class ProductionController extends CarbonApiController
 
             $current++;
         }
+        unset($column); //Dear god why?
 
         $currentSample = 1;
 
@@ -510,7 +662,6 @@ class ProductionController extends CarbonApiController
         while ($currentOutputSampleIndex < $totalOutputSamples) {
 
             $current = 0;
-
             foreach ($sampleTypeMapping as $label => $column) {
 
                 $num = $currentSample + 1;
@@ -611,10 +762,8 @@ class ProductionController extends CarbonApiController
                     $objValidation->setFormula1('"' . $statuses . '"');
 
                 }
-
-                if (array_key_exists($column['prop'], $outputSampleDefaults)) {
-
-                    if (is_array($outputSampleDefaults[$column['prop']])) {
+                if (array_key_exists($column['prop'], $outputSampleDefaults[$currentOutputSampleIndex])) {
+                    if (is_array($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']])) {
                         $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
                         $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
                         $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
@@ -626,12 +775,11 @@ class ProductionController extends CarbonApiController
                         $objValidation->setError('Value is not in list.');
                         $objValidation->setPromptTitle('Pick from list');
                         $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                        $objValidation->setFormula1('"' . implode(', ', $outputSampleDefaults[$column['prop']]) . '"');
-
-                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$column['prop']][0]);
+                        $objValidation->setFormula1('"' . implode(', ', $outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]) . '"');
+                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']][0]);
                     } else {
 
-                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$column['prop']]);
+                        $objPHPExcel->getActiveSheet()->getCell($cell)->setValue($outputSampleDefaults[$currentOutputSampleIndex][$column['prop']]);
 
                     }
 
@@ -644,7 +792,6 @@ class ProductionController extends CarbonApiController
             $currentOutputSampleIndex++;
 
         }
-
         if (array_key_exists('id', $data)) {
             $objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
             $objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
