@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Exception\NotFoundHttpException;
 use Carbon\ApiBundle\Entity\Production\BaseRequest;
 use JMS\Serializer\SerializationContext;
 
+use Carbon\ApiBundle\Entity\UserObjectNotification;
+
 class UserObjectNotificationController extends CarbonApiController
 {
     /**
@@ -43,7 +45,59 @@ class UserObjectNotificationController extends CarbonApiController
      */
     public function handlePost()
     {
-        return parent::handlePost();
+        $this->checkPermission('POST');
+
+        $request = $this->getRequest();
+        $requestData = json_decode($request->getContent(), true);
+
+        if (($contentType = $request->getContentType()) !== 'json') {
+            return new Response(sprintf(
+                'Content type must be json, %s given',
+                $contentType
+            ), 415);
+        }
+
+        $entityClass = $this->getEntityClass();
+        $entity = new $entityClass();
+
+        if (!defined('static::FORM_TYPE')) {
+            throw new \LogicException('No form type specified. Did you add the FORM_TYPE const to your resource controller?');
+        }
+
+        $form = $this->createForm(static::FORM_TYPE, $entity);
+
+        $form->submit($requestData);
+
+        if (!$form->isValid()) {
+            return $this->getFormErrorResponse($form);
+        }
+
+        $newEntity = new UserObjectNotification();
+
+        if(array_key_exists('onCreate', $requestData)) {
+            $newEntity->setOnCreate(true);
+        }
+        if(array_key_exists('onUpdate', $requestData)) {
+            $newEntity->setOnUpdate(true);
+        }
+        if(array_key_exists('onDelete', $requestData)) {
+            $newEntity->setOnDelete(true);
+        }
+
+        $newEntity->setUser($this->getUser());
+
+        if(array_key_exists('entityDetail', $requestData)) {
+            $newEntity->setLinkedEntityDetail($this->getEntityManager()->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($requestData['entityDetail']['id']));
+            $newEntity->setLinkedEntityDetailId($requestData['entityDetail']['id']);
+        } else {
+            $newEntity->setEntityId($requestData['entityId']);
+            $newEntity->setLinkedEntityDetail($this->getEntityManager()->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->find($requestData['linkedEntityDetail']['id']));
+        }
+
+        $this->getEntityManager()->persist($newEntity);
+        $this->getEntityManager()->flush();
+
+        return $this->getJsonResponse($this->getSerializationHelper()->serialize($newEntity));
     }
 
     /**
