@@ -146,8 +146,8 @@ class CatalogListener
 
                 // This will have to be sorted out using entity detail -- there would have to be a column for whether or not an entity should be moved to a new catalog when the catalog is ranamed
                 //VIOLATION -- Antibody sequence is not in common --- we will need to find a way to make this more abstract...
-                // $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sequence\Antibody\AntibodySequence s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
-                // $numUpdated = $query->execute();
+                $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sequence\Antibody\AntibodySequence s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
+                $numUpdated = $query->execute();
 
                 $catIdString = array();
 
