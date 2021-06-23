@@ -100,7 +100,8 @@ class ObjectNotificationListener
             return;
         }
 
-        $creatingUser = $this->tokenStorage->getToken()->getUser();
+        $creatingUser = $entity->getCreatedBy();
+        $updatingUser = $this->tokenStorage->getToken()->getUser();
         $entDet = $em->getRepository('Carbon\ApiBundle\Entity\EntityDetail')->findOneBy(array('objectClassName' => get_class($entity)));
 
         if (!$entDet instanceof EntityDetail) {
@@ -118,6 +119,15 @@ class ObjectNotificationListener
             $creatingUserObjectNotification->setOnUpdate(true);
             $creatingUserObjectNotification->setOnDelete(true);
             $em->persist($creatingUserObjectNotification);
+
+            $updatingUserObjectNotification = new UserObjectNotification();
+            $updatingUserObjectNotification->setEntityId($entity->getId());
+            $updatingUserObjectNotification->setLinkedEntityDetail($entDet);
+            $updatingUserObjectNotification->setUser($updatingUser);
+            $updatingUserObjectNotification->setOnUpdate(true);
+            $updatingUserObjectNotification->setOnDelete(true);
+            $em->persist($updatingUserObjectNotification);
+
             $this->needsFlush = true;
             // $em->flush();
 
@@ -145,7 +155,7 @@ class ObjectNotificationListener
 
         $to = array();
         foreach ($userObjectNotifications as $userObjectNotification) {
-            if ($userObjectNotification->getOnCreate() && $userObjectNotification->getUser() != $creatingUser) {
+            if ($userObjectNotification->getOnCreate() && $userObjectNotification->getUser() != $updatingUser) {
 
                 if (is_object($userObjectNotification->getUser())) {
                     if ($userObjectNotification->getUser()->isEnabled()) {
