@@ -110,11 +110,16 @@ class ObjectNotificationListener
         $entDetId = $entDet->getId();
 
         if($entDet->getAutoWatch() == true) {
-
             $creatingUserObjectNotification = new UserObjectNotification();
             $creatingUserObjectNotification->setEntityId($entity->getId());
             $creatingUserObjectNotification->setLinkedEntityDetail($entDet);
-            $creatingUserObjectNotification->setUser($creatingUser);
+
+            // 2021-06-24 SD - Sloppy fix but w/e. For new Antibody Requests it needs to be watched by the old Protein Expression Creator
+            if($entDetId == 7) {
+                $creatingUserObjectNotification->setUser($entity->getCreatedBy());
+            } else {
+                $creatingUserObjectNotification->setUser($creatingUser);
+            }
             $creatingUserObjectNotification->setOnUpdate(true);
             $creatingUserObjectNotification->setOnDelete(true);
             $em->persist($creatingUserObjectNotification);
