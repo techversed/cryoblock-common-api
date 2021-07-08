@@ -282,6 +282,9 @@ abstract class BaseSample extends BaseCryoblockEntity
 
 
     // Transient
+    /**
+     * @JMS\Groups({"default"})
+     */
     public $sets;
 
     /**
