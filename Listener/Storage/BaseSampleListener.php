@@ -9,6 +9,7 @@ use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
 use Symfony\Bridge\Monolog\Logger;
+use Doctrine\ORM\EntityManager;
 
 class BaseSampleListener
 {
@@ -35,7 +36,7 @@ class BaseSampleListener
             if ($entity instanceof Division) {
 
                 $this->setDivisionStats($entity);
-                $this->setDivisionPath($entity);
+                $this->setDivisionPath($entity, $em);
 
                 $metaDivision = $em->getClassMetadata(get_class($entity));
                 $uow->recomputeSingleEntityChangeSet($metaDivision, $entity);
@@ -54,7 +55,7 @@ class BaseSampleListener
 
             if ($entity instanceof Division) {
 
-                $this->setDivisionPath($entity);
+                $this->setDivisionPath($entity, $em);
 
                 $metaDivision = $em->getClassMetadata(get_class($entity));
                 $uow->recomputeSingleEntityChangeSet($metaDivision, $entity);
@@ -178,7 +179,7 @@ class BaseSampleListener
         }
     }
 
-    private function setDivisionPath(Division $division)
+    private function setDivisionPath(Division $division, EntityManager $em)
     {
         $tree = array();
         $tree[] = $currentDivision = $division;
@@ -195,6 +196,7 @@ class BaseSampleListener
 
         $path = array();
         $idPath = array();
+
         $tree = array_reverse($tree);
 
         unset($tree[0]);
@@ -209,5 +211,18 @@ class BaseSampleListener
 
         $division->setPath($path);
         $division->setIdPath($idPath);
+
+        $uow = $em->getUnitOfWork();
+        $metaDivision = $em->getClassMetadata(get_class($division));
+        $uow->recomputeSingleEntityChangeSet($metaDivision, $division);
+
+        /*
+        Do the same for the children
+        */
+        $rows = $em->getRepository(get_class($division))->findBy(['parentId' => $division->getId()]);
+        foreach($rows as $row) {
+            $this->setDivisionPath($row, $em);
+        }
+
     }
 }
