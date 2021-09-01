@@ -139,6 +139,18 @@ class CatalogListener
 
                 }
 
+                foreach($entity->getSamples() as $sample) {
+                    if(!is_null($entity->getDonor())) {
+                        $sample->setDonor($entity->getDonor());
+                        $uow->recomputeSingleEntityChangeset($metadataSample, $sample);
+                    }
+
+                    if(!is_null($entity->getTarget())) {
+                        $sample->setTarget($entity->getTarget());
+                        $uow->recomputeSingleEntityChangeset($metadataSample, $sample);
+                    }
+                }
+
                 // This call does not work if the catalog is renamed by the earlier thing
                 $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sample s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
                 $numUpdated = $query->execute();
