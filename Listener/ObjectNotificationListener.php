@@ -1,5 +1,4 @@
 <?php
-
 namespace Carbon\ApiBundle\Listener;
 
 use Carbon\ApiBundle\Entity\Production\BaseRequest;
@@ -33,7 +32,6 @@ use AppBundle\Entity\Record\VimSample; // Things which are specific to the Crowe
         User object notifications and user object notificatiosn
         Group object notifications specifies the groups that should be notified with every update and creation.
 
-
     Entity detail also plays a heavy role in the operation of this file. Essentially an EntityDetail entry is a collection of metadata that goes along with each type of entity that defines how the Entity interacts with the various other services that are built into the system.
         The autowatch feature for entity deatil makes it so that the user who creates an entity will automatically watch the entity that is created.
 
@@ -50,6 +48,9 @@ use AppBundle\Entity\Record\VimSample; // Things which are specific to the Crowe
 
 class ObjectNotificationListener
 {
+
+    // protected
+
     public function __construct(CryoblockMailer $mailer, Logger $logger, $mailerUser, $tokenStorage, $frontendUrl, $appName)
     {
         $this->mailer = $mailer;
@@ -86,10 +87,8 @@ class ObjectNotificationListener
 
     public function postPersist(LifecycleEventArgs $args)
     {
-
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
-
         $entity = $args->getEntity();
 
         if ($this->classOrInterfaceIgnored($entity)) {
@@ -111,6 +110,8 @@ class ObjectNotificationListener
 
         if($entDet->getAutoWatch() == true) {
             $creatingUserObjectNotification = new UserObjectNotification();
+            // echo $entity->getId();
+            // die();
             $creatingUserObjectNotification->setEntityId($entity->getId());
             $creatingUserObjectNotification->setLinkedEntityDetail($entDet);
 
@@ -120,26 +121,24 @@ class ObjectNotificationListener
             } else {
                 $creatingUserObjectNotification->setUser($creatingUser);
             }
+
             $creatingUserObjectNotification->setOnUpdate(true);
             $creatingUserObjectNotification->setOnDelete(true);
+
             $em->persist($creatingUserObjectNotification);
             $this->needsFlush = true;
-            // $em->flush();
-
         }
 
         $groupObjectNotification = $em->getRepository('Carbon\ApiBundle\Entity\GroupObjectNotification')
             ->findOneBy(array(
                 'linkedEntityDetailId' => $entDetId
-            ))
-        ;
+            ));
 
         $userObjectNotifications = $em->getRepository('Carbon\ApiBundle\Entity\UserObjectNotification')
             ->findBy(array(
                 'linkedEntityDetailId' => $entDetId,
                 'entityId' => null
-            ))
-        ;
+            ));
 
         $groups = array();
         if ($groupObjectNotification && $onCreateGroup = $groupObjectNotification->getOnCreateGroup()) {
@@ -215,7 +214,6 @@ class ObjectNotificationListener
             $from,
             $groups
         );
-
     }
 
     public function postUpdate(LifecycleEventArgs $args)
@@ -284,7 +282,6 @@ class ObjectNotificationListener
 
                 $url = $userObjectNotification->getLinkedEntityDetail()->getObjectUrl();
                 $objectDescription = $userObjectNotification->getLinkedEntityDetail()->getObjectDescription();
-
             }
         }
 
@@ -299,7 +296,6 @@ class ObjectNotificationListener
 
                 $url = $watchingUserNotification->getLinkedEntityDetail()->getObjectUrl();
                 $objectDescription = $watchingUserNotification->getLinkedEntityDetail()->getObjectDescription();
-
             }
         }
 
@@ -493,7 +489,5 @@ class ObjectNotificationListener
             $this->needsFlush = false;
             $em->flush();
         }
-
     }
-
 }
