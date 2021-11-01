@@ -485,6 +485,15 @@ class ProductionController extends CarbonApiController
             $storageContainerNames[] = $storageContainer->getName();
         }
         $storageContainerNames = implode(', ', $storageContainerNames);
+
+        $sampleTypes = $this->getEntityManager()->getRepository('AppBundle\\Entity\\Storage\\SampleType')->findAll();
+
+        $sampleTypeNames = array();
+        foreach ($sampleTypes as $sampleType) {
+            $sampleTypeNames[] = $sampleType->getName();
+        }
+        $sampleTypeNames = implode(', ', $sampleTypeNames);
+
         $concentrationUnits = implode(', ', array(
             'mg/mL',
             'ng/uL',
@@ -562,6 +571,23 @@ class ProductionController extends CarbonApiController
 
                 }
 
+
+                if ($label == 'Sample Type') {
+
+                    $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
+                    $objValidation->setType( \PHPExcel_Cell_DataValidation::TYPE_LIST );
+                    $objValidation->setErrorStyle( \PHPExcel_Cell_DataValidation::STYLE_INFORMATION );
+                    $objValidation->setAllowBlank(false);
+                    $objValidation->setShowInputMessage(true);
+                    $objValidation->setShowErrorMessage(true);
+                    $objValidation->setShowDropDown(true);
+                    $objValidation->setErrorTitle('Input error');
+                    $objValidation->setError('Value is not in list.');
+                    $objValidation->setPromptTitle('Pick from list');
+                    $objValidation->setPrompt('Please pick a value from the drop-down list.');
+                    $objValidation->setFormula1('"'.$sampleTypeNames.'"');
+
+                }
                 if ($label == 'Concentration Units') {
 
                     $objValidation = $objPHPExcel->getActiveSheet()->getCell($cell)->getDataValidation();
