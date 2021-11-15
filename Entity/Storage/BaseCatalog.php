@@ -74,6 +74,12 @@ abstract class BaseCatalog extends BaseCryoblockEntity
     protected $samples;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Storage\Sequence\Antibody\AntibodySequence", mappedBy="catalog")
+     * @JMS\Groups({"filledSlots"})
+     */
+    protected $antibodySequences;
+
+    /**
      * Gets the value of name.
      *
      * @return string
@@ -278,6 +284,30 @@ abstract class BaseCatalog extends BaseCryoblockEntity
     public function setSamples($samples)
     {
         $this->samples = $samples;
+
+        return $this;
+    }
+
+    /**
+     * Gets the value of antibodySequences.
+     *
+     * @return mixed
+     */
+    public function getAntibodySequences()
+    {
+        return $this->antibodySequences;
+    }
+
+    /**
+     * Sets the value of antibodySequences.
+     *
+     * @param mixed $antibodySequences the antibody sequence
+     *
+     * @return self
+     */
+    public function setAntibodySequences($antibodySequences)
+    {
+        $this->antibodySequences = $antibodySequences;
 
         return $this;
     }

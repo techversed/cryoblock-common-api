@@ -151,6 +151,18 @@ class CatalogListener
                     }
                 }
 
+                foreach($entity->getAntibodySequences() as $sequence) {
+                    if(!is_null($entity->getDonor())) {
+                        $sequence->setDonor($entity->getDonor());
+                        $uow->recomputeSingleEntityChangeset($metadataSample, $sequence);
+                    }
+
+                    if(!is_null($entity->getTarget())) {
+                        $sequence->setTarget($entity->getTarget());
+                        $uow->recomputeSingleEntityChangeset($metadataSample, $sequence);
+                    }
+                }
+
                 // This call does not work if the catalog is renamed by the earlier thing
                 $query = $em->createQuery('UPDATE AppBundle\Entity\Storage\Sample s SET s.catalogId = ' . (string) $minId .  ' where s.catalogId in (' .  implode(', ', $catIdList) . ') ');
                 $numUpdated = $query->execute();
