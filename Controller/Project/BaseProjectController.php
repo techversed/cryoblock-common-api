@@ -34,7 +34,6 @@ abstract class BaseProjectController extends CarbonApiController
         ),
         'PUT' => array(
             'roles' => array('ROLE_USER'),
-            'roles' => array('ROLE_PROJECT_ADMIN'),
             'allow_creator' => true,
         ),
         'DELETE' => array(
