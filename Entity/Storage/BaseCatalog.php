@@ -311,4 +311,16 @@ abstract class BaseCatalog extends BaseCryoblockEntity
 
         return $this;
     }
+
+    /**
+     * @JMS\VirtualProperty()
+     * @JMS\Groups({"default"})
+     */
+    public function getSequenceCount()
+    {
+
+        $sequenceCount = count($this->getAntibodySequences());
+
+        return $sequenceCount;
+    }
 }
